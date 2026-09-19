@@ -1,555 +1,77 @@
-# Tres aplicaciones de IA para la oficina
+# Proyectos de IA para la oficina
 
-Este repositorio contiene **tres aplicaciones independientes**, cada una con su propio
-servidor, su propia base de datos y su propia interfaz. Se instalan juntas y se
-ejecutan por separado (pueden correr a la vez).
+Este repositorio contiene **cuatro proyectos independientes**, uno por reto. **No son un
+solo producto**: cada uno se instala, se ejecuta, se documenta y se entrega por separado.
 
-| Aplicación | Qué hace | Cómo se arranca | Puerto |
-|---|---|---|---|
-| **OfficeVision AI** | Análisis de video con IA: cámara de la PC, videos y cámaras IP; personas, objetos, zonas críticas y alertas | `python run.py` | 8000 |
-| **DocuFlow AI** | Clasificación, nombramiento y archivado automático de documentos | `python run_documentos.py` | 8100 |
-| **Directorio vivo** | Contactos que se arman solos con las llamadas, los documentos y la nómina; búsqueda por teléfono, expediente o papel | `python run_contactos.py` | 8200 |
-
-```bash
-pip install -r requirements.txt     # dependencias de las tres
-
-python run.py                       # aplicación de video      → http://127.0.0.1:8000
-python run_documentos.py            # aplicación de documentos → http://127.0.0.1:8100
-python run_contactos.py             # aplicación de contactos  → http://127.0.0.1:8200
-
-python run_pruebas.py               # pruebas de carga de las tres (~8 min)
-```
-
-Capturas y resultados de una ejecución real: [`docs/DEMOSTRACION.md`](docs/DEMOSTRACION.md).
-Mapa de entregables y criterios: [`docs/ENTREGABLES.md`](docs/ENTREGABLES.md).
-
----
-
-# OfficeVision AI — Análisis de video con IA
-
-Aplicación web lista para ejecutar que analiza **la cámara de tu PC** y **videos que subas**,
-**reconoce personas y objetos** (cada uno con su propio identificador de seguimiento),
-**detecta solo las zonas críticas del espacio** —no vienen impuestas— y va **llenando una
-base de datos** con lo que pasó y lo que está pasando: ocupación, entradas y salidas,
-permanencia, inventario de objetos, alertas y resúmenes periódicos.
-
-Además cruza esos datos de video con la **operación real de la oficina**: marcajes del
-biométrico (`Datos_Biometrico_2.xlsx`) e historial de llamadas de RingCentral
-(`RingCentral_History.xlsx`).
-
----
-
-## 1. Puesta en marcha (3 pasos)
+| Reto | Proyecto | Qué hace | Cómo se arranca | Puerto |
+|---|---|---|---|---|
+| **4** | **OfficeVision AI** | Análisis de video con IA: cámara de la PC, videos y cámaras IP; personas, objetos, zonas críticas y alertas | `python run.py` | 8000 |
+| **5** | **DocuFlow AI** | Clasificación, nombramiento y archivado automático de documentos | `python run_documentos.py` | 8100 |
+| **6** | **Directorio vivo** | Contactos que se arman solos con las llamadas, los documentos y la nómina | `python run_contactos.py` | 8200 |
+| **7** | **Pruebas de carga** | Tráfico simulado, carga, resistencia y tolerancia a errores sobre los otros tres | `python run_pruebas.py` | — |
 
 ```bash
-# 1) Dependencias
-pip install -r requirements.txt
-
-# 2) Verificar el entorno (opcional pero recomendado)
-python run.py --check
-
-# 3) Arrancar
-python run.py
+pip install -r requirements.txt     # dependencias comunes, una sola vez
 ```
 
-Se abre solo en <http://127.0.0.1:8000>. No hace falta configurar nada más: la base de datos
-SQLite, las zonas de ejemplo y los datos operativos de `sample_data/` se cargan en el primer
-arranque. El modelo YOLO (5 MB) se descarga automáticamente la primera vez y queda guardado
-en `models/`.
+## Cada reto, por separado
 
-| Comando | Para qué sirve |
-|---|---|
-| `python run.py` | Arranca la app y abre el navegador |
-| `python run.py --port 9000` | Otro puerto |
-| `python run.py --host 0.0.0.0` | Accesible desde otras máquinas de la red |
-| `python run.py --check` | Diagnóstico de dependencias y del detector activo |
-| `python scripts/video_demo.py` | Genera un video sintético de prueba en `data/uploads/` |
-
-> **Instalación ligera (sin PyTorch):** `pip install -r requirements-lite.txt`.
-> La app sigue funcionando con el detector de movimiento o con un modelo `.onnx`
-> que coloques en `models/`.
-
-### Requisitos
-* Python 3.9 – 3.12
-* ~1.5 GB de disco para PyTorch + YOLO (o ~150 MB en modo ligero)
-* Navegador moderno (Chrome, Edge o Firefox). Para usar la cámara de la PC, el navegador
-  exige contexto seguro: `localhost` funciona directamente; si sirves en otra máquina usa
-  HTTPS o habilita el origen como seguro.
-
----
-
-## 2. Qué hace cada pantalla
-
-| Pantalla | Contenido |
-|---|---|
-| **Dashboard** | KPIs (personas ahora, ocupación promedio, pico, permanencia, eventos, alertas), ocupación en el tiempo, actividad por hora, ocupación por zona, tipos de evento, **objetos reconocidos**, alertas y últimos eventos |
-| **Cámara en vivo** | Captura la webcam, dibuja personas y objetos con su ID sobre el video, muestra ocupación por zona, **inventario de objetos** en tiempo real y el flujo de eventos. También conecta una cámara del servidor o **IP/RTSP** |
-| **Videos** | Subida por arrastre (multi-archivo), procesamiento en segundo plano con barra de progreso, resultado por sesión con métricas, zonas, eventos, personas seguidas y **video anotado descargable** |
-| **Puntos críticos** | **Detección automática de zonas** (por escena o por actividad) + editor manual sobre un fondo tomado de la cámara o de una imagen; aforo, permanencia, tipo de zona, clases a reconocer y reglas globales |
-| **Operación** | Cruce de la cámara con el biométrico y las llamadas: demanda vs. personal por hora, hallazgos automáticos, asistencia del día y retrasos |
-| **Reportes** | Todos los eventos filtrables (rango, severidad, tipo, sesión, texto), personas seguidas, evidencia visual y exportación CSV |
-
----
-
-## 3. Enfoque de visión por computadora
-
-El pipeline es **detección → seguimiento → geometría de zonas → reglas → persistencia**.
-Cada cuadro analizado recorre estas etapas:
-
-```
-Cuadro (webcam o video)
-   │
-   ├─▶ 1. DETECCIÓN         YOLO11n (Ultralytics) · ONNX vía OpenCV DNN · MOG2 (respaldo)
-   │                        Clases: person + laptop, cell phone, chair, backpack, cup, tv…
-   │
-   ├─▶ 2. SEGUIMIENTO       Tracker propio por IoU + centroides (app/vision/tracker.py)
-   │                        Dos instancias: personas (P<sesión>-0001…) y objetos
-   │                        (P<sesión>-O-0001…). IDs anónimos, confirmación por
-   │                        min_hits y cierre por max_age
-   │
-   ├─▶ 3. ZONAS             Polígonos normalizados (0..1) · punto de contacto con el piso
-   │                        Entradas, salidas, ocupación instantánea y permanencia por track
-   │                        Las zonas se pueden detectar automáticamente (ver 3.1)
-   │
-   ├─▶ 4. REGLAS            Personas: aforo, permanencia excesiva, aglomeración, zona
-   │                        inactiva, actividad fuera de horario
-   │                        Objetos: objeto nuevo, objeto retirado, objeto de valor sin
-   │                        supervisión
-   │
-   └─▶ 5. PERSISTENCIA      Eventos al instante · foto de estado cada N s ·
-                            resumen narrado cada minuto · tracks al cerrarse
-```
-
-**Decisiones técnicas y por qué:**
-
-* **Detección por modelo, no por movimiento.** YOLO11n da cajas y clase con ~19–22 fps en CPU,
-  suficiente para vigilancia operativa, y distingue personas de objetos y de cambios de luz,
-  que es el punto débil de la sustracción de fondo.
-* **Tracker propio en lugar del tracker del modelo.** Así el seguimiento es idéntico con
-  cualquier backend (YOLO, ONNX o movimiento) y controlamos el ciclo de vida del track, que
-  es lo que permite medir permanencia y trayectoria. Asociación *greedy* por IoU con
-  confirmación (`min_hits`) para evitar falsos positivos y tolerancia a oclusiones
-  (`max_age`).
-* **Punto de contacto con el piso.** Para decidir si alguien está en una zona se usa el centro
-  del borde inferior de la caja, no el centroide: es mucho más estable en perspectiva.
-* **Coordenadas normalizadas.** Las zonas se guardan en 0..1, por lo que las mismas zonas
-  sirven para la webcam, para un video 4K o para una cámara IP sin volver a dibujarlas.
-* **Reloj de video vs. reloj de pared.** En videos, la permanencia se mide en *tiempo de video*
-  (aunque se procese 10× más rápido) y el sello de tiempo se reconstruye desde el inicio de la
-  sesión; en vivo se usa el reloj monótono. Las métricas son comparables entre ambos modos.
-* **Degradación garantizada.** Si falta PyTorch o no hay red, el detector cae a ONNX y luego a
-  MOG2. La app nunca queda inutilizable, solo cambia la precisión (el backend activo siempre
-  se muestra en pantalla).
-
-### Reconocimiento de objetos, no solo de personas
-
-Por defecto el sistema **reconoce las 80 clases que conoce el modelo y las nombra en
-español**: persona, laptop, silla, mochila, mesa, pantalla, taza, mochila, celular… En
-cada cuadro produce una frase legible de lo que ve —*"3 personas y 2 tazones"*— que
-aparece en la pantalla *Cámara en vivo*, en el resumen de cada video y en los resúmenes
-periódicos que se guardan en la base.
-
-Los nombres en español viven en `app/vision/labels.py`, con singular y plural correctos;
-en la base de datos se guarda siempre la clase original del modelo (`bowl`), que es la
-clave estable, y la traducción se aplica al mostrarla. En *Puntos críticos* se puede
-desactivar "reconocer todo" y limitar la búsqueda a las clases que marques, útil en
-escenas muy cargadas.
-
-Cada objeto detectado:
-
-* recibe su **propio identificador de seguimiento** (`P7-O-0003`) y se guarda en `tracks`
-  con su duración en escena y las zonas por las que pasó;
-* alimenta un **inventario** en vivo (cuántos hay ahora y cuántos distintos se han visto);
-* dispara tres reglas propias:
-
-| Evento | Cuándo |
-|---|---|
-| `objeto_nuevo` | Aparece un objeto que no estaba al inicio de la escena (tras un periodo de calentamiento, para no anunciar el mobiliario fijo) |
-| `objeto_retirado` | Un objeto que llevaba más de 10 s en escena deja de verse |
-| `objeto_sin_supervision` | Una laptop, mochila, bolso, maleta o teléfono queda sin ninguna persona en un radio configurable durante más de N minutos |
-
-Las reglas de aforo y aglomeración siguen contando **solo personas**: los objetos no
-inflan la ocupación.
-
-### 3.1 Detección automática de puntos críticos
-
-Las zonas no tienen por qué dibujarse a mano ni quedarse en las de ejemplo. El botón
-*Detectar* de la pantalla **Puntos críticos** las propone de dos formas
-(`app/vision/autozones.py`):
-
-* **Por escena** — se detectan los elementos del lugar (sillas, mesas, monitores, laptops,
-  personas) en una foto o en 6 cuadros repartidos de un video, se proyectan a una rejilla
-  de 128×72, se dilatan para unir lo que está contiguo y cada componente conexa se
-  convierte en polígono. El nombre sale de lo que domina el grupo: mesa grande + sillas +
-  pantalla → *Sala de juntas*; sillas + laptops → *Área de trabajo*.
-* **Por actividad** — se acumulan las trayectorias ya guardadas en un mapa de calor y se
-  separan dos comportamientos con dos señales independientes: **densidad** (muestras por
-  celda: quedarse concentra muestras) y **velocidad** (celdas recorridas por muestra: pasar
-  las dispersa). Alta densidad → *Área de permanencia*; alta velocidad y baja densidad →
-  *Pasillo / Acceso*.
-
-Cada propuesta llega con su **justificación** ("4x chair, 1x dining table, 1x tv" o
-"corredor de paso: 3.0 celdas por muestra"), un aforo y un umbral de permanencia
-sugeridos. Se dibujan punteadas sobre el editor y **no se guardan hasta que se aceptan**:
-el sistema propone, la persona decide.
-
-### Modelos, librerías y herramientas
-
-| Componente | Tecnología | Rol |
+| Reto | Documento único de ese proyecto | Demostración con capturas |
 |---|---|---|
-| Detección | **Ultralytics YOLO11n** (COCO, 80 clases) | Detección y nombrado de personas y objetos |
-| Nombres | `app/vision/labels.py` | Traducción al español con singular/plural y frase de escena |
-| Detección alterna | **OpenCV DNN + ONNX** | Mismo modelo sin PyTorch |
-| Respaldo sin modelo | **OpenCV MOG2 + contornos** | Funciona offline, sin descargas |
-| Seguimiento | Implementación propia (IoU + centroides) | IDs anónimos, permanencia, trayectoria |
-| Geometría | `cv2.pointPolygonTest` | Pertenencia a zonas poligonales |
-| Backend | **FastAPI + Uvicorn** (REST + WebSocket) | API y streaming de análisis |
-| Base de datos | **SQLite (WAL)** | Persistencia sin servidor |
-| Zonas automáticas | OpenCV (rejilla, componentes conexas, `approxPolyDP`) | Propuesta de puntos críticos |
-| Frontend | HTML + CSS + JS puro, gráficas en `<canvas>` propias | Sin CDNs: funciona offline, tema claro/oscuro |
-| Datos operativos | **openpyxl** | Importación de biométrico y RingCentral |
+| 4 | [`docs/RETO4_VIDEO.md`](docs/RETO4_VIDEO.md) | [`docs/DEMO_VIDEO.md`](docs/DEMO_VIDEO.md) |
+| 5 | [`docs/RETO5_DOCUMENTOS.md`](docs/RETO5_DOCUMENTOS.md) | [`docs/DEMO_DOCUMENTOS.md`](docs/DEMO_DOCUMENTOS.md) |
+| 6 | [`docs/RETO6_CONTACTOS.md`](docs/RETO6_CONTACTOS.md) | [`docs/DEMO_CONTACTOS.md`](docs/DEMO_CONTACTOS.md) |
+| 7 | [`docs/RETO7_PRUEBAS.md`](docs/RETO7_PRUEBAS.md) | incluida en el mismo documento |
 
----
+Cada uno de esos documentos **se lee solo**: lleva sus propias instrucciones de
+instalación y ejecución, su enfoque técnico, sus resultados medidos y sus limitaciones.
+No hace falta leer los demás.
 
-## 4. Flujo de procesamiento de video
+Mapa de entregables y criterios de evaluación, reto por reto:
+[`docs/ENTREGABLES.md`](docs/ENTREGABLES.md).
 
-**Cámara en vivo (navegador).** El navegador captura la webcam, reduce el cuadro a la
-resolución elegida (480/640/960 px), lo comprime a JPEG y lo envía por **WebSocket**. El
-servidor analiza y responde con un JSON (detecciones normalizadas, zonas, métricas, eventos)
-que el navegador dibuja sobre el video. El envío es *pull*: solo se manda un cuadro nuevo
-cuando llegó la respuesta del anterior, así nunca se acumula retraso. **No se guarda el video**,
-solo métricas y capturas de eventos críticos.
+## Qué comparten y qué no
 
-**Videos subidos.** Se guardan en `data/uploads/` y se procesan en un pool de hilos
-(2 simultáneos por defecto). Se aplica **muestreo de cuadros**: si el video es de 25 fps y el
-objetivo de análisis son 6 fps, se analiza 1 de cada 4 cuadros. Esto permite procesar videos
-largos rápido sin perder eventos, porque la permanencia se mide en tiempo de video. En
-paralelo se genera un **video anotado** con zonas, cajas, IDs y rostros difuminados (si hay
-`ffmpeg` en el sistema se reconvierte a H.264 para verlo dentro del navegador).
+Los cuatro viven en el mismo repositorio porque se instalan con el mismo
+`requirements.txt`, pero **están separados de verdad**:
 
-**Cámara IP / RTSP.** `POST /api/camera/start` con `{"source": "rtsp://usuario:clave@ip:554/stream"}`
-abre la fuente en el servidor y publica un stream MJPEG anotado en `/api/camera/stream`.
+* Cada proyecto tiene **su propio servidor, su propia base de datos y su propia
+  configuración** (`config.json`, `config_documentos.json`, `config_contactos.json`).
+* Los tres primeros **pueden correr a la vez o por separado**, en puertos distintos.
+* **Ninguno importa código de otro.**
+* La única conexión es opcional y de una sola dirección: el Reto 6 puede leer la base del
+  Reto 5 **en modo sólo lectura** para saber quién es quién en cada expediente. Si esa
+  base no existe, el Reto 6 funciona igual y lo dice.
+* El Reto 7 es el único que, por definición, necesita a los otros: son el sistema que
+  pone a prueba.
 
----
-
-## 5. Puntos críticos y métricas generadas
-
-**Zonas** (editables en la pantalla *Puntos críticos*): nombre, tipo (`area`, `acceso`,
-`restringida`), polígono, **aforo máximo**, **mínimo de personas** con su tolerancia y
-umbral de permanencia. El mínimo es lo que convierte una zona en un *puesto que debe
-estar atendido*: con `min_occupancy = 1`, la recepción que se queda sola dispara una
-alerta y, al volver a cubrirse, el sistema registra cuántos minutos estuvo sin nadie
-(acumulados por zona en el dashboard, columna *Sin cubrir*).
-Zonas precargadas: Recepción, Área de trabajo, Sala de juntas y Pasillo / Acceso.
-
-**Eventos que se registran**
-
-| Tipo | Severidad | Cuándo se dispara |
-|---|---|---|
-| `zone_enter` / `zone_exit` | info | Una persona entra o sale de una zona (con permanencia acumulada) |
-| `permanencia_excesiva` | warning / critical | Supera el umbral de minutos dentro de la zona |
-| `aforo_excedido` | critical | La ocupación instantánea supera el máximo de la zona |
-| `aglomeracion` | critical | Más de N personas simultáneas en el encuadre |
-| `zona_inactiva` | warning | Zona sin actividad durante el horario laboral |
-| `puesto_desatendido` | critical / warning | La zona baja de su **mínimo de personas** más tiempo del tolerado (recepción sin nadie, sala con menos gente de la requerida). Crítico si queda vacía |
-| `puesto_atendido` | info | La zona vuelve a cubrirse, indicando cuánto tiempo estuvo sin cubrir |
-| `objeto_nuevo` | info | Aparece en escena un objeto que antes no estaba, nombrado en español ("Reconocido en escena: mochila (P4-O-0003) en Recepción") |
-| `objeto_retirado` | info / warning | Un objeto deja de verse (warning si es de valor) |
-| `objeto_sin_supervision` | warning | Objeto de valor sin ninguna persona cerca |
-| `actividad_fuera_horario` | warning | Presencia detectada fuera de la jornada configurada |
-| `resumen` | info | Cada minuto: promedio y pico de personas, entradas por zona, eventos y alertas |
-
-**Métricas disponibles**: personas simultáneas (instantánea, promedio y pico), personas únicas
-(tracks confirmados), permanencia por persona y por zona, entradas/salidas por zona,
-ocupación vs. aforo, índice de movimiento (proporción de píxeles que cambian), fps de
-procesamiento y latencia por cuadro, **objetos únicos por clase con su permanencia en
-escena** e inventario instantáneo.
-
----
-
-## 6. Base de datos
-
-SQLite en `data/officevision.db` (modo WAL, escrituras serializadas entre hilos).
-
-| Tabla | Contenido |
-|---|---|
-| `sources` / `sessions` | Cada cámara o video analizado, con estado, progreso y métricas finales |
-| `snapshots` | Foto del estado cada N segundos: personas, objetos, movimiento, ocupación por zona |
-| `tracks` | Una fila por persona seguida: duración, cuadros, confianza, distancia recorrida, permanencia por zona y trayectoria |
-| `events` | Entradas/salidas, alertas y resúmenes, con severidad, zona, ID de track y evidencia |
-| `zones` | Puntos críticos configurados |
-| `employees` / `attendance` | Nómina y marcajes del biométrico |
-| `calls` | Historial de llamadas de RingCentral |
-
-Todo es exportable a CSV desde *Reportes* o vía `GET /api/export/{events,snapshots,tracks,operacion}.csv`.
-
----
-
-## 7. Integración y escalabilidad
-
-* **API REST documentada** (OpenAPI en `/docs`): todo lo que hace la interfaz está disponible
-  como endpoint, listo para un dashboard externo, un ERP o un bot de alertas.
-* **WebSocket** `/ws/live` para consumir el análisis cuadro a cuadro desde otra aplicación.
-* **Más cámaras**: cada sesión es independiente (detector, tracker y zonas propios). Se pueden
-  abrir varias pestañas en vivo o varias fuentes RTSP; los hilos de video se limitan con
-  `max_concurrent_jobs`.
-* **Más modelos**: `app/vision/detector.py` es un registro de backends. Añadir un modelo nuevo
-  (pose, EPP, ocupación de escritorios, conteo de vehículos) es implementar `detect()` y
-  devolver `Detection`. Todo lo demás —tracking, zonas, reglas, base de datos— se reutiliza.
-* **Más clases sin tocar código**: el selector de clases de la pantalla *Puntos críticos*
-  cambia en caliente qué elementos se reconocen, de las 80 clases del modelo.
-* **Nuevo espacio físico**: en una cámara nueva, la detección automática de zonas propone
-  los puntos críticos en segundos en lugar de redibujarlos a mano.
-* **Migrar a otro motor de datos**: las escrituras pasan por `app/db.py`; cambiar SQLite por
-  PostgreSQL o TimescaleDB es sustituir esa capa.
-* **GPU**: `"device": "0"` en `config.json` (o desde `POST /api/config`) usa CUDA sin tocar código.
-
----
-
-## 8. Privacidad y seguridad
-
-* **Sin reconocimiento facial y sin identificación de personas.** Los IDs (`P3-0007`) son
-  anónimos y se reinician en cada sesión: sirven para contar y medir, no para identificar.
-* **No se almacena video de la cámara en vivo.** Solo métricas, y capturas JPG **únicamente**
-  en eventos de severidad warning o critical.
-* **Difuminado de rostros** activado por defecto en toda imagen anotada (`blur_faces`).
-* **Retención configurable**: las capturas se borran automáticamente a los 15 días
-  (`snapshot_retention_days`).
-* **Todo queda en local**: no hay servicios externos ni telemetría; la app escucha en
-  `127.0.0.1` salvo que se pida lo contrario.
-* Los datos de nómina, asistencia y llamadas viven en la misma base local; si se expone el
-  servidor en red conviene ponerlo detrás de un proxy con autenticación.
-
----
-
-## 9. Rendimiento medido
-
-Medido en este proyecto sobre CPU de 4 núcleos, sin GPU:
-
-| Resolución | YOLO11n | Modo movimiento |
-|---|---|---|
-| 640×360 | 52 ms/cuadro (**19 fps**) | 8 ms (124 fps) |
-| 960×540 | 53 ms/cuadro (**19 fps**) | 19 ms (53 fps) |
-| 1280×720 | 44 ms/cuadro (**22 fps**) | 34 ms (29 fps) |
-
-Un video de 30 s a 20 fps (600 cuadros) se procesa con muestreo a 6 fps en ~13 s, generando
-video anotado, 200 cuadros analizados, tracks, eventos y resúmenes. La latencia extremo a
-extremo en vivo (captura → análisis → dibujo) se mantiene por debajo de 100 ms en 640 px.
-
----
-
-## 10. Limitaciones y mejoras futuras
-
-**Limitaciones actuales**
-* Una cámara mal ubicada (contrapicado extremo, mucha oclusión) degrada el conteo: el tracker
-  puede dividir una persona en dos IDs tras una oclusión larga.
-* El modo de respaldo por movimiento cuenta de más cuando hay cambios de iluminación.
-* Sin re-identificación entre cámaras: una persona que pasa de una cámara a otra es un track nuevo.
-* El cruce con el biométrico es a nivel agregado por hora (por diseño: no se identifica a nadie).
-
-* La detección automática de zonas propone, no adivina la intención del negocio: un
-  pasillo muy transitado y una fila de espera se parecen mucho en los datos.
-* El reconocimiento de objetos hereda los límites del modelo COCO: reconoce categorías
-  genéricas (laptop, silla, mochila), no modelos ni pertenencias concretas.
-
-**Mejoras previstas**
-* Re-identificación por apariencia (OSNet/FastReID) para trayectorias entre cámaras.
-* Mapa de calor acumulado y planos en planta (homografía) para métricas en metros.
-* Detección de posturas (caídas, personas en el piso) y de EPP con un modelo secundario.
-* Alertas salientes por correo, Teams o webhook, y agregados por turno en tablas materializadas.
-* Modelo más grande (`yolo11s/m`) o GPU para escenas con mucha gente.
-
----
-
-## 11. Estructura del proyecto
+## Estructura
 
 ```
 proyectos-IA/
-├── run.py                     OfficeVision AI (video): arranque y diagnóstico
-├── run_documentos.py          DocuFlow AI (documentos): arranque y diagnóstico
-├── requirements.txt           Dependencias (lite en requirements-lite.txt)
-├── config.json                Configuración (se crea sola, editable en caliente)
-├── app/
-│   ├── main.py                App FastAPI, páginas y arranque
-│   ├── api.py                 API REST + WebSocket
-│   ├── pipeline.py            Analyzer: cuadro → eventos → base de datos
-│   ├── workers.py             Cámara en vivo, cámara IP y trabajos de video
-│   ├── business.py            Biométrico + RingCentral y análisis cruzado
-│   ├── db.py                  Esquema y acceso a SQLite
-│   ├── config.py              Configuración persistente
-│   ├── vision/
-│   │   ├── detector.py        Backends YOLO / ONNX / movimiento
-│   │   ├── tracker.py         Seguimiento multi-objeto (personas y objetos)
-│   │   ├── labels.py          Nombres en espanol de las 80 clases
-│   │   ├── autozones.py       Deteccion automatica de puntos criticos
-│   │   └── zones.py           Polígonos, aforo y permanencia
-│   ├── templates/             6 páginas (Jinja2)
-│   └── static/                CSS y JS (gráficas propias en canvas)
-├── docsai/                    DocuFlow AI: aplicación de documentos completa
-│   ├── main.py · api.py       Servidor, páginas y endpoints propios
-│   ├── config.py · db.py      Configuración y base de datos propias
-│   ├── extract.py             Texto de PDF, DOCX, imágenes, correos (+OCR)
-│   ├── entities.py            Expediente, fechas, partes, montos, emisor
-│   ├── classify.py            Reglas ponderadas + Naive Bayes entrenable
-│   ├── naming.py              Convención de nombres y carpetas
-│   ├── pipeline.py            Flujo completo y cola de trabajo
-│   └── templates/ · static/   Interfaz propia
-├── contactos/                 Directorio vivo: aplicación de contactos completa
-│   ├── main.py · api.py       Servidor, siete páginas y endpoints propios
-│   ├── config.py · db.py      Configuración y base de datos propias
-│   ├── modelo.py              Personas, identificadores, casos e hitos
-│   ├── fuentes.py             Importa nómina, llamadas y documentos
-│   ├── busqueda.py            Una sola caja, con el porqué de cada resultado
-│   ├── duplicados.py          Detección explicada y fusión reversible
-│   ├── extraccion.py          Alta pegando una firma de correo
-│   └── templates/ · static/   Interfaz propia
-├── scripts/video_demo.py      Generador de video sintético de prueba
-├── scripts/documentos_demo.py Generador de documentos de ejemplo
-├── scripts/contactos_demo.py  Arma el directorio desde cero y mide el resultado
-├── pruebas/                   Pruebas de trafico, carga y tolerancia a errores
-│   ├── carga.py               Motor: llegadas de Poisson, 1 o N procesos, percentiles
-│   ├── escenarios.py          La mezcla de trafico y los 22 casos borde
-│   ├── monitor.py             CPU, memoria, hilos y conexiones de cada servidor
-│   ├── orquesta.py            Ciclo de vida de los servidores y los 7 escenarios
-│   └── reporte.py             Graficas de latencia, caudal, errores y recursos
-├── sample_data/               Biométrico y RingCentral de ejemplo
-├── docs/                      Arquitectura y guía de uso
-└── data/                      Base de datos, subidas, salidas y capturas
+├── app/                    Reto 4 · OfficeVision AI      → run.py
+├── docsai/                 Reto 5 · DocuFlow AI          → run_documentos.py
+├── contactos/              Reto 6 · Directorio vivo      → run_contactos.py
+├── pruebas/                Reto 7 · Pruebas de carga     → run_pruebas.py
+├── docs/                   Un documento por reto, cada uno independiente
+├── scripts/                Generadores de datos de ejemplo, uno por proyecto
+├── sample_data/            Biométrico y RingCentral reales
+├── models/                 Pesos del detector (se descargan solos)
+└── data/                   Bases de datos, subidas, salidas y resultados
 ```
 
----
+## Requisitos comunes
 
-# DocuFlow AI — Clasificación automática de documentos
+* Python 3.9 o superior (probado en 3.11).
+* Windows 10/11, macOS o Linux.
+* Unos 3 GB libres: las dependencias de visión por computadora pesan.
+* Todo el procesamiento es **local**. Nada sale de la computadora.
 
-Aplicación independiente (`python run_documentos.py`, <http://127.0.0.1:8100>).
-Recibe documentos de cualquier origen, entiende qué son, extrae los datos que los
-identifican, les pone un nombre consistente y los archiva en carpetas predecibles.
-
-```
-Archivo → huella SHA-256 → extracción de texto (OCR si es escaneo) → datos clave
-       → clasificación → nombre → archivado → registro y revisión
-```
-
-* **Análisis**: PyMuPDF para PDF, python-docx para Word, OCR con Tesseract para
-  escaneos e imágenes, biblioteca estándar para correos. Extrae expediente,
-  fecha, partes, tribunal, emisor, montos y números de reclamo o póliza.
-* **Clasificación**: 14 categorías propias del despacho (demanda, citación,
-  moción, orden, reclamación, reporte policial, expediente médico, factura,
-  póliza, contrato, declaración, correspondencia…). Reglas ponderadas que
-  **explican su decisión** más un Naive Bayes que **aprende de cada corrección**.
-* **Nombramiento**:
-  `2024-09-18_DEMANDA_3-24-cv-05148-MGL_Dona-M-Fry-v-United-State-America.pdf`
-  — fecha ISO para que el orden alfabético sea cronológico, categoría en
-  mayúsculas, expediente para enlazar con el caso y descriptor legible.
-  Plantilla, separador, largo y estructura de carpetas configurables.
-* **Automatización**: subida web o carpeta vigilada (`data/documentos/entrada`),
-  procesamiento en segundo plano, duplicados detectados por hash y revisión
-  humana sólo para lo que no alcanza la confianza mínima.
-
-Medido sobre 13 documentos de prueba (12 representativos + una demanda federal
-real): **13/13 categorías correctas, 13/13 fechas correctas, 89,5 % de confianza
-media y 100 % archivado sin intervención**.
-
-Para probarlo sin documentos propios:
+Para comprobar el entorno de cualquier proyecto sin arrancarlo:
 
 ```bash
-python run_documentos.py              # arranca la app
-python scripts/documentos_demo.py     # crea ejemplos en data/documentos/entrada
+python run.py --check
+python run_documentos.py --check
+python run_contactos.py --check
+python run_pruebas.py --check
 ```
-
-y en la **Bandeja** pulsa *Procesar carpeta de entrada*.
-
-Detalle completo del enfoque, las categorías, la convención y las métricas:
-[`docs/DOCUMENTOS.md`](docs/DOCUMENTOS.md).
-
----
-
-# Directorio vivo — Contactos que se arman solos
-
-Aplicación independiente (`python run_contactos.py`, <http://127.0.0.1:8200>).
-Nace del Reto 6: en vez de otra libreta de treinta campos vacíos, el directorio se
-construye con **lo que el despacho ya genera** —llamadas, documentos clasificados y
-nómina— y responde a las preguntas que una libreta no responde.
-
-```bash
-python run_contactos.py --importar   # carga nómina, llamadas y documentos
-python run_contactos.py              # arranca la app
-```
-
-* **Una sola caja de búsqueda**: acepta un teléfono entrante, medio nombre, un número de
-  expediente o un papel (*"demandante"*, *"ajustador"*), y **cada resultado dice por qué
-  aparece**: *"ese número es suyo"*, *"participa en 3:24-cv-05148-MGL como Demandante"*.
-* **La ficha es la historia**: cabecera con lo que existe —sin casillas vacías— y debajo
-  la línea de tiempo de llamadas, documentos y notas, con el origen de cada dato.
-* **Quién es quién en el expediente**: las partes de cada caso agrupadas por papel,
-  derivado de los documentos que ya clasificó DocuFlow AI, con de dónde salió ese papel.
-* **Alta pegando una firma**: de la firma de un correo salen nombre, despacho, papel,
-  dirección, colegiado, teléfono, fax y correo, cada campo mostrando la línea de la que
-  salió; y avisa si ese teléfono ya estaba en otra ficha.
-* **Duplicados explicados**: propuestas de una en una, con el motivo escrito y un
-  porcentaje, **reversibles dato por dato**.
-
-Medido sobre los datos reales del despacho (`python scripts/contactos_demo.py --limpio`):
-**411 fichas, 1 expediente y 4 396 hitos en 1,6 s** a partir de 25 empleados, 4 000
-llamadas y 14 documentos. De esos hitos, **3 611 quedan como historial buscable sin abrir
-ficha**, porque un número sólo entra al directorio cuando hay trato sostenido — importar
-las 4 000 llamadas a lo bruto habría creado 1 750 contactos basura.
-
-Análisis crítico de las plataformas existentes, rediseño y capturas de la aplicación:
-[`docs/RETO6_CONTACTOS.md`](docs/RETO6_CONTACTOS.md).
-
----
-
-# Pruebas de carga y tolerancia a errores
-
-```bash
-python run_pruebas.py           # sesión completa (~8 min)
-python run_pruebas.py --rapido  # versión corta (~90 s)
-```
-
-Un solo comando: arranca las tres aplicaciones, les aplica siete escenarios, vigila CPU y
-memoria de cada servidor, dibuja las gráficas y **limpia lo que ensucia**. Sin
-herramientas externas: `httpx` (ya viene con FastAPI) y `psutil`.
-
-El tamaño de la carga no se inventó. En el historial real de RingCentral (4 000 llamadas,
-24 días) la **hora más cargada tuvo 56 llamadas**; de ahí sale la carga nominal de **1,63
-peticiones/s**, que luego se multiplica hasta ×300 para encontrar dónde se rompe.
-
-Resultados de la última ejecución, sobre 4 núcleos:
-
-| Medida | Resultado |
-|---|---|
-| Techo sin un solo fallo | **400 peticiones/s** = **245×** la hora pico real |
-| Espera a ese caudal | p50 8 ms · p95 75 ms |
-| Ráfaga de 500 clientes de golpe | 0 errores (encola, no se rompe) |
-| Escrituras concurrentes a 60/s | p95 31 ms · 0 errores |
-| Fuga de memoria en 120 s de carga | **0 MB** en las tres aplicaciones |
-| Panel mientras se analiza un video | p95 11 ms · 0 errores |
-| Casos borde y maliciosos | **22 de 22** correctos · **0 errores 500** |
-| Datos reales perdidos | **0** |
-
-Las pruebas encontraron **cuatro fallos reales** —entre ellos que sólo se podía escribir
-una nota por ficha— y **un fallo en sí mismas**: el primer intento habría publicado un
-techo 2,4 veces menor que el real, porque el cuello estaba en el generador y no en el
-sistema. La sesión se ejecutó **dos veces** y el caudal servido se repite con menos del
-0,4 % de diferencia.
-
-Se entregan los registros completos —[transcripción de la sesión](docs/resultados/carga-registro.txt),
-[7 952 peticiones una por fila](docs/resultados/carga-peticiones-x245.csv), logs de cada
-servidor—, siete gráficas y capturas de las pantallas **tomadas mientras el sistema
-estaba bajo carga**. Todo está contado en [`docs/RETO7_PRUEBAS.md`](docs/RETO7_PRUEBAS.md).
-
----
-
-## Documentación
-
-| Documento | Contenido |
-|---|---|
-| [`docs/DEMOSTRACION.md`](docs/DEMOSTRACION.md) | **Demostración funcional**: capturas y resultados de una ejecución real |
-| [`docs/RETO6_CONTACTOS.md`](docs/RETO6_CONTACTOS.md) | Análisis crítico de plataformas de contactos, rediseño y la aplicación construida, con resultados medidos |
-| [`docs/RETO7_PRUEBAS.md`](docs/RETO7_PRUEBAS.md) | **Pruebas de carga**: escenario, resultados, los cuatro fallos que encontraron y los límites del sistema |
-| [`docs/ENTREGABLES.md`](docs/ENTREGABLES.md) | Dónde está cubierto cada entregable y cada criterio de evaluación |
-| [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md) | Decisiones técnicas del módulo de video, esquema de datos y puntos de extensión |
-| [`docs/GUIA_USO.md`](docs/GUIA_USO.md) | Guía paso a paso y problemas frecuentes |
-| [`docs/DOCUMENTOS.md`](docs/DOCUMENTOS.md) | DocuFlow AI completo: flujo, categorías, convención, métricas y limitaciones |
-| [`docs/resultados/`](docs/resultados/) | CSV producidos por la ejecución de la demostración |

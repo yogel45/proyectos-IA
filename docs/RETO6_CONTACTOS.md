@@ -3,6 +3,11 @@
 **Reto 6.** Qué sobra, qué estorba y qué falta en las plataformas de contactos y de
 gestión profesional, y cómo sería una experiencia más simple para un despacho.
 
+> Proyecto independiente: **este documento se lee solo**. La aplicación que resulta del
+> análisis tiene su propio servidor, su propia base de datos y su propia interfaz
+> (`python run_contactos.py`), y no importa código de ningún otro proyecto del
+> repositorio.
+
 Entregables de este documento:
 
 1. Análisis crítico de plataformas existentes (§2 y §3).

@@ -4,10 +4,13 @@
 origen, entiende qué son, extrae los datos que los identifican, les pone un nombre
 consistente y los archiva en una estructura de carpetas predecible.
 
-Vive en el mismo repositorio que el módulo de video pero **no comparte nada con él**:
-su propio servidor, su propia base de datos (`data/documentos/documentos.db`), su
-propia configuración (`config_documentos.json`) y su propia interfaz. Las dos
-aplicaciones pueden correr a la vez, en puertos distintos.
+**Reto 5.** Proyecto independiente: **este documento se lee solo**, no hace falta
+ninguno de los otros del repositorio.
+
+DocuFlow AI tiene su propio servidor, su propia base de datos
+(`data/documentos/documentos.db`), su propia configuración (`config_documentos.json`) y
+su propia interfaz. **No importa código de ningún otro proyecto** y puede correr a la vez
+que ellos, en su propio puerto.
 
 ## Puesta en marcha
 

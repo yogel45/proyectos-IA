@@ -3,6 +3,11 @@
 **Reto 7.** Diseño, implementación y ejecución de pruebas propias sobre la solución
 construida, con la medición y la interpretación de lo que arrojan.
 
+> Proyecto independiente: **este documento se lee solo**. El arnés de pruebas vive en
+> `pruebas/` y se lanza con `python run_pruebas.py`. Por la naturaleza del reto, es el
+> único que necesita a las demás aplicaciones: son el sistema al que se le aplica la
+> carga, y el propio comando las arranca.
+
 Entregables de este documento:
 
 1. Scripts y configuración de las pruebas, con instrucciones para reproducirlas (§2 y §3).

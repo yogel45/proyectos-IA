@@ -1,7 +1,14 @@
-# Entregables y criterios de evaluación
+# Entregables y criterios, reto por reto
 
-Dónde está cubierto cada punto que piden los dos retos. Las referencias son a
-archivos de este repositorio.
+**Cada reto es una entrega independiente.** Esta tabla dice dónde está cada cosa, para
+que puedas entregar uno solo sin arrastrar los demás.
+
+| Reto | Proyecto | Se arranca con | Documento único |
+|---|---|---|---|
+| 4 | OfficeVision AI (video) | `python run.py` | [`RETO4_VIDEO.md`](RETO4_VIDEO.md) |
+| 5 | DocuFlow AI (documentos) | `python run_documentos.py` | [`RETO5_DOCUMENTOS.md`](RETO5_DOCUMENTOS.md) |
+| 6 | Directorio vivo (contactos) | `python run_contactos.py` | [`RETO6_CONTACTOS.md`](RETO6_CONTACTOS.md) |
+| 7 | Pruebas de carga | `python run_pruebas.py` | [`RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) |
 
 ---
 
@@ -14,12 +21,12 @@ Aplicación: **OfficeVision AI** (`python run.py`).
 | Entregable | Dónde está |
 |---|---|
 | Código fuente en GitHub | `app/` (aplicación), `run.py` (arranque), `scripts/video_demo.py` |
-| Instrucciones de instalación, configuración y ejecución | [`README.md`](../README.md) §Puesta en marcha · [`docs/GUIA_USO.md`](GUIA_USO.md) · `python run.py --check` |
-| Descripción del enfoque de visión por computadora | [`README.md`](../README.md) §Enfoque · [`docs/ARQUITECTURA.md`](ARQUITECTURA.md) §2 |
-| Modelos, librerías, herramientas empleadas | [`README.md`](../README.md) §Modelos, librerías y herramientas · [`docs/ARQUITECTURA.md`](ARQUITECTURA.md) §3 |
-| Descripción del flujo de procesamiento de video | [`README.md`](../README.md) §Flujo · [`docs/ARQUITECTURA.md`](ARQUITECTURA.md) §2 |
-| Demostración funcional, capturas o resultados procesados | [`docs/DEMOSTRACION.md`](DEMOSTRACION.md) §1 · CSV en [`docs/resultados/`](resultados/) · video anotado descargable desde la app |
-| Puntos críticos definidos y métricas generadas | [`README.md`](../README.md) §Puntos críticos y métricas · [`docs/DEMOSTRACION.md`](DEMOSTRACION.md) §1.5 |
+| Instrucciones de instalación, configuración y ejecución | [`docs/RETO4_VIDEO.md`](RETO4_VIDEO.md) §Puesta en marcha · [`docs/RETO4_GUIA_USO.md`](RETO4_GUIA_USO.md) · `python run.py --check` |
+| Descripción del enfoque de visión por computadora | [`docs/RETO4_VIDEO.md`](RETO4_VIDEO.md) §Enfoque · [`docs/RETO4_ARQUITECTURA.md`](RETO4_ARQUITECTURA.md) §2 |
+| Modelos, librerías, herramientas empleadas | [`docs/RETO4_VIDEO.md`](RETO4_VIDEO.md) §Modelos, librerías y herramientas · [`docs/RETO4_ARQUITECTURA.md`](RETO4_ARQUITECTURA.md) §3 |
+| Descripción del flujo de procesamiento de video | [`docs/RETO4_VIDEO.md`](RETO4_VIDEO.md) §Flujo · [`docs/RETO4_ARQUITECTURA.md`](RETO4_ARQUITECTURA.md) §2 |
+| Demostración funcional, capturas o resultados procesados | [`docs/DEMO_VIDEO.md`](DEMO_VIDEO.md) · CSV en [`docs/resultados/`](resultados/) · video anotado descargable desde la app |
+| Puntos críticos definidos y métricas generadas | [`docs/RETO4_VIDEO.md`](RETO4_VIDEO.md) §5 · [`docs/DEMO_VIDEO.md`](DEMO_VIDEO.md) §5 |
 
 ### Criterios de evaluación
 
@@ -31,7 +38,7 @@ Aplicación: **OfficeVision AI** (`python run.py`).
 | **Precisión del sistema** | Evaluado sobre grabación real: 12 personas únicas, pico 5, permanencia media 19,8 s. Punto de contacto con el piso para decidir zona (estable en perspectiva); confirmación por `min_hits` y tolerancia a oclusión por `max_age`. |
 | **Rendimiento** | 44–53 ms por cuadro (19–22 fps) en CPU de 4 núcleos; 81 ms de latencia extremo a extremo en vivo. Muestreo de cuadros configurable para videos largos (en la demo, 1 de cada 10 sobre 59,9 fps). |
 | **Utilidad de los resultados** | Alertas accionables con evidencia visual, resúmenes narrados por minuto y cruce con biométrico y llamadas para decisiones de cobertura. |
-| **Arquitectura e integración** | API REST documentada en `/docs`, WebSocket de análisis, exportación CSV, cámaras IP/RTSP, registro de detectores para añadir modelos y capa de datos aislada. [`docs/ARQUITECTURA.md`](ARQUITECTURA.md) §8. |
+| **Arquitectura e integración** | API REST documentada en `/docs`, WebSocket de análisis, exportación CSV, cámaras IP/RTSP, registro de detectores para añadir modelos y capa de datos aislada. [`docs/RETO4_ARQUITECTURA.md`](RETO4_ARQUITECTURA.md) §8. |
 | **Documentación** | README + arquitectura + guía de uso + demostración, con limitaciones y mejoras declaradas. |
 
 ---
@@ -45,11 +52,11 @@ Aplicación: **DocuFlow AI** (`python run_documentos.py`).
 | Entregable | Dónde está |
 |---|---|
 | Código fuente de la solución | `docsai/` (aplicación completa), `run_documentos.py`, `scripts/documentos_demo.py` |
-| Instrucciones de instalación, configuración y ejecución | [`docs/DOCUMENTOS.md`](DOCUMENTOS.md) §Puesta en marcha · `python run_documentos.py --check` |
-| Descripción del flujo de procesamiento documental | [`docs/DOCUMENTOS.md`](DOCUMENTOS.md) §1 |
-| Convención de nombramiento propuesta | [`docs/DOCUMENTOS.md`](DOCUMENTOS.md) §4 · configurable desde *Reglas y nombres* |
-| Uso de IA, OCR, NLP, reglas, modelos o herramientas | [`docs/DOCUMENTOS.md`](DOCUMENTOS.md) §5 |
-| Demostración y resultados procesados | [`docs/DEMOSTRACION.md`](DEMOSTRACION.md) §2 · [`docs/resultados/documentos.csv`](resultados/documentos.csv) |
+| Instrucciones de instalación, configuración y ejecución | [`docs/RETO5_DOCUMENTOS.md`](RETO5_DOCUMENTOS.md) §Puesta en marcha · `python run_documentos.py --check` |
+| Descripción del flujo de procesamiento documental | [`docs/RETO5_DOCUMENTOS.md`](RETO5_DOCUMENTOS.md) §1 |
+| Convención de nombramiento propuesta | [`docs/RETO5_DOCUMENTOS.md`](RETO5_DOCUMENTOS.md) §4 · configurable desde *Reglas y nombres* |
+| Uso de IA, OCR, NLP, reglas, modelos o herramientas | [`docs/RETO5_DOCUMENTOS.md`](RETO5_DOCUMENTOS.md) §5 |
+| Demostración y resultados procesados | [`docs/DEMO_DOCUMENTOS.md`](DEMO_DOCUMENTOS.md) · [`docs/resultados/documentos.csv`](resultados/documentos.csv) |
 
 ### Criterios de evaluación
 
@@ -61,7 +68,7 @@ Aplicación: **DocuFlow AI** (`python run_documentos.py`).
 | **Uso adecuado de IA** | OCR sólo cuando hace falta; reglas donde la explicabilidad importa; modelo entrenable donde aporta; hash para duplicados. Se justifica también **por qué no un LLM de entrada** y dónde sí tendría sentido. |
 | **Automatización del proceso** | De la carga al archivado sin intervención: carpeta vigilada o subida web, cola en segundo plano, archivado en carpetas y revisión humana sólo para lo dudoso. 100 % automático en la prueba. |
 | **Arquitectura e integración** | Aplicación independiente con API REST completa, exportación CSV, carpeta vigilada para escáner o carpeta de red y puntos de extensión documentados para categorías, formatos y almacenamiento. |
-| **Documentación** | [`docs/DOCUMENTOS.md`](DOCUMENTOS.md) cubre enfoque, categorías, convención, métricas, privacidad, limitaciones y mejoras. |
+| **Documentación** | [`docs/RETO5_DOCUMENTOS.md`](RETO5_DOCUMENTOS.md) cubre enfoque, categorías, convención, métricas, privacidad, limitaciones y mejoras. |
 
 ---
 
@@ -98,7 +105,7 @@ Entregable: [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) y el paquete `pruebas/`
 | Entregable | Dónde está |
 |---|---|
 | Scripts y configuración de las pruebas, con instrucciones para reproducirlas | `pruebas/` (5 módulos) y `run_pruebas.py`; instrucciones en [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) §2 y §3. Un solo comando arranca, mide y limpia |
-| Instrucciones de instalación, configuración y ejecución de la solución | [`README.md`](../README.md) para las tres aplicaciones y [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) §3 para las pruebas. Sin herramientas externas |
+| Instrucciones de instalación, configuración y ejecución de la solución | [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) §3: un solo comando instala, arranca lo que haga falta y ejecuta. Sin herramientas externas |
 | Descripción del escenario de prueba diseñado y su justificación | [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) §1: la carga sale de medir la hora pico real del historial de llamadas (56 llamadas), no de una cifra inventada |
 | Resultados de las pruebas ejecutadas: logs, métricas, reportes, gráficos o capturas | §5 a §7. **Logs**: transcripción completa de la sesión ([`carga-registro.txt`](resultados/carga-registro.txt)), registro de 7 952 peticiones una por fila ([`carga-peticiones-x245.csv`](resultados/carga-peticiones-x245.csv)) y salida de cada servidor. **Métricas**: 10 tablas y [`carga-informe.json`](resultados/carga-informe.json). **Gráficos**: 7. **Capturas**: 3 pantallas tomadas mientras el sistema estaba bajo carga (§5.10). La sesión se repitió dos veces y se comparan (§5.9) |
 
