@@ -16,6 +16,9 @@ python run.py                       # aplicación de video      → http://127.0
 python run_documentos.py            # aplicación de documentos → http://127.0.0.1:8100
 ```
 
+Capturas y resultados de una ejecución real: [`docs/DEMOSTRACION.md`](docs/DEMOSTRACION.md).
+Mapa de entregables y criterios: [`docs/ENTREGABLES.md`](docs/ENTREGABLES.md).
+
 ---
 
 # OfficeVision AI — Análisis de video con IA
@@ -441,5 +444,15 @@ Detalle completo del enfoque, las categorías, la convención y las métricas:
 
 ---
 
-Documentación adicional: [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md) ·
-[`docs/GUIA_USO.md`](docs/GUIA_USO.md) · [`docs/DOCUMENTOS.md`](docs/DOCUMENTOS.md)
+---
+
+## Documentación
+
+| Documento | Contenido |
+|---|---|
+| [`docs/DEMOSTRACION.md`](docs/DEMOSTRACION.md) | **Demostración funcional**: capturas y resultados de una ejecución real de las dos apps |
+| [`docs/ENTREGABLES.md`](docs/ENTREGABLES.md) | Dónde está cubierto cada entregable y cada criterio de evaluación |
+| [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md) | Decisiones técnicas del módulo de video, esquema de datos y puntos de extensión |
+| [`docs/GUIA_USO.md`](docs/GUIA_USO.md) | Guía paso a paso y problemas frecuentes |
+| [`docs/DOCUMENTOS.md`](docs/DOCUMENTOS.md) | DocuFlow AI completo: flujo, categorías, convención, métricas y limitaciones |
+| [`docs/resultados/`](docs/resultados/) | CSV producidos por la ejecución de la demostración |
