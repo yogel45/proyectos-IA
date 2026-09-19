@@ -53,6 +53,33 @@ def check_env() -> bool:
     return ok
 
 
+class _Registro:
+    """Duplica todo lo que sale por pantalla a un archivo.
+
+    El reto pide entregar registros, y el mas util es la transcripcion
+    completa de la sesion: dice que se ejecuto, en que orden y con que
+    resultado, sin tener que fiarse del resumen.
+    """
+
+    def __init__(self, destino: Path):
+        destino.parent.mkdir(parents=True, exist_ok=True)
+        self._archivo = open(destino, "w", encoding="utf-8")
+        self._pantalla = sys.stdout
+
+    def write(self, texto: str) -> int:
+        self._pantalla.write(texto)
+        self._archivo.write(texto)
+        return len(texto)
+
+    def flush(self) -> None:
+        self._pantalla.flush()
+        self._archivo.flush()
+
+    def cerrar(self) -> None:
+        sys.stdout = self._pantalla
+        self._archivo.close()
+
+
 def _titulo(texto: str) -> None:
     print(f"\n{texto}\n{'─' * len(texto)}")
 
@@ -76,6 +103,12 @@ async def sesion(args) -> int:
                                    "mediana_llamadas_hora": esc.MEDIANA_LLAMADAS_HORA,
                                    "empleados": esc.EMPLEADOS,
                                    "paneles_abiertos": esc.PANELES_ABIERTOS}}
+
+    registro = _Registro(salida / "registro.txt")
+    sys.stdout = registro
+    print(f"Sesion de pruebas {sello}")
+    print(f"Maquina: {informe['maquina']}")
+    print(f"Carga nominal derivada de los datos reales: {esc.RPS_NOMINAL:.2f} peticiones/s")
 
     _titulo("Arrancando las aplicaciones")
     arranques: Dict[str, float] = {}
@@ -225,14 +258,21 @@ async def sesion(args) -> int:
     print(f"    Graficas                 : {img}/carga-*.png")
     print(f"    Duracion total           : {informe['duracion_total_s']:.0f} s")
 
-    # copia estable de los CSV para la documentacion
+    # copia estable de los registros y las medidas para la documentacion
     destino = RAIZ / "docs" / "resultados"
     destino.mkdir(parents=True, exist_ok=True)
-    for origen, nombre in ((salida / "recursos.csv", "carga-recursos.csv"),
-                           (salida / "muestras_resistencia.csv", "carga-resistencia.csv"),
-                           (salida / "informe.json", "carga-informe.json")):
+    copias = [(salida / "recursos.csv", "carga-recursos.csv"),
+              (salida / "muestras_resistencia.csv", "carga-resistencia.csv"),
+              (salida / "informe.json", "carga-informe.json"),
+              (salida / "registro.txt", "carga-registro.txt"),
+              (salida / "muestras_oficina_x245.csv", "carga-peticiones-x245.csv"),
+              (salida / "logs" / "video.log", "carga-log-video.txt"),
+              (salida / "logs" / "contactos.log", "carga-log-contactos.txt"),
+              (salida / "logs" / "documentos.log", "carga-log-documentos.txt")]
+    for origen, nombre in copias:
         if origen.exists():
             destino.joinpath(nombre).write_bytes(origen.read_bytes())
+    registro.cerrar()
     return 0
 
 

@@ -531,7 +531,13 @@ Resultados de la última ejecución, sobre 4 núcleos:
 Las pruebas encontraron **cuatro fallos reales** —entre ellos que sólo se podía escribir
 una nota por ficha— y **un fallo en sí mismas**: el primer intento habría publicado un
 techo 2,4 veces menor que el real, porque el cuello estaba en el generador y no en el
-sistema. Todo está contado en [`docs/RETO7_PRUEBAS.md`](docs/RETO7_PRUEBAS.md).
+sistema. La sesión se ejecutó **dos veces** y el caudal servido se repite con menos del
+0,4 % de diferencia.
+
+Se entregan los registros completos —[transcripción de la sesión](docs/resultados/carga-registro.txt),
+[7 952 peticiones una por fila](docs/resultados/carga-peticiones-x245.csv), logs de cada
+servidor—, siete gráficas y capturas de las pantallas **tomadas mientras el sistema
+estaba bajo carga**. Todo está contado en [`docs/RETO7_PRUEBAS.md`](docs/RETO7_PRUEBAS.md).
 
 ---
 

@@ -100,7 +100,7 @@ Entregable: [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) y el paquete `pruebas/`
 | Scripts y configuración de las pruebas, con instrucciones para reproducirlas | `pruebas/` (5 módulos) y `run_pruebas.py`; instrucciones en [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) §2 y §3. Un solo comando arranca, mide y limpia |
 | Instrucciones de instalación, configuración y ejecución de la solución | [`README.md`](../README.md) para las tres aplicaciones y [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) §3 para las pruebas. Sin herramientas externas |
 | Descripción del escenario de prueba diseñado y su justificación | [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) §1: la carga sale de medir la hora pico real del historial de llamadas (56 llamadas), no de una cifra inventada |
-| Resultados de las pruebas ejecutadas | §5 a §7: 8 tablas, 7 gráficas, CSV con **una fila por petición** en `data/pruebas/<fecha>/` y copia en [`docs/resultados/`](resultados/) |
+| Resultados de las pruebas ejecutadas: logs, métricas, reportes, gráficos o capturas | §5 a §7. **Logs**: transcripción completa de la sesión ([`carga-registro.txt`](resultados/carga-registro.txt)), registro de 7 952 peticiones una por fila ([`carga-peticiones-x245.csv`](resultados/carga-peticiones-x245.csv)) y salida de cada servidor. **Métricas**: 10 tablas y [`carga-informe.json`](resultados/carga-informe.json). **Gráficos**: 7. **Capturas**: 3 pantallas tomadas mientras el sistema estaba bajo carga (§5.10). La sesión se repitió dos veces y se comparan (§5.9) |
 
 ### Criterios de evaluación
 

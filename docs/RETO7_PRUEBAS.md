@@ -89,8 +89,11 @@ Repetir siempre la misma habría medido la caché del sistema operativo, no la b
 | `pruebas/orquesta.py` | Ciclo de vida de los servidores y los siete escenarios |
 | `pruebas/reporte.py` | Las gráficas |
 | `data/pruebas/<fecha>/` | Datos en crudo: **una fila por petición**, más `informe.json` y los logs |
-| `docs/resultados/carga-*.csv` | Copia estable de las medidas para esta documentación |
-| `docs/img/carga-*.png` | Las gráficas de esta ejecución |
+| [`docs/resultados/carga-registro.txt`](resultados/carga-registro.txt) | **Transcripción completa** de una sesión: qué se ejecutó, en qué orden y con qué resultado |
+| [`docs/resultados/carga-peticiones-x245.csv`](resultados/carga-peticiones-x245.csv) | **Registro de peticiones** del nivel de 399 pet./s: 7 952 filas, una por petición |
+| `docs/resultados/carga-log-*.txt` | Salida de cada servidor durante la sesión |
+| `docs/resultados/carga-*.csv` | Medidas de recursos y de la prueba de resistencia |
+| `docs/img/carga-*.png` | Gráficas y capturas de pantalla bajo carga |
 
 No hace falta ninguna herramienta externa —ni Locust, ni JMeter, ni k6—: se usa `httpx`,
 que ya viene con FastAPI, y `psutil`. Así la prueba se ejecuta con las mismas
@@ -169,6 +172,11 @@ reutilizan.
 Ejecución del 19/09/2026, **465 segundos**, sobre Linux con **4 núcleos y 16,9 GB**, con
 las tres aplicaciones y los generadores en la misma máquina. Datos en crudo en
 [`docs/resultados/carga-informe.json`](resultados/carga-informe.json).
+
+> Las tablas y gráficas de este apartado son de la **sesión 1**. La transcripción
+> (`carga-registro.txt`), el registro de peticiones y los logs de servidor que se
+> entregan son de la **sesión 2**, que repitió los mismos escenarios mientras se tomaban
+> las capturas de pantalla. Las dos se comparan en §5.9.
 
 ### 5.1 Escalada: aguanta 245 veces la hora pico real
 
@@ -321,6 +329,51 @@ Dos casos que sólo aparecen midiendo, y que son distintos entre sí:
   detector compara cada ficha con todas las demás sobre 412 personas. Es el único punto
   del sistema con coste cuadrático y está documentado como tal en §7.
 
+### 5.9 Repetibilidad: la sesión se ejecutó dos veces
+
+Las tablas y gráficas de arriba son de la **sesión 1** (`20260919_160448`). La sesión 2
+(`20260919_163348`) repitió exactamente los mismos escenarios, **con un navegador abierto
+tomando capturas al mismo tiempo**, para ver si los números aguantan:
+
+| Nivel | Servidas · sesión 1 | Servidas · sesión 2 | p95 · sesión 1 | p95 · sesión 2 |
+|---|---:|---:|---:|---:|
+| ×50 (81 pet./s) | 78,1 | 78,1 | 10 ms | 9 ms |
+| ×100 (163) | 164,2 | 164,8 | 11 ms | 14 ms |
+| ×150 (244) | 245,2 | 244,9 | 14 ms | 15 ms |
+| ×200 (326) | 323,7 | 322,0 | 22 ms | 22 ms |
+| **×245 (399)** | **395,6** | **395,0** | 75 ms | **232 ms** |
+| ×300 (489) | 247,4 | 258,2 | 29 445 ms | 28 613 ms |
+
+**El caudal servido se repite con menos del 0,4 % de diferencia** en todos los niveles, y
+el punto de saturación es el mismo. El único número que se mueve de verdad es el p95 en
+el nivel de 399 pet./s: 75 ms frente a 232 ms. La explicación está en el propio diseño de
+la sesión 2 —un Chromium cargando páginas completas mientras se medía, compitiendo por los
+mismos 4 núcleos— y confirma lo que ya decía §5.2: **a partir de 400 pet./s la máquina
+manda**, y cualquier cosa que consuma CPU al lado se nota.
+
+Lo mismo en el resto de escenarios: ráfagas y resistencia con cero errores en las dos, y
+**22 de 22 casos borde correctos en ambas**.
+
+### 5.10 Las pantallas, bajo carga
+
+Las capturas están tomadas **mientras las pruebas castigaban al sistema** a más de 160
+peticiones por segundo, no antes ni después.
+
+![Panel de video bajo carga](img/carga-panel-video.png)
+
+El panel operativo responde y se dibuja entero mientras el generador lo bombardea: 147
+eventos, 39 personas seguidas, 4 zonas, las seis gráficas y las alertas críticas con su
+evidencia. Abajo a la derecha se ven las sesiones de análisis que dejaron las propias
+pruebas, incluidos los trabajos de video que se cancelaron al apagar los servidores entre
+escenarios.
+
+![Directorio bajo carga](img/carga-panel-contactos.png)
+
+El directorio, a la vez, muestra sus cifras subidas por las altas que la prueba estaba
+creando en ese momento (se retiran al terminar).
+
+![Reportes bajo carga](img/carga-panel-reportes.png)
+
 ---
 
 ## 6. Tolerancia a errores y seguridad
@@ -446,7 +499,8 @@ Escrito aquí porque un informe de rendimiento sin esta sección no es creíble.
 * **Sin pruebas del WebSocket en vivo.** La cámara en vivo empuja cuadros por WebSocket y
   esa ruta no entra en estos escenarios: medirla bien exige simular cámaras, no clientes
   HTTP.
-* **Una sola ejecución por nivel.** Los números son de una sesión, no de la mediana de
-  varias. Para decisiones finas de rendimiento habría que repetir cada nivel tres veces y
-  quedarse con la mediana.
+* **Dos ejecuciones, no diez.** La sesión completa se corrió dos veces (§5.9) y el caudal
+  servido se repite con menos del 0,4 % de diferencia, pero el p95 en el nivel de
+  saturación sí se mueve con lo que esté haciendo la máquina. Para decisiones finas de
+  rendimiento habría que repetir cada nivel tres veces y quedarse con la mediana.
 * **Sin pruebas de autenticación ni de autorización**, porque no hay (§6).
