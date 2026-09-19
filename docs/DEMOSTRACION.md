@@ -1,6 +1,6 @@
 # Demostración funcional
 
-Capturas y resultados de una ejecución real de las dos aplicaciones, con los
+Capturas y resultados de una ejecución real de las tres aplicaciones, con los
 números que produjo el sistema. Todo lo que aparece aquí se puede reproducir con
 los comandos indicados.
 
@@ -17,11 +17,16 @@ python run.py                         # http://127.0.0.1:8000
 python run_documentos.py              # http://127.0.0.1:8100
 python scripts/documentos_demo.py     # genera 12 documentos de ejemplo
 #   + 1 demanda federal real (doc_0011.pdf), procesada desde la interfaz
+
+# Aplicación 3 — contactos
+python scripts/contactos_demo.py --limpio   # arma el directorio desde cero y lo mide
+python run_contactos.py               # http://127.0.0.1:8200
 ```
 
 Los CSV que generó esta misma ejecución están en
-[`docs/resultados/`](resultados/): eventos, ocupación, personas seguidas y el
-inventario de documentos.
+[`docs/resultados/`](resultados/): eventos, ocupación, personas seguidas, el
+inventario de documentos, el quién es quién del expediente y el registro de
+importaciones del directorio.
 
 ---
 
@@ -204,7 +209,76 @@ Debajo, el catálogo de las 15 categorías con lo que agrupa cada una.
 
 ---
 
-# 3. Qué se puede comprobar en estas capturas
+# 3. Directorio vivo — contactos del despacho
+
+## 3.1 Portada: una sola caja
+
+![Portada de Directorio vivo](img/reto6-inicio.png)
+
+411 fichas, 1 expediente, 4 396 hitos y 412 datos de contacto, armados en **1,6 s** a
+partir de la nómina (25 personas), 4 000 llamadas de RingCentral y los 14 documentos que
+DocuFlow AI ya había clasificado. La barra de la derecha muestra de dónde salió cada
+ficha: 381 de llamadas, 25 de nómina, 5 de documentos, 1 dada de alta a mano.
+
+## 3.2 Cada resultado dice por qué aparece
+
+![Búsqueda con el motivo de cada resultado](img/reto6-buscar.png)
+
+Buscando `fry`: *"coincide el nombre · participa en 3:24-cv-05148-MGL como Demandante"*,
+*"participa en 3:24-cv-05148-MGL como Demandado"*. La misma caja acepta un teléfono, un
+expediente o un papel.
+
+![Historial de un número sin ficha](img/reto6-historial.png)
+
+Un número que llamó una sola vez **no genera ficha** —así se evitan los 1 750 contactos
+basura que produciría importar las llamadas a lo bruto— pero su historial sigue siendo
+buscable, con un botón para abrirle ficha si hace falta.
+
+## 3.3 La ficha es la historia
+
+![Ficha de persona](img/reto6-ficha-abogado.png)
+
+Datos de contacto etiquetados con su origen (`documento`, `manual`, `nómina`), línea de
+tiempo debajo, y edición en la misma página: anotar lo que acaba de pasar o vincular a un
+expediente sin cambiar de pantalla.
+
+## 3.4 Quién es quién en el expediente
+
+![Partes del expediente agrupadas por papel](img/reto6-caso.png)
+
+Las cinco partes del caso agrupadas por papel, cada una con **de dónde salió ese papel**
+(*"documento DEMANDA"*, *"alta manual"*), y al lado lo que ha pasado en el expediente con
+el nombre del archivo que lo originó. Esta vista no existe en Google, Apple ni Outlook.
+
+## 3.5 Alta pegando una firma
+
+![Alta desde una firma de correo](img/reto6-alta.png)
+
+De la firma real del escrito salen **ocho datos** y cada campo muestra la línea de la que
+salió. Además avisa *"ya tienes ese teléfono"*: el conmutador del despacho ya estaba en
+otra ficha, así que la persona decide si sumar los datos ahí o crear una ficha aparte
+—un conmutador lo comparten todos los abogados de la firma—. Si elige "aparte", el
+sistema recuerda que no son la misma.
+
+## 3.6 Duplicados explicados y reversibles
+
+![Propuesta de fusión con su motivo](img/reto6-duplicados.png)
+
+El detector encontró solo el error tipográfico que traían los documentos —*United States
+of America* frente a *United State of America*— al 85 %, con dos motivos escritos. Se
+comprobó que fusionar mueve teléfonos, hitos y papeles del expediente, y que **deshacer
+devuelve todo exactamente a su sitio**, incluido el papel en el caso.
+
+## 3.7 Fuentes a la vista
+
+![Fuentes e importaciones](img/reto6-fuentes.png)
+
+Qué se importó, cuándo, cuántas fichas creó y cuántas completó; y los umbrales que deciden
+cuándo un número merece ficha, editables sin tocar código.
+
+---
+
+# 4. Qué se puede comprobar en estas capturas
 
 | Requisito | Dónde se ve |
 |---|---|
@@ -219,3 +293,7 @@ Debajo, el catálogo de las 15 categorías con lo que agrupa cada una.
 | Clasificación | §2.1, §2.2 — 13/13 con confianza y explicación |
 | Nombramiento automatizado | §2.1, §2.3 — nombres generados y convención configurable |
 | Privacidad | §1.1, §1.3 — rostros difuminados, identificadores anónimos |
+| Análisis crítico aplicado | §3.1–§3.7 — el rediseño del Reto 6 construido y corriendo |
+| Búsqueda por cualquier hilo | §3.2 — teléfono, nombre, expediente o papel, con el motivo |
+| Roles derivados de documentos | §3.4 — las partes del expediente y su procedencia |
+| Fusión explicada y reversible | §3.6 — motivo escrito, fusión y deshacer comprobados |

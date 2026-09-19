@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="caso"><div class="card muted small">cargando…</div></div>
+{% endblock %}
+{% block scripts %}
+<script>
+const CASO_ID = {{ caso_id }};
+API.get('/api/casos/' + CASO_ID).then(c => {
+  const porRol = {};
+  (c.partes || []).forEach(p => (porRol[p.rol || 'Sin papel asignado'] ||= []).push(p));
+
+  const partes = Object.entries(porRol).map(([rol, gente]) => `
+    <div style="margin-bottom:16px">
+      <div class="small muted" style="text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">
+        ${esc(rol)} · ${gente.length}</div>
+      <div class="feed" style="max-height:none">${gente.map(p => `<div class="item">
+        <div><a href="/persona/${p.id}">${esc(p.nombre)}</a>
+          ${p.organizacion ? `<span class="muted small"> · ${esc(p.organizacion)}</span>` : ''}</div>
+        <div class="small muted">${(p.identificadores || []).map(i => esc(i.valor)).join(' · ') || 'sin datos de contacto'}</div>
+        <div class="small muted">de donde salio el papel: ${esc(p.rol_origen || 'manual')}</div>
+      </div>`).join('')}</div>
+    </div>`).join('') || '<div class="muted small">Todavia no hay partes identificadas.</div>';
+
+  const linea = (c.linea || []).map(h => `<div class="item">
+      <div class="meta"><span>${ICONO_HITO[h.tipo] || '•'}</span>${fmtFecha(h.ts)}
+        <span class="tag muted">${esc(h.origen || h.tipo)}</span></div>
+      <div>${esc(h.titulo)}
+        ${h.persona ? `<span class="small muted"> — <a href="/persona/${h.persona_id}">${esc(h.persona)}</a></span>` : ''}
+        ${h.detalle ? `<div class="small muted">${esc(h.detalle)}</div>` : ''}</div>
+    </div>`).join('') || '<div class="muted small">Sin movimientos registrados.</div>';
+
+  $('#caso').innerHTML = `
+  <div class="row tight" style="justify-content:space-between;margin-bottom:14px">
+    <a class="btn ghost" href="/casos">← todos los expedientes</a></div>
+  <div class="card" style="margin-bottom:16px">
+    <h2 class="mono" style="margin:0;font-size:20px">${esc(c.expediente)}</h2>
+    <div class="muted" style="margin-top:4px">${esc(c.nombre || 'sin asunto registrado')}
+      ${c.tribunal ? ' · ' + esc(c.tribunal) : ''}
+      ${c.monto ? ' · reclamo ' + c.monto.toLocaleString('es-MX', {style:'currency', currency:'USD'}) : ''}</div>
+  </div>
+  <div class="split">
+    <div class="card"><h3>Quien es quien <small>${(c.partes || []).length} personas</small></h3>${partes}</div>
+    <div class="card"><h3>Que ha pasado</h3><div class="feed" style="max-height:560px">${linea}</div></div>
+  </div>`;
+});
+</script>
+{% endblock %}

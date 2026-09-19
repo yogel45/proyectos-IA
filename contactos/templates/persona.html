@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="ficha"><div class="card muted small">cargando…</div></div>
+{% endblock %}
+{% block scripts %}
+<script>
+const PERSONA_ID = {{ persona_id }};
+let FICHA = null;
+
+function pintar(p) {
+  FICHA = p;
+  const perfil = [p.rol, p.organizacion, p.lugar].filter(Boolean).join(' · ');
+  const grupos = {telefono: [], correo: [], extension: []};
+  (p.identificadores || []).forEach(i => (grupos[i.tipo] || (grupos[i.tipo] = [])).push(i));
+
+  const datos = Object.entries(grupos).filter(([, v]) => v.length).map(([tipo, lista]) =>
+    `<div style="margin-bottom:10px"><div class="small muted"
+       style="text-transform:uppercase;letter-spacing:.06em">${tipo}</div>
+     ${lista.map(i => `<div class="row tight" style="justify-content:space-between;padding:3px 0">
+        <span class="mono">${esc(i.valor)}</span>
+        <span class="row tight" style="gap:6px">
+          ${i.etiqueta && i.etiqueta !== tipo ? `<span class="tag muted">${esc(i.etiqueta)}</span>` : ''}
+          <span class="tag muted small">${esc(i.origen || '')}</span>
+          <button class="ghost small" style="padding:2px 8px"
+            onclick="quitarDato('${tipo}','${esc(i.valor)}')">quitar</button>
+        </span></div>`).join('')}</div>`).join('')
+    || '<div class="muted small">Sin datos de contacto todavia.</div>';
+
+  const casos = (p.casos || []).map(c => `<div class="item">
+      <div class="meta"><span class="tag info">${esc(c.rol || 'parte')}</span>
+        <span>${esc(c.rol_origen || '')}</span></div>
+      <div><a href="/caso/${c.id}" class="mono">${esc(c.expediente)}</a>
+        <span class="muted small"> ${esc(c.nombre || '')}</span></div>
+    </div>`).join('') || '<div class="muted small">No aparece en ningun expediente.</div>';
+
+  const linea = (p.linea || []).map(h => `<div class="item">
+      <div class="meta"><span>${ICONO_HITO[h.tipo] || '•'}</span>${fmtFecha(h.ts)}
+        ${h.expediente ? `<a href="#" class="mono">${esc(h.expediente)}</a>` : ''}
+        <span class="tag muted">${esc(h.origen || h.tipo)}</span></div>
+      <div>${esc(h.titulo)}${h.detalle ? `<div class="small muted">${esc(h.detalle)}</div>` : ''}</div>
+    </div>`).join('') || '<div class="muted small">Sin hitos registrados.</div>';
+
+  const fusiones = (p.fusiones || []).length ? `<div class="card" style="margin-top:16px">
+      <h3>Fichas unidas</h3>
+      <div class="feed" style="max-height:none">${p.fusiones.map(f => `<div class="item"><div class="meta">${fmtFecha(f.ts)}
+        · confianza ${Math.round((f.confianza || 0) * 100)}%</div>
+        <div>Absorbio la ficha #${f.absorbida_id}
+          <div class="small muted">${(f.motivos || []).map(esc).join(' · ')}</div></div>
+        <button class="ghost" style="margin-top:6px" onclick="deshacer(${f.id})">deshacer</button>
+      </div>`).join('')}</div></div>` : '';
+
+  $('#ficha').innerHTML = `
+  <div class="row tight" style="justify-content:space-between;margin-bottom:14px">
+    <a class="btn ghost" href="/">← volver a buscar</a>
+    <span class="small muted">ficha #${p.id} · origen: ${esc(p.origen || 'manual')} ·
+      creada ${fmtFecha(p.creado)}</span>
+  </div>
+  <div class="split">
+    <div>
+      <div class="card">
+        <div class="row tight" style="justify-content:space-between;align-items:flex-start">
+          <div>
+            <h2 style="margin:0;font-size:22px" id="nombre-txt">${esc(p.nombre)}</h2>
+            <div class="muted" style="margin-top:3px">${esc(perfil) || 'sin datos de perfil'}</div>
+          </div>
+          ${p.interno ? '<span class="tag info">del despacho</span>' : ''}
+        </div>
+        <div class="sep"></div>
+        <div class="row">
+          <div><label>Nombre</label><input id="f-nombre" value="${esc(p.nombre)}"></div>
+          <div><label>Papel</label><input id="f-rol" value="${esc(p.rol || '')}"></div>
+        </div>
+        <div class="row" style="margin-top:9px">
+          <div><label>Organizacion</label><input id="f-org" value="${esc(p.organizacion || '')}"></div>
+          <div><label>Lugar</label><input id="f-lugar" value="${esc(p.lugar || '')}"></div>
+        </div>
+        <div style="margin-top:9px"><label>Notas</label>
+          <textarea id="f-notas" rows="2">${esc(p.notas || '')}</textarea></div>
+        <div class="row tight" style="margin-top:11px">
+          <button onclick="guardar()">Guardar cambios</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Linea de tiempo <small>${(p.linea || []).length} hitos</small></h3>
+        <div class="feed" style="max-height:560px">${linea}</div>
+        <div class="sep"></div>
+        <div class="row">
+          <div style="flex:3"><label>Anotar algo que paso</label>
+            <input id="n-texto" placeholder="Llamo para pedir copia del acuse"></div>
+          <div><label>Expediente (opcional)</label><input id="n-exp" placeholder="3:24-cv-05148-MGL"></div>
+          <div style="flex:0 0 auto"><button onclick="anotar()">Anotar</button></div>
+        </div>
+      </div>
+      ${fusiones}
+    </div>
+
+    <div>
+      <div class="card">
+        <h3>Datos de contacto</h3>
+        ${datos}
+        <div class="sep"></div>
+        <div class="row">
+          <div style="flex:0 0 108px"><label>Tipo</label><select id="d-tipo">
+            <option value="telefono">telefono</option><option value="correo">correo</option>
+            <option value="extension">extension</option></select></div>
+          <div style="flex:2"><label>Dato</label><input id="d-valor" placeholder="(803) 555-1234"></div>
+          <div style="flex:0 0 auto"><button onclick="agregarDato()">Agregar</button></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Expedientes</h3>
+        <div class="feed" style="max-height:none">${casos}</div>
+        <div class="sep"></div>
+        <div class="row">
+          <div><label>Expediente</label><input id="c-exp" placeholder="3:24-cv-05148-MGL"></div>
+          <div><label>Papel</label><input id="c-rol" placeholder="Demandante"></div>
+          <div style="flex:0 0 auto"><button onclick="vincular()">Vincular</button></div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function cargar() {
+  try { pintar(await API.get('/api/personas/' + PERSONA_ID)); }
+  catch (e) { $('#ficha').innerHTML = '<div class="card">Esa ficha no existe.</div>'; }
+}
+async function guardar() {
+  pintar(await API.send('/api/personas/' + PERSONA_ID, {
+    nombre: $('#f-nombre').value, rol: $('#f-rol').value,
+    organizacion: $('#f-org').value, lugar: $('#f-lugar').value,
+    notas: $('#f-notas').value}, 'PATCH'));
+  toast('Ficha actualizada', 'ok');
+}
+async function agregarDato() {
+  const valor = $('#d-valor').value.trim();
+  if (!valor) return;
+  await API.send(`/api/personas/${PERSONA_ID}/identificadores`,
+                 {tipo: $('#d-tipo').value, valor});
+  cargar(); toast('Dato agregado', 'ok');
+}
+async function quitarDato(tipo, valor) {
+  await API.del(`/api/personas/${PERSONA_ID}/identificadores?tipo=${encodeURIComponent(tipo)}`
+                + `&valor=${encodeURIComponent(valor)}`);
+  cargar();
+}
+async function anotar() {
+  const texto = $('#n-texto').value.trim();
+  if (!texto) return;
+  pintar(await API.send(`/api/personas/${PERSONA_ID}/nota`,
+                        {texto, expediente: $('#n-exp').value.trim()}));
+  toast('Anotado', 'ok');
+}
+async function vincular() {
+  const expediente = $('#c-exp').value.trim();
+  if (!expediente) return;
+  pintar(await API.send(`/api/personas/${PERSONA_ID}/casos`,
+                        {expediente, rol: $('#c-rol').value.trim()}));
+  toast('Vinculado al expediente', 'ok');
+}
+async function deshacer(id) {
+  await API.send(`/api/fusiones/${id}/deshacer`);
+  toast('Fusion deshecha', 'ok'); cargar();
+}
+cargar();
+</script>
+{% endblock %}

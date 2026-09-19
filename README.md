@@ -1,6 +1,6 @@
-# Dos aplicaciones de IA para la oficina
+# Tres aplicaciones de IA para la oficina
 
-Este repositorio contiene **dos aplicaciones independientes**, cada una con su propio
+Este repositorio contiene **tres aplicaciones independientes**, cada una con su propio
 servidor, su propia base de datos y su propia interfaz. Se instalan juntas y se
 ejecutan por separado (pueden correr a la vez).
 
@@ -8,13 +8,14 @@ ejecutan por separado (pueden correr a la vez).
 |---|---|---|---|
 | **OfficeVision AI** | Análisis de video con IA: cámara de la PC, videos y cámaras IP; personas, objetos, zonas críticas y alertas | `python run.py` | 8000 |
 | **DocuFlow AI** | Clasificación, nombramiento y archivado automático de documentos | `python run_documentos.py` | 8100 |
-| **Directorio vivo** | Prototipo navegable del rediseño de una plataforma de contactos | abrir `prototipo-contactos/index.html` | — |
+| **Directorio vivo** | Contactos que se arman solos con las llamadas, los documentos y la nómina; búsqueda por teléfono, expediente o papel | `python run_contactos.py` | 8200 |
 
 ```bash
-pip install -r requirements.txt     # dependencias de las dos
+pip install -r requirements.txt     # dependencias de las tres
 
 python run.py                       # aplicación de video      → http://127.0.0.1:8000
 python run_documentos.py            # aplicación de documentos → http://127.0.0.1:8100
+python run_contactos.py             # aplicación de contactos  → http://127.0.0.1:8200
 ```
 
 Capturas y resultados de una ejecución real: [`docs/DEMOSTRACION.md`](docs/DEMOSTRACION.md).
@@ -391,10 +392,18 @@ proyectos-IA/
 │   ├── naming.py              Convención de nombres y carpetas
 │   ├── pipeline.py            Flujo completo y cola de trabajo
 │   └── templates/ · static/   Interfaz propia
-├── prototipo-contactos/       Prototipo del rediseño de contactos (Reto 6)
-│   └── index.html             Se abre con doble clic, sin servidor
+├── contactos/                 Directorio vivo: aplicación de contactos completa
+│   ├── main.py · api.py       Servidor, siete páginas y endpoints propios
+│   ├── config.py · db.py      Configuración y base de datos propias
+│   ├── modelo.py              Personas, identificadores, casos e hitos
+│   ├── fuentes.py             Importa nómina, llamadas y documentos
+│   ├── busqueda.py            Una sola caja, con el porqué de cada resultado
+│   ├── duplicados.py          Detección explicada y fusión reversible
+│   ├── extraccion.py          Alta pegando una firma de correo
+│   └── templates/ · static/   Interfaz propia
 ├── scripts/video_demo.py      Generador de video sintético de prueba
 ├── scripts/documentos_demo.py Generador de documentos de ejemplo
+├── scripts/contactos_demo.py  Arma el directorio desde cero y mide el resultado
 ├── sample_data/               Biométrico y RingCentral de ejemplo
 ├── docs/                      Arquitectura y guía de uso
 └── data/                      Base de datos, subidas, salidas y capturas
@@ -447,14 +456,48 @@ Detalle completo del enfoque, las categorías, la convención y las métricas:
 
 ---
 
+# Directorio vivo — Contactos que se arman solos
+
+Aplicación independiente (`python run_contactos.py`, <http://127.0.0.1:8200>).
+Nace del Reto 6: en vez de otra libreta de treinta campos vacíos, el directorio se
+construye con **lo que el despacho ya genera** —llamadas, documentos clasificados y
+nómina— y responde a las preguntas que una libreta no responde.
+
+```bash
+python run_contactos.py --importar   # carga nómina, llamadas y documentos
+python run_contactos.py              # arranca la app
+```
+
+* **Una sola caja de búsqueda**: acepta un teléfono entrante, medio nombre, un número de
+  expediente o un papel (*"demandante"*, *"ajustador"*), y **cada resultado dice por qué
+  aparece**: *"ese número es suyo"*, *"participa en 3:24-cv-05148-MGL como Demandante"*.
+* **La ficha es la historia**: cabecera con lo que existe —sin casillas vacías— y debajo
+  la línea de tiempo de llamadas, documentos y notas, con el origen de cada dato.
+* **Quién es quién en el expediente**: las partes de cada caso agrupadas por papel,
+  derivado de los documentos que ya clasificó DocuFlow AI, con de dónde salió ese papel.
+* **Alta pegando una firma**: de la firma de un correo salen nombre, despacho, papel,
+  dirección, colegiado, teléfono, fax y correo, cada campo mostrando la línea de la que
+  salió; y avisa si ese teléfono ya estaba en otra ficha.
+* **Duplicados explicados**: propuestas de una en una, con el motivo escrito y un
+  porcentaje, **reversibles dato por dato**.
+
+Medido sobre los datos reales del despacho (`python scripts/contactos_demo.py --limpio`):
+**411 fichas, 1 expediente y 4 396 hitos en 1,6 s** a partir de 25 empleados, 4 000
+llamadas y 14 documentos. De esos hitos, **3 611 quedan como historial buscable sin abrir
+ficha**, porque un número sólo entra al directorio cuando hay trato sostenido — importar
+las 4 000 llamadas a lo bruto habría creado 1 750 contactos basura.
+
+Análisis crítico de las plataformas existentes, rediseño y capturas de la aplicación:
+[`docs/RETO6_CONTACTOS.md`](docs/RETO6_CONTACTOS.md).
+
 ---
 
 ## Documentación
 
 | Documento | Contenido |
 |---|---|
-| [`docs/DEMOSTRACION.md`](docs/DEMOSTRACION.md) | **Demostración funcional**: capturas y resultados de una ejecución real de las dos apps |
-| [`docs/RETO6_CONTACTOS.md`](docs/RETO6_CONTACTOS.md) | Análisis crítico de plataformas de contactos y propuesta de rediseño, con prototipo navegable |
+| [`docs/DEMOSTRACION.md`](docs/DEMOSTRACION.md) | **Demostración funcional**: capturas y resultados de una ejecución real |
+| [`docs/RETO6_CONTACTOS.md`](docs/RETO6_CONTACTOS.md) | Análisis crítico de plataformas de contactos, rediseño y la aplicación construida, con resultados medidos |
 | [`docs/ENTREGABLES.md`](docs/ENTREGABLES.md) | Dónde está cubierto cada entregable y cada criterio de evaluación |
 | [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md) | Decisiones técnicas del módulo de video, esquema de datos y puntos de extensión |
 | [`docs/GUIA_USO.md`](docs/GUIA_USO.md) | Guía paso a paso y problemas frecuentes |

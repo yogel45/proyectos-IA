@@ -7,7 +7,7 @@ Entregables de este documento:
 
 1. Análisis crítico de plataformas existentes (§2 y §3).
 2. Listado de funcionalidades y flujos a eliminar, simplificar, rediseñar o mantener (§4).
-3. Propuesta de experiencia y flujo mejorado, con **prototipo navegable** (§5 y §6).
+3. Propuesta de experiencia y flujo mejorado, **construida como aplicación que corre** (§5 y §6).
 
 ---
 
@@ -208,59 +208,138 @@ se acepta de una en una y se puede deshacer.
 
 ---
 
-## 6. Prototipo navegable
+## 6. La aplicación: `run_contactos.py`
 
-El prototipo está en [`prototipo-contactos/`](../prototipo-contactos/). Se abre con doble
-clic en `index.html` —no necesita servidor ni instalación— y lleva datos del mismo
-expediente que usan las otras dos aplicaciones del repositorio.
+La propuesta no se quedó en maqueta: **es una aplicación que corre**, con su servidor, su
+base de datos y su interfaz, igual que las otras dos del repositorio.
+
+```bash
+python run_contactos.py --importar   # carga nómina, llamadas y documentos
+python run_contactos.py              # http://127.0.0.1:8200
+```
+
+No comparte nada con las otras dos aplicaciones salvo una lectura **de sólo lectura** de
+`documentos.db`: de ahí saca quién es quién en cada expediente. Las tres pueden correr a
+la vez (8000 vídeo, 8100 documentos, 8200 contactos).
+
+### Lo que hay dentro
+
+| Archivo | Qué resuelve |
+|---|---|
+| `contactos/modelo.py` | Personas, identificadores, casos, participaciones e hitos. Nunca pisa un dato que ya existe |
+| `contactos/fuentes.py` | Importa nómina, llamadas y documentos, y deja constancia de cada importación |
+| `contactos/busqueda.py` | Una sola caja: teléfono, nombre, expediente o papel — y el porqué de cada resultado |
+| `contactos/duplicados.py` | Cuatro estrategias de detección, fusión reversible dato por dato |
+| `contactos/extraccion.py` | Lee una firma de correo y saca nombre, despacho, teléfonos, correo, dirección y colegiado |
+| `contactos/api.py`, `main.py` | 22 endpoints REST y siete páginas |
+
+### Resultados medidos sobre los datos reales
+
+Reproducible con `python scripts/contactos_demo.py --limpio`:
+
+| Fuente | Fichas nuevas | Completadas | Hitos | Tiempo |
+|---|---:|---:|---:|---|
+| Nómina (`Datos_Biometrico_2.xlsx`) | 25 | 0 | 0 | |
+| Documentos (14 leídos de DocuFlow AI) | 5 | 2 | 7 | |
+| Llamadas (4 000 de RingCentral) | 381 | 0 | 4 389 | |
+| **Total** | **411** | **2** | **4 396** | **1,6 s** |
+
+De los 4 396 hitos, **3 611 son de números que llamaron poco**: quedan como historial
+buscable por número, sin abrir ficha. Ésa es la respuesta concreta al supuesto 6
+("sincronizar todo es mejor"): importar las 4 000 llamadas a lo bruto habría creado
+**1 750 contactos basura** — se midió—, así que un número sólo entra al directorio cuando
+hay trato sostenido (≥2 llamadas o ≥15 minutos de conversación acumulada, configurable
+desde la propia aplicación).
 
 ### Una sola entrada
 
-![Buscar por teléfono, expediente o rol](img/reto6-buscar.png)
+![Buscar por teléfono, expediente o rol](img/reto6-inicio.png)
 
-Buscando `(929) 876` —un número entrante— aparece la ajustadora de la aseguradora con la
-explicación *"ese número es suyo"* y su última interacción. Ninguna de las tres libretas
-analizadas llega a esa persona por ese camino.
+La portada es la caja de búsqueda, cuatro cifras y con quién se ha hablado últimamente.
+Nada más.
+
+![Resultados con el motivo de cada uno](img/reto6-buscar.png)
+
+Buscando `fry` salen tres fichas y cada una dice por qué aparece: *"coincide el nombre ·
+participa en 3:24-cv-05148-MGL como Demandante"*, *"participa en 3:24-cv-05148-MGL como
+Demandado"*. Buscando `demandante` —un papel, no un nombre— sale Dona M. Fry con
+*"es su papel: Demandante"*. Ninguna de las tres libretas analizadas llega ahí.
+
+![Historial de un número sin ficha](img/reto6-historial.png)
+
+Y un número que llamó una sola vez no tiene ficha, pero **su historial sí aparece**, con
+un botón para abrirle ficha si resulta que importa.
 
 ### La ficha es la historia
 
-![Ficha con línea de tiempo](img/reto6-ficha.png)
+![Ficha con línea de tiempo](img/reto6-ficha-abogado.png)
 
-Cinco hitos en orden: demanda presentada, llamada de 18 minutos atendida por la extensión
-9, declaración jurada, reclamación de $265 271 y la colisión que originó el caso. Ningún
-campo vacío a la vista.
+Cabecera con lo que existe, datos de contacto **etiquetados con su origen** (`documento`,
+`manual`, `nómina`) y la línea de tiempo debajo. Se edita en la misma página, se anota lo
+que acaba de pasar y se vincula a un expediente sin cambiar de pantalla.
 
 ### Quién es quién en el caso
 
 ![Vista por expediente](img/reto6-caso.png)
 
+Las cinco partes del expediente agrupadas por papel, cada una con **de dónde salió ese
+papel** (*"documento DEMANDA"*, *"alta manual"*), y al lado lo que ha pasado en el caso
+con el nombre del archivo que lo originó. Esta vista no existe en ninguna de las
+plataformas analizadas.
+
 ### Alta en un paso
 
 ![Alta pegando una firma de correo](img/reto6-alta.png)
 
-De la firma del escrito real salen ocho datos: nombre, organización, rol, teléfono, fax,
-correo, dirección y número de colegiado federal.
+De la firma del escrito real salen ocho datos —nombre, despacho, papel, dirección,
+colegiado federal, teléfono, fax y correo— y **cada campo muestra la línea de la que
+salió**. Además avisa: *"ya tienes ese teléfono"*, porque el conmutador del despacho ya
+estaba en otra ficha. Ahí decide la persona: sumar los datos a esa ficha, o crear una
+aparte porque un conmutador lo comparten todos los abogados de la firma. Si elige
+"aparte", el sistema **recuerda que no son la misma** y no vuelve a proponer fusionarlas.
 
 ### Duplicados explicados
 
 ![Fusión con su motivo](img/reto6-duplicados.png)
 
+El detector encontró solo el error tipográfico real que traían los documentos: *United
+States of America* frente a *United State of America*, 85 % de confianza, con dos motivos
+escritos. Se elige con cuál ficha quedarse, y la fusión mueve teléfonos, correos, hitos y
+papeles del expediente. **Se comprobó que deshacer devuelve todo exactamente a su sitio**,
+incluido el papel en el caso.
+
+### Fuentes, a la vista
+
+![Fuentes e importaciones](img/reto6-fuentes.png)
+
+Qué se importó, cuándo, cuántas fichas creó y cuántas completó. Y los umbrales que deciden
+cuándo un número merece ficha, editables sin tocar código.
+
 ### Antes y después
 
-![Comparativa de supuestos](img/reto6-comparativa.png)
+| Supuesto heredado | Cómo se resuelve hoy | Qué hace esta aplicación |
+|---|---|---|
+| Un contacto es una ficha de campos | 30+ casillas, casi todas vacías | Cabecera con lo que existe + línea de tiempo |
+| El usuario organiza a mano | Grupos y etiquetas que hay que mantener | El papel se deriva de los documentos: cero mantenimiento |
+| Completitud es calidad | La interfaz premia rellenar | No se muestra lo que no existe |
+| Los duplicados son del usuario | Un botón que fusiona en bloque | Propuestas de una en una, con motivo, reversibles |
+| Buscar es recordar el nombre | El buscador espera un nombre | Teléfono, nombre, expediente o papel en una sola caja |
+| Sincronizar todo es mejor | Cada dirección tocada se vuelve contacto | 3 611 llamadas quedan como historial, no como fichas |
+| La persona es la unidad de trabajo | Ninguna libreta responde "quién participa" | Vista por expediente con el papel de cada quien |
 
 ---
 
 ## 7. Impacto esperado
 
-Son **hipótesis a validar**, no resultados medidos. Cada una lleva la forma de comprobarla:
+Tres de estos cambios ya están **medidos sobre los datos reales** (§6); el resto son
+**hipótesis a validar**, no resultados. Cada una lleva la forma de comprobarla:
 
 | Cambio | Impacto esperado | Cómo se mide |
 |---|---|---|
-| Alta pegando una firma | De ~14 campos tecleados a 1 pegar + 1 confirmar | Tiempo medio de alta antes y después |
+| Alta pegando una firma | **Medido**: 8 datos extraídos de una firma real, 0 tecleados | Campos reconocidos / campos de la firma |
 | Búsqueda de una sola caja | Encontrar a alguien por teléfono entrante deja de ser imposible | % de llamadas entrantes identificadas al primer intento |
-| Roles derivados | Cero mantenimiento de etiquetas | Nº de etiquetas creadas a mano al mes (objetivo: 0) |
-| Fusión explicada | Ninguna pérdida de datos por fusión | Incidencias de "se borró un contacto" (objetivo: 0) |
+| Roles derivados | **Medido**: 5 partes del expediente con su papel, ninguna etiqueta a mano | Nº de etiquetas creadas a mano al mes (objetivo: 0) |
+| Fusión explicada | **Medido**: fusionar y deshacer devuelve datos, hitos y papeles a su sitio | Incidencias de "se borró un contacto" (objetivo: 0) |
 | Ficha sin campos vacíos | Menos ruido visual | Nº de campos visibles por ficha (de ~30 a los que existan) |
 | Vista por expediente | Responder "quién participa" sin preguntar a nadie | Tiempo hasta localizar al perito de un caso |
 
@@ -282,8 +361,16 @@ Son **hipótesis a validar**, no resultados medidos. Cada una lleva la forma de 
   ambas fuentes ya existen, pero en otro despacho hay que conectarlas primero.
 * **Migrar desde una libreta sucia no es trivial.** Un directorio con años de duplicados
   necesita una pasada asistida antes de estrenar el sistema nuevo.
-* **No se ha validado con usuarios.** El siguiente paso natural es sentar a dos paralegales
-  con el prototipo y cronometrar las cinco tareas de §7.
+* **No se ha validado con usuarios.** Es la limitación principal: la aplicación corre y
+  sus resultados están medidos, pero nadie del despacho ha hecho todavía las cinco tareas
+  de §7 con un cronómetro delante. Ése es el siguiente paso.
+* **Un conmutador compartido produce falsos duplicados.** Se vio en la prueba: el
+  despacho y su abogado comparten número y el detector los propuso al 95 %. Es correcto
+  que lo proponga —a veces sí son la misma— y por eso existe el botón *"son personas
+  distintas"*, que el sistema recuerda para siempre.
+* **Los roles dependen de cómo venga escrito el documento.** Una parte del expediente
+  quedó sin papel asignado porque el documento del que salió era correspondencia genérica.
+  Se ve en la ficha y se corrige en un campo.
 
 ---
 

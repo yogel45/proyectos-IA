@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card"><h3>Expedientes <small id="n-casos"></small></h3>
+  <div class="scroll" style="max-height:none"><table>
+    <thead><tr><th>Expediente</th><th>Asunto</th><th>Tribunal</th>
+      <th class="right">Partes</th><th class="right">Documentos</th></tr></thead>
+    <tbody id="tb"><tr><td colspan="5" class="muted">cargando…</td></tr></tbody>
+  </table></div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+API.get('/api/casos').then(cs => {
+  $('#n-casos').textContent = `${cs.length} en total`;
+  $('#tb').innerHTML = cs.map(c => `<tr>
+    <td><a href="/caso/${c.id}" class="mono">${esc(c.expediente)}</a></td>
+    <td>${esc(c.nombre || '—')}</td>
+    <td class="muted small">${esc(c.tribunal || '—')}</td>
+    <td class="right">${c.partes}</td>
+    <td class="right muted">${c.documentos || 0}</td></tr>`).join('')
+    || '<tr><td colspan="5" class="muted">Sin expedientes. Importa documentos desde Fuentes.</td></tr>';
+});
+</script>
+{% endblock %}

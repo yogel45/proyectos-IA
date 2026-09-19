@@ -14,6 +14,9 @@ data/officevision.db-shm
 data/documentos/documentos.db
 data/documentos/documentos.db-wal
 data/documentos/documentos.db-shm
+data/contactos/contactos.db
+data/contactos/contactos.db-wal
+data/contactos/contactos.db-shm
 data/uploads/*
 data/outputs/*
 data/snapshots/*
@@ -31,3 +34,4 @@ models/*.onnx
 *.pt
 config.json
 config_documentos.json
+config_contactos.json

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card" style="margin-bottom:16px">
+  <div class="row tight" style="justify-content:space-between">
+    <p class="small muted" style="margin:0;max-width:640px;line-height:1.55">
+      El sistema propone; la persona decide. Cada propuesta dice por que cree que son la
+      misma, y toda fusion se puede deshacer dato por dato.</p>
+    <button class="ghost" onclick="cargar()">Revisar de nuevo</button>
+  </div>
+</div>
+<div id="lista"><div class="card muted small">buscando duplicados…</div></div>
+<div class="card" style="margin-top:16px"><h3>Fusiones hechas</h3>
+  <div id="hechas" class="feed"></div></div>
+{% endblock %}
+{% block scripts %}
+<script>
+function ladoPersona(p, otro, motivos, conf) {
+  return `<div class="card" style="background:var(--surface-2)">
+    <div style="font-size:15px">${esc(p.nombre)}</div>
+    <div class="small muted">${esc([p.rol, p.organizacion].filter(Boolean).join(' · ')) || 'sin perfil'}</div>
+    <div class="small muted" style="margin-top:6px">ficha #${p.id} · ${p.hitos || 0} hitos ·
+      ${(p.identificadores || []).length} datos · origen ${esc(p.origen || 'manual')}</div>
+    <div style="margin-top:8px">${(p.identificadores || []).map(i =>
+      `<div class="mono small">${esc(i.valor)}</div>`).join('')}</div>
+    <button style="margin-top:11px;width:100%"
+      onclick='fusionar(${p.id}, ${otro}, ${JSON.stringify(motivos)}, ${conf})'>
+      Quedarse con esta</button>
+  </div>`;
+}
+
+async function cargar() {
+  const props = await API.get('/api/duplicados');
+  $('#lista').innerHTML = props.map(d => `<div class="card" style="margin-bottom:16px">
+    <div class="row tight" style="justify-content:space-between;margin-bottom:12px">
+      <span class="tag ${d.confianza >= 0.9 ? 'warning' : 'info'}">
+        ${Math.round(d.confianza * 100)}% de confianza</span>
+      <button class="ghost" onclick="descartar(${d.a.id}, ${d.b.id})">Son personas distintas</button>
+    </div>
+    <div class="small" style="margin-bottom:12px">Por que:
+      ${(d.motivos || []).map(m => `<span class="muted">${esc(m)}</span>`).join(' · ')}</div>
+    <div class="grid g2">
+      ${ladoPersona(d.a, d.b.id, d.motivos, d.confianza)}
+      ${ladoPersona(d.b, d.a.id, d.motivos, d.confianza)}
+    </div>
+    <div class="small muted" style="margin-top:10px">Al unirlas, la ficha elegida se queda
+      con todo: telefonos, correos, expedientes e historial.</div>
+  </div>`).join('') ||
+    '<div class="card"><p>No hay duplicados por revisar.</p></div>';
+
+  const f = await API.get('/api/fusiones');
+  $('#hechas').innerHTML = f.map(x => `<div class="item">
+      <div class="meta">${fmtFecha(x.ts)} · ${Math.round((x.confianza || 0) * 100)}%
+        ${x.deshecha ? '<span class="tag muted">deshecha</span>' : ''}</div>
+      <div><a href="/persona/${x.principal_id}">${esc(x.principal || '#' + x.principal_id)}</a>
+        absorbio a ${esc(x.absorbida || '#' + x.absorbida_id)}
+        <div class="small muted">${(x.motivos || []).map(esc).join(' · ')}</div></div>
+      ${x.deshecha ? '' : `<button class="ghost" style="margin-top:6px"
+        onclick="deshacer(${x.id})">deshacer</button>`}
+    </div>`).join('') || '<div class="muted small">Todavia no se ha unido ninguna ficha.</div>';
+}
+
+async function fusionar(principal_id, absorbida_id, motivos, confianza) {
+  await API.send('/api/duplicados/fusionar', {principal_id, absorbida_id, motivos, confianza});
+  toast('Fichas unidas — se puede deshacer', 'ok'); cargar();
+}
+async function descartar(a_id, b_id) {
+  await API.send('/api/duplicados/descartar', {a_id, b_id});
+  toast('No se volvera a proponer'); cargar();
+}
+async function deshacer(id) {
+  await API.send(`/api/fusiones/${id}/deshacer`);
+  toast('Todo volvio a su ficha', 'ok'); cargar();
+}
+cargar();
+</script>
+{% endblock %}

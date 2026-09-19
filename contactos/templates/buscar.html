@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card" style="margin-bottom:16px">
+  <div class="row">
+    <div style="flex:4">
+      <label>Busca por lo que tengas a la mano</label>
+      <input id="q" placeholder="(803) 359-5523 · Cunningham · 3:24-cv-05148-MGL · demandante"
+             autofocus autocomplete="off">
+    </div>
+    <div class="row tight" style="flex:0 0 auto">
+      <button onclick="buscar()">Buscar</button>
+      <a class="btn ghost" href="/alta">Alta rapida</a>
+    </div>
+  </div>
+  <div class="chips" style="margin-top:12px" id="atajos"></div>
+</div>
+
+<div class="grid g4" id="kpis" style="margin-bottom:16px"></div>
+
+<div id="salida"></div>
+
+<div id="inicio">
+  <div class="split">
+    <div class="card">
+      <h3>Contacto reciente <small>con quien se ha hablado</small></h3>
+      <div id="recientes" class="feed"><div class="muted small">cargando…</div></div>
+    </div>
+    <div class="card">
+      <h3>De donde salen las fichas</h3>
+      <div id="origenes"><div class="muted small">cargando…</div></div>
+      <div class="sep"></div>
+      <p class="small muted" style="line-height:1.55">Ninguna ficha se inventa: cada una
+        viene de una llamada repetida, de un documento clasificado o de la nomina, y la
+        ficha dice de donde salio cada dato.</p>
+      <a class="btn ghost" href="/fuentes">Revisar fuentes</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+const ATAJOS = ['demandante', 'abogado', 'ajustador', 'McWhirter', '3:24-cv-05148-MGL'];
+
+async function inicio() {
+  $('#atajos').innerHTML = ATAJOS.map(a =>
+    `<span class="chip" onclick="$('#q').value='${a}';buscar()">${a}</span>`).join('');
+  const m = await API.get('/api/metricas');
+  const r = m.resumen || {};
+  $('#kpis').innerHTML = [
+    ['Fichas', r.personas, `${r.internas || 0} del despacho`],
+    ['Expedientes', r.casos, 'con partes identificadas'],
+    ['Hitos guardados', r.hitos, `${r.sueltos || 0} sin ficha aun`],
+    ['Datos de contacto', r.datos, 'telefonos, correos, extensiones'],
+  ].map(([l, v, s]) => `<div class="card kpi"><div class="label">${l}</div>
+      <div class="value">${v ?? 0}</div><div class="sub">${s}</div></div>`).join('');
+
+  $('#origenes').innerHTML = (m.origenes || []).map(o => {
+    const total = (m.origenes || []).reduce((a, x) => a + x.n, 0) || 1;
+    const nombre = {nomina:'Nomina', llamadas:'Llamadas', documentos:'Documentos',
+                    manual:'Alta a mano'}[o.origen] || o.origen;
+    return `<div style="margin-bottom:11px">
+      <div class="row tight small" style="justify-content:space-between">
+        <span>${esc(nombre)}</span><span class="muted">${o.n}</span></div>
+      <div class="bar" style="margin-top:4px"><span style="width:${o.n / total * 100}%"></span></div>
+    </div>`;
+  }).join('') || '<div class="muted small">Todavia no hay fichas. Importa una fuente.</div>';
+
+  const rec = await API.get('/api/recientes');
+  $('#recientes').innerHTML = rec.map(p => `<div class="item">
+      <div class="meta">${fmtFecha(p.ultimo_ts)} · ${p.hitos} hitos</div>
+      <div><a href="/persona/${p.id}">${esc(p.nombre)}</a>
+        <span class="muted small">${esc([p.rol, p.organizacion].filter(Boolean).join(' · '))}</span></div>
+    </div>`).join('') || '<div class="muted small">Sin movimiento todavia.</div>';
+}
+
+async function buscar() {
+  const q = $('#q').value.trim();
+  history.replaceState(null, '', q ? '/?q=' + encodeURIComponent(q) : '/');
+  if (q.length < 2) { $('#salida').innerHTML = ''; $('#inicio').style.display = ''; return; }
+  $('#inicio').style.display = 'none';
+  $('#salida').innerHTML = '<div class="card muted small">buscando…</div>';
+  const r = await API.get('/api/buscar?q=' + encodeURIComponent(q));
+
+  let html = '';
+  if (r.resultados.length) {
+    html += `<h3 class="small muted" style="letter-spacing:.06em;text-transform:uppercase">
+        ${r.resultados.length} ficha${r.resultados.length === 1 ? '' : 's'}</h3>
+      <div class="grid g3" style="margin-bottom:18px">
+        ${r.resultados.map(tarjetaPersona).join('')}</div>`;
+  }
+  if ((r.casos || []).length) {
+    html += `<div class="card" style="margin-bottom:16px"><h3>Expedientes</h3>
+      ${r.casos.map(c => `<div class="item" style="padding:7px 0">
+        <a href="/caso/${c.id}" class="mono">${esc(c.expediente)}</a>
+        <span class="muted small"> ${esc(c.nombre || '')}</span></div>`).join('')}</div>`;
+  }
+  if ((r.historial || []).length) {
+    html += `<div class="card"><h3>Historial de ese numero <small>sin ficha propia</small></h3>
+      <p class="small muted" style="margin-top:-6px">Llamo pocas veces, asi que no se le
+        abrio ficha; el historial sigue aqui y puedes crearsela.</p>
+      ${r.historial.map(h => `<div class="item">
+        <div class="meta">${fmtFecha(h.ts)}</div><div>${esc(h.titulo)}
+        <span class="muted small">${esc(h.detalle || '')}</span></div></div>`).join('')}
+      <div class="sep"></div>
+      <a class="btn ghost" href="/alta?tel=${encodeURIComponent(q)}">Abrir ficha para este numero</a>
+      </div>`;
+  }
+  $('#salida').innerHTML = html ||
+    `<div class="card"><p>Nada coincide con <b>${esc(q)}</b>.</p>
+     <a class="btn ghost" href="/alta">Crear la ficha</a></div>`;
+}
+
+$('#q').addEventListener('keydown', e => { if (e.key === 'Enter') buscar(); });
+let _t; $('#q').addEventListener('input', () => { clearTimeout(_t); _t = setTimeout(buscar, 320); });
+
+const inicialQ = new URLSearchParams(location.search).get('q');
+if (inicialQ) { $('#q').value = inicialQ; buscar(); }
+inicio();
+</script>
+{% endblock %}
