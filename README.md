@@ -1,9 +1,10 @@
 # OfficeVision AI — Análisis de video con IA para entornos de oficina
 
 Aplicación web lista para ejecutar que analiza **la cámara de tu PC** y **videos que subas**,
-identifica personas y objetos, mide lo que ocurre en **zonas críticas** del espacio y va
-**llenando una base de datos** con lo que pasó y lo que está pasando: ocupación, entradas y
-salidas, permanencia, alertas y resúmenes periódicos.
+**reconoce personas y objetos** (cada uno con su propio identificador de seguimiento),
+**detecta solo las zonas críticas del espacio** —no vienen impuestas— y va **llenando una
+base de datos** con lo que pasó y lo que está pasando: ocupación, entradas y salidas,
+permanencia, inventario de objetos, alertas y resúmenes periódicos.
 
 Además cruza esos datos de video con la **operación real de la oficina**: marcajes del
 biométrico (`Datos_Biometrico_2.xlsx`) e historial de llamadas de RingCentral
@@ -54,10 +55,10 @@ en `models/`.
 
 | Pantalla | Contenido |
 |---|---|
-| **Dashboard** | KPIs (personas ahora, ocupación promedio, pico, permanencia, eventos, alertas), ocupación en el tiempo, actividad por hora, ocupación por zona, tipos de evento, alertas y últimos eventos |
-| **Cámara en vivo** | Captura la webcam, dibuja detecciones y zonas sobre el video, muestra ocupación por zona en tiempo real y el flujo de eventos. También conecta una cámara del servidor o **IP/RTSP** |
+| **Dashboard** | KPIs (personas ahora, ocupación promedio, pico, permanencia, eventos, alertas), ocupación en el tiempo, actividad por hora, ocupación por zona, tipos de evento, **objetos reconocidos**, alertas y últimos eventos |
+| **Cámara en vivo** | Captura la webcam, dibuja personas y objetos con su ID sobre el video, muestra ocupación por zona, **inventario de objetos** en tiempo real y el flujo de eventos. También conecta una cámara del servidor o **IP/RTSP** |
 | **Videos** | Subida por arrastre (multi-archivo), procesamiento en segundo plano con barra de progreso, resultado por sesión con métricas, zonas, eventos, personas seguidas y **video anotado descargable** |
-| **Puntos críticos** | Editor de zonas sobre un fondo tomado de la cámara o de una imagen; aforo, alerta de permanencia, tipo de zona y reglas globales |
+| **Puntos críticos** | **Detección automática de zonas** (por escena o por actividad) + editor manual sobre un fondo tomado de la cámara o de una imagen; aforo, permanencia, tipo de zona, clases a reconocer y reglas globales |
 | **Operación** | Cruce de la cámara con el biométrico y las llamadas: demanda vs. personal por hora, hallazgos automáticos, asistencia del día y retrasos |
 | **Reportes** | Todos los eventos filtrables (rango, severidad, tipo, sesión, texto), personas seguidas, evidencia visual y exportación CSV |
 
@@ -75,14 +76,18 @@ Cuadro (webcam o video)
    │                        Clases: person + laptop, cell phone, chair, backpack, cup, tv…
    │
    ├─▶ 2. SEGUIMIENTO       Tracker propio por IoU + centroides (app/vision/tracker.py)
-   │                        IDs anónimos persistentes: P<sesión>-0001, 0002…
-   │                        Confirmación por min_hits, cierre por max_age
+   │                        Dos instancias: personas (P<sesión>-0001…) y objetos
+   │                        (P<sesión>-O-0001…). IDs anónimos, confirmación por
+   │                        min_hits y cierre por max_age
    │
    ├─▶ 3. ZONAS             Polígonos normalizados (0..1) · punto de contacto con el piso
    │                        Entradas, salidas, ocupación instantánea y permanencia por track
+   │                        Las zonas se pueden detectar automáticamente (ver 3.1)
    │
-   ├─▶ 4. REGLAS            Aforo, permanencia excesiva, aglomeración, zona inactiva,
-   │                        actividad fuera de horario
+   ├─▶ 4. REGLAS            Personas: aforo, permanencia excesiva, aglomeración, zona
+   │                        inactiva, actividad fuera de horario
+   │                        Objetos: objeto nuevo, objeto retirado, objeto de valor sin
+   │                        supervisión
    │
    └─▶ 5. PERSISTENCIA      Eventos al instante · foto de estado cada N s ·
                             resumen narrado cada minuto · tracks al cerrarse
@@ -109,6 +114,48 @@ Cuadro (webcam o video)
   MOG2. La app nunca queda inutilizable, solo cambia la precisión (el backend activo siempre
   se muestra en pantalla).
 
+### Reconocimiento de objetos, no solo de personas
+
+El modelo detecta 80 clases COCO; en la pantalla *Puntos críticos* se eligen con un clic
+cuáles buscar (por defecto: `person`, `laptop`, `cell phone`, `chair`, `backpack`,
+`handbag`, `cup`, `book`, `tv`). Cada objeto detectado:
+
+* recibe su **propio identificador de seguimiento** (`P7-O-0003`) y se guarda en `tracks`
+  con su duración en escena y las zonas por las que pasó;
+* alimenta un **inventario** en vivo (cuántos hay ahora y cuántos distintos se han visto);
+* dispara tres reglas propias:
+
+| Evento | Cuándo |
+|---|---|
+| `objeto_nuevo` | Aparece un objeto que no estaba al inicio de la escena (tras un periodo de calentamiento, para no anunciar el mobiliario fijo) |
+| `objeto_retirado` | Un objeto que llevaba más de 10 s en escena deja de verse |
+| `objeto_sin_supervision` | Una laptop, mochila, bolso, maleta o teléfono queda sin ninguna persona en un radio configurable durante más de N minutos |
+
+Las reglas de aforo y aglomeración siguen contando **solo personas**: los objetos no
+inflan la ocupación.
+
+### 3.1 Detección automática de puntos críticos
+
+Las zonas no tienen por qué dibujarse a mano ni quedarse en las de ejemplo. El botón
+*Detectar* de la pantalla **Puntos críticos** las propone de dos formas
+(`app/vision/autozones.py`):
+
+* **Por escena** — se detectan los elementos del lugar (sillas, mesas, monitores, laptops,
+  personas) en una foto o en 6 cuadros repartidos de un video, se proyectan a una rejilla
+  de 128×72, se dilatan para unir lo que está contiguo y cada componente conexa se
+  convierte en polígono. El nombre sale de lo que domina el grupo: mesa grande + sillas +
+  pantalla → *Sala de juntas*; sillas + laptops → *Área de trabajo*.
+* **Por actividad** — se acumulan las trayectorias ya guardadas en un mapa de calor y se
+  separan dos comportamientos con dos señales independientes: **densidad** (muestras por
+  celda: quedarse concentra muestras) y **velocidad** (celdas recorridas por muestra: pasar
+  las dispersa). Alta densidad → *Área de permanencia*; alta velocidad y baja densidad →
+  *Pasillo / Acceso*.
+
+Cada propuesta llega con su **justificación** ("4x chair, 1x dining table, 1x tv" o
+"corredor de paso: 3.0 celdas por muestra"), un aforo y un umbral de permanencia
+sugeridos. Se dibujan punteadas sobre el editor y **no se guardan hasta que se aceptan**:
+el sistema propone, la persona decide.
+
 ### Modelos, librerías y herramientas
 
 | Componente | Tecnología | Rol |
@@ -120,7 +167,8 @@ Cuadro (webcam o video)
 | Geometría | `cv2.pointPolygonTest` | Pertenencia a zonas poligonales |
 | Backend | **FastAPI + Uvicorn** (REST + WebSocket) | API y streaming de análisis |
 | Base de datos | **SQLite (WAL)** | Persistencia sin servidor |
-| Frontend | HTML + CSS + JS puro, gráficas en `<canvas>` propias | Sin CDNs: funciona offline |
+| Zonas automáticas | OpenCV (rejilla, componentes conexas, `approxPolyDP`) | Propuesta de puntos críticos |
+| Frontend | HTML + CSS + JS puro, gráficas en `<canvas>` propias | Sin CDNs: funciona offline, tema claro/oscuro |
 | Datos operativos | **openpyxl** | Importación de biométrico y RingCentral |
 
 ---
@@ -161,13 +209,17 @@ Zonas precargadas: Recepción, Área de trabajo, Sala de juntas y Pasillo / Acce
 | `aforo_excedido` | critical | La ocupación instantánea supera el máximo de la zona |
 | `aglomeracion` | critical | Más de N personas simultáneas en el encuadre |
 | `zona_inactiva` | warning | Zona sin actividad durante el horario laboral |
+| `objeto_nuevo` | info | Aparece en escena un objeto que antes no estaba |
+| `objeto_retirado` | info / warning | Un objeto deja de verse (warning si es de valor) |
+| `objeto_sin_supervision` | warning | Objeto de valor sin ninguna persona cerca |
 | `actividad_fuera_horario` | warning | Presencia detectada fuera de la jornada configurada |
 | `resumen` | info | Cada minuto: promedio y pico de personas, entradas por zona, eventos y alertas |
 
 **Métricas disponibles**: personas simultáneas (instantánea, promedio y pico), personas únicas
 (tracks confirmados), permanencia por persona y por zona, entradas/salidas por zona,
 ocupación vs. aforo, índice de movimiento (proporción de píxeles que cambian), fps de
-procesamiento y latencia por cuadro, conteo por clase de objeto.
+procesamiento y latencia por cuadro, **objetos únicos por clase con su permanencia en
+escena** e inventario instantáneo.
 
 ---
 
@@ -200,6 +252,10 @@ Todo es exportable a CSV desde *Reportes* o vía `GET /api/export/{events,snapsh
 * **Más modelos**: `app/vision/detector.py` es un registro de backends. Añadir un modelo nuevo
   (pose, EPP, ocupación de escritorios, conteo de vehículos) es implementar `detect()` y
   devolver `Detection`. Todo lo demás —tracking, zonas, reglas, base de datos— se reutiliza.
+* **Más clases sin tocar código**: el selector de clases de la pantalla *Puntos críticos*
+  cambia en caliente qué elementos se reconocen, de las 80 clases del modelo.
+* **Nuevo espacio físico**: en una cámara nueva, la detección automática de zonas propone
+  los puntos críticos en segundos en lugar de redibujarlos a mano.
 * **Migrar a otro motor de datos**: las escrituras pasan por `app/db.py`; cambiar SQLite por
   PostgreSQL o TimescaleDB es sustituir esa capa.
 * **GPU**: `"device": "0"` en `config.json` (o desde `POST /api/config`) usa CUDA sin tocar código.
@@ -247,6 +303,11 @@ extremo en vivo (captura → análisis → dibujo) se mantiene por debajo de 100
 * Sin re-identificación entre cámaras: una persona que pasa de una cámara a otra es un track nuevo.
 * El cruce con el biométrico es a nivel agregado por hora (por diseño: no se identifica a nadie).
 
+* La detección automática de zonas propone, no adivina la intención del negocio: un
+  pasillo muy transitado y una fila de espera se parecen mucho en los datos.
+* El reconocimiento de objetos hereda los límites del modelo COCO: reconoce categorías
+  genéricas (laptop, silla, mochila), no modelos ni pertenencias concretas.
+
 **Mejoras previstas**
 * Re-identificación por apariencia (OSNet/FastReID) para trayectorias entre cámaras.
 * Mapa de calor acumulado y planos en planta (homografía) para métricas en metros.
@@ -273,7 +334,8 @@ proyectos-IA/
 │   ├── config.py              Configuración persistente
 │   ├── vision/
 │   │   ├── detector.py        Backends YOLO / ONNX / movimiento
-│   │   ├── tracker.py         Seguimiento multi-objeto
+│   │   ├── tracker.py         Seguimiento multi-objeto (personas y objetos)
+│   │   ├── autozones.py       Deteccion automatica de puntos criticos
 │   │   └── zones.py           Polígonos, aforo y permanencia
 │   ├── templates/             6 páginas (Jinja2)
 │   └── static/                CSS y JS (gráficas propias en canvas)

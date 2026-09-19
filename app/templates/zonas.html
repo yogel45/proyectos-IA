@@ -25,6 +25,26 @@
 
   <div>
     <div class="card">
+      <h3>Deteccion automatica <small>el sistema propone, tu decides</small></h3>
+      <div class="row tight">
+        <button id="btn-auto-escena" class="ghost">Detectar desde la escena</button>
+        <button id="btn-auto-act" class="ghost">Detectar por actividad</button>
+        <input type="file" id="escena" accept="image/*,video/*" style="display:none">
+      </div>
+      <p class="small muted" style="margin:10px 0 0" id="auto-info">
+        <strong>Escena:</strong> reconoce sillas, escritorios, monitores y personas en una
+        foto o video del lugar y agrupa lo que esta junto.
+        <strong>Actividad:</strong> usa las trayectorias ya analizadas para separar donde
+        la gente se queda de donde solo pasa.
+      </p>
+      <div id="propuestas" class="zone-list" style="margin-top:12px"></div>
+      <div class="row tight" id="propuestas-acciones" style="margin-top:10px;display:none">
+        <button id="btn-aplicar">Guardar seleccionadas</button>
+        <button id="btn-descartar" class="ghost">Descartar</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
       <h3>Nueva zona / edicion</h3>
       <div class="row tight">
         <div style="flex:1;min-width:150px"><label>Nombre</label><input id="z-name" placeholder="Recepcion"></div>
@@ -63,10 +83,23 @@
     <div><strong>Aglomeracion</strong><p class="small muted">Mas de <span id="r-crowd"></span> personas simultaneas en el encuadre.</p></div>
     <div><strong>Actividad fuera de horario</strong><p class="small muted">Presencia detectada fuera de <span id="r-horario"></span>.</p></div>
     <div><strong>Conteo de accesos</strong><p class="small muted">Entradas y salidas por zona, con permanencia acumulada por persona.</p></div>
+    <div><strong>Objeto nuevo o retirado</strong><p class="small muted">Se reconoce cuando aparece o desaparece un objeto de la escena, con su identificador.</p></div>
+    <div><strong>Objeto sin vigilancia</strong><p class="small muted">Una laptop, mochila o telefono sin ninguna persona cerca durante el tiempo configurado.</p></div>
   </div>
+  <div class="sep"></div>
+  <h3>Clases a reconocer <small>que debe buscar el modelo en la imagen</small></h3>
+  <div class="chips" id="chips-clases"><span class="muted small">Cargando…</span></div>
+  <p class="small muted" style="margin-top:10px">
+    Cada clase activa se detecta, se le asigna un identificador de seguimiento y se
+    registra en la base de datos. "person" siempre esta activa porque las reglas de
+    aforo y permanencia se calculan sobre personas.
+  </p>
+
+  <div class="sep"></div>
   <div class="row tight" style="margin-top:14px">
     <div><label>Aglomeracion (personas)</label><input id="cfg-crowd" type="number" min="1"></div>
     <div><label>Zona inactiva (min)</label><input id="cfg-idle" type="number" min="1"></div>
+    <div><label>Objeto sin vigilancia (min)</label><input id="cfg-unatt" type="number" min="1"></div>
     <div><label>Inicio jornada</label><input id="cfg-ini" placeholder="07:00"></div>
     <div><label>Fin jornada</label><input id="cfg-fin" placeholder="18:00"></div>
     <div style="align-self:end"><button id="btn-cfg">Guardar reglas</button></div>
@@ -78,18 +111,23 @@
 <script>
 const cv = $('#editor'), cx = cv.getContext('2d');
 let bg = null, puntos = [], zonas = [], editId = null, camStream = null;
+let propuestas = [];
 cv.width = 1280; cv.height = 720;
 
 function dibujar() {
   cx.clearRect(0, 0, cv.width, cv.height);
   if (bg) cx.drawImage(bg, 0, 0, cv.width, cv.height);
   else {
-    cx.fillStyle = '#0c1526'; cx.fillRect(0, 0, cv.width, cv.height);
-    cx.strokeStyle = 'rgba(148,163,184,.12)';
+    const css = getComputedStyle(document.documentElement);
+    cx.fillStyle = css.getPropertyValue('--surface-2').trim() || '#0c1526';
+    cx.fillRect(0, 0, cv.width, cv.height);
+    cx.strokeStyle = css.getPropertyValue('--line').trim() || 'rgba(148,163,184,.12)';
     for (let x = 0; x < cv.width; x += 64) { cx.beginPath(); cx.moveTo(x, 0); cx.lineTo(x, cv.height); cx.stroke(); }
     for (let y = 0; y < cv.height; y += 64) { cx.beginPath(); cx.moveTo(0, y); cx.lineTo(cv.width, y); cx.stroke(); }
-    cx.fillStyle = '#64748b'; cx.font = '20px Segoe UI, sans-serif'; cx.textAlign = 'center';
+    cx.fillStyle = css.getPropertyValue('--txt-3').trim() || '#64748b';
+    cx.font = '18px ui-sans-serif, system-ui, sans-serif'; cx.textAlign = 'center';
     cx.fillText('Carga un fondo (camara o imagen) y traza las zonas', cv.width / 2, cv.height / 2);
+    cx.textAlign = 'start';
     cx.textAlign = 'start';
   }
   zonas.filter(z => z.enabled).forEach(z => {
@@ -102,6 +140,18 @@ function dibujar() {
     cx.lineWidth = z.id === editId ? 3 : 2; cx.stroke();
     cx.fillStyle = z.color; cx.font = 'bold 16px Segoe UI, sans-serif';
     cx.fillText(`${z.name} · aforo ${z.max_occupancy}`, pts[0][0] + 8, pts[0][1] + 22);
+  });
+  propuestas.forEach((z, i) => {
+    if (!z._sel) return;
+    const pts = z.polygon.map(p => [p[0] * cv.width, p[1] * cv.height]);
+    if (pts.length < 3) return;
+    cx.beginPath(); cx.moveTo(pts[0][0], pts[0][1]);
+    pts.slice(1).forEach(p => cx.lineTo(p[0], p[1])); cx.closePath();
+    cx.fillStyle = z.color + '1f'; cx.fill();
+    cx.strokeStyle = z.color; cx.lineWidth = 2; cx.setLineDash([10, 7]); cx.stroke();
+    cx.setLineDash([]);
+    cx.fillStyle = z.color; cx.font = '600 15px ui-sans-serif, system-ui, sans-serif';
+    cx.fillText('propuesta · ' + z.name, pts[0][0] + 8, pts[0][1] + 20);
   });
   if (puntos.length) {
     const pts = puntos.map(p => [p[0] * cv.width, p[1] * cv.height]);
@@ -178,6 +228,87 @@ $('#btn-save').onclick = async () => {
   } catch (e) { toast('Error: ' + e.message, 'critical'); }
 };
 
+function pintarPropuestas(mensaje) {
+  const cont = $('#propuestas');
+  $('#auto-info').textContent = mensaje || '';
+  if (!propuestas.length) {
+    cont.innerHTML = '<p class="muted small">Sin propuestas.</p>';
+    $('#propuestas-acciones').style.display = 'none';
+    dibujar(); return;
+  }
+  cont.innerHTML = propuestas.map((z, i) => `
+    <div class="zone-item">
+      <input type="checkbox" style="width:auto" ${z._sel ? 'checked' : ''}
+             onchange="propuestas[${i}]._sel=this.checked;pintarPropuestas()">
+      <span class="swatch" style="background:${esc(z.color)}"></span>
+      <div style="flex:1">
+        <div><strong>${esc(z.name)}</strong> <span class="tag muted">${esc(z.kind)}</span></div>
+        <div class="small muted">${esc(z.motivo || '')} · aforo ${z.max_occupancy}
+          · permanencia ${(z.dwell_alert_s / 60).toFixed(0)} min</div>
+      </div>
+    </div>`).join('');
+  $('#propuestas-acciones').style.display = 'flex';
+  dibujar();
+}
+
+async function autoActividad() {
+  $('#auto-info').textContent = 'Analizando trayectorias registradas…';
+  try {
+    const r = await API.get('/api/zones/suggest');
+    propuestas = (r.zones || []).map(z => ({...z, _sel: true}));
+    pintarPropuestas(r.mensaje);
+  } catch (e) { toast('Error: ' + e.message, 'critical'); }
+}
+
+async function autoEscena(file) {
+  $('#auto-info').textContent = 'Reconociendo objetos del espacio…';
+  const fd = new FormData();
+  fd.append('file', file, file.name || 'escena.jpg');
+  try {
+    const r = await fetch('/api/zones/suggest-image', {method: 'POST', body: fd});
+    if (!r.ok) throw new Error(await r.text());
+    const data = await r.json();
+    propuestas = (data.zones || []).map(z => ({...z, _sel: true}));
+    pintarPropuestas(data.mensaje);
+    if (!propuestas.length) toast(data.mensaje || 'Sin zonas propuestas', 'warning', 6000);
+  } catch (e) { toast('Error: ' + e.message, 'critical', 6000); }
+}
+
+$('#btn-auto-act').onclick = autoActividad;
+$('#btn-auto-escena').onclick = () => {
+  if (bg) {
+    // usa el fondo ya cargado en el editor
+    const tmp = document.createElement('canvas');
+    tmp.width = cv.width; tmp.height = cv.height;
+    tmp.getContext('2d').drawImage(bg, 0, 0, tmp.width, tmp.height);
+    tmp.toBlob(b => autoEscena(new File([b], 'escena.jpg', {type: 'image/jpeg'})),
+               'image/jpeg', 0.9);
+  } else {
+    $('#escena').click();
+  }
+};
+$('#escena').onchange = ev => {
+  const f = ev.target.files[0];
+  if (!f) return;
+  if (f.type.startsWith('image/')) {
+    const img = new Image();
+    img.onload = () => { bg = img; cv.width = img.width; cv.height = img.height; dibujar(); };
+    img.src = URL.createObjectURL(f);
+  }
+  autoEscena(f);
+};
+$('#btn-aplicar').onclick = async () => {
+  const sel = propuestas.filter(z => z._sel);
+  if (!sel.length) return toast('No hay zonas seleccionadas', 'warning');
+  try {
+    const r = await API.send('/api/zones/apply', {zones: sel});
+    toast(`${r.guardadas} zona(s) guardadas`, 'ok');
+    propuestas = []; pintarPropuestas('');
+    cargarZonas();
+  } catch (e) { toast('Error: ' + e.message, 'critical'); }
+};
+$('#btn-descartar').onclick = () => { propuestas = []; pintarPropuestas(''); };
+
 async function cargarZonas() {
   zonas = await API.get('/api/zones');
   $('#z-count').textContent = `${zonas.length} zonas`;
@@ -212,10 +343,36 @@ async function alternar(id, enabled) {
   await API.send('/api/zones/' + id, {enabled: !!enabled}, 'PUT'); cargarZonas();
 }
 
+let CLASES = {activas: [], sugeridas: []};
+
+async function cargarClases() {
+  CLASES = await API.get('/api/classes');
+  const todas = Array.from(new Set([...(CLASES.sugeridas || []), ...(CLASES.activas || [])]));
+  $('#chips-clases').innerHTML = todas.map(c => {
+    const on = (CLASES.activas || []).includes(c);
+    const fija = c === (CLASES.primaria || 'person');
+    return `<span class="chip ${on ? 'on' : ''}" data-clase="${esc(c)}"
+       ${fija ? 'title="siempre activa" style="opacity:.75;cursor:default"' : ''}>${esc(c)}</span>`;
+  }).join('');
+  $$('#chips-clases .chip').forEach(el => {
+    el.onclick = async () => {
+      const clase = el.dataset.clase;
+      if (clase === (CLASES.primaria || 'person')) return;
+      const activas = new Set(CLASES.activas || []);
+      activas.has(clase) ? activas.delete(clase) : activas.add(clase);
+      activas.add(CLASES.primaria || 'person');
+      await API.send('/api/config', {classes: Array.from(activas)});
+      toast('Clases actualizadas · afecta a los analisis nuevos', 'ok');
+      cargarClases();
+    };
+  });
+}
+
 async function cargarConfig() {
   const c = await API.get('/api/config');
   $('#cfg-crowd').value = c.crowd_threshold;
   $('#cfg-idle').value = Math.round(c.idle_zone_alert_s / 60);
+  $('#cfg-unatt').value = Math.round((c.unattended_alert_s || 120) / 60);
   $('#cfg-ini').value = c.work_start; $('#cfg-fin').value = c.work_end;
   $('#r-idle').textContent = Math.round(c.idle_zone_alert_s / 60);
   $('#r-crowd').textContent = c.crowd_threshold;
@@ -225,11 +382,12 @@ $('#btn-cfg').onclick = async () => {
   await API.send('/api/config', {
     crowd_threshold: parseInt($('#cfg-crowd').value, 10),
     idle_zone_alert_s: parseInt($('#cfg-idle').value, 10) * 60,
+    unattended_alert_s: Math.max(10, parseInt($('#cfg-unatt').value || '2', 10) * 60),
     work_start: $('#cfg-ini').value, work_end: $('#cfg-fin').value,
   });
   toast('Reglas actualizadas', 'ok'); cargarConfig();
 };
 
-cargarZonas(); cargarConfig(); dibujar();
+cargarZonas(); cargarConfig(); cargarClases(); dibujar();
 </script>
 {% endblock %}

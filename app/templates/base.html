@@ -42,6 +42,7 @@
       <div class="row tight">
         <span class="pill"><span class="dot on" id="sys-dot"></span><span id="sys-info">cargando…</span></span>
         <span class="pill" id="sys-counts">—</span>
+        <button class="ghost" id="theme-btn" onclick="themeToggle()">Claro</button>
       </div>
     </header>
     {% block content %}{% endblock %}
@@ -64,6 +65,7 @@ async function refreshSystem() {
     $('#sys-info').textContent = 'servidor no disponible';
   }
 }
+themeApply(themeGet());
 refreshSystem();
 setInterval(refreshSystem, 15000);
 </script>

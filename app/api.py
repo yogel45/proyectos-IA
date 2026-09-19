@@ -21,6 +21,7 @@ from starlette.concurrency import run_in_threadpool
 
 from . import business, db
 from .config import CONFIG, SAMPLE_DIR, UPLOAD_DIR
+from .vision import autozones
 from .vision.detector import available_backends
 from .vision.zones import load_zones
 from .workers import JOBS, LIVE, SERVER_CAMERA
@@ -68,6 +69,18 @@ def system() -> Dict[str, Any]:
     }
 
 
+@router.get("/classes")
+def list_classes() -> Dict[str, Any]:
+    """Clases que el modelo puede reconocer y cuales estan activas."""
+    from .vision.detector import COCO_CLASSES
+    utiles = ["person", "laptop", "cell phone", "chair", "tv", "keyboard", "mouse",
+              "backpack", "handbag", "suitcase", "cup", "bottle", "book",
+              "dining table", "couch", "potted plant", "clock", "scissors",
+              "umbrella", "refrigerator", "microwave", "sink", "tie"]
+    return {"activas": CONFIG.get("classes"), "sugeridas": utiles,
+            "todas": COCO_CLASSES, "primaria": CONFIG.get("primary_class")}
+
+
 @router.get("/config")
 def get_config() -> Dict[str, Any]:
     return CONFIG.as_dict()
@@ -112,6 +125,66 @@ async def create_zone(request: Request) -> Dict[str, Any]:
          int(data.get("dwell_alert_s", CONFIG.get("default_dwell_alert_s"))),
          1 if data.get("enabled", True) else 0, db.now_iso()))
     return {"id": zone_id, "ok": True}
+
+
+@router.get("/zones/suggest")
+async def suggest_zones(session_id: int = 0) -> Dict[str, Any]:
+    """Propone zonas a partir de las trayectorias ya analizadas."""
+    return await run_in_threadpool(autozones.suggest_from_activity,
+                                   session_id or None)
+
+
+@router.post("/zones/suggest-image")
+async def suggest_zones_image(file: UploadFile = File(...)) -> Dict[str, Any]:
+    """Propone zonas a partir de una foto del espacio o de un cuadro de video."""
+    data = await file.read()
+    suffix = Path(file.filename or "").suffix.lower()
+    if suffix in VIDEO_EXT:
+        tmp = UPLOAD_DIR / f"_zonas_{uuid.uuid4().hex[:8]}{suffix}"
+        tmp.write_bytes(data)
+        frames = await run_in_threadpool(_muestrear_cuadros, tmp, 6)
+        tmp.unlink(missing_ok=True)
+        if not frames:
+            raise HTTPException(400, "No se pudo leer el video")
+        return await run_in_threadpool(autozones.suggest_from_frames, frames)
+    frame = await run_in_threadpool(_decode_jpeg, data)
+    if frame is None:
+        raise HTTPException(400, "No se pudo leer la imagen")
+    return await run_in_threadpool(autozones.suggest_from_image, frame)
+
+
+def _muestrear_cuadros(path: Path, n: int = 6) -> List[np.ndarray]:
+    """Toma n cuadros repartidos a lo largo del video."""
+    cap = cv2.VideoCapture(str(path))
+    if not cap.isOpened():
+        return []
+    total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
+    salida: List[np.ndarray] = []
+    if total > n:
+        for i in range(1, n + 1):
+            cap.set(cv2.CAP_PROP_POS_FRAMES, int(total * i / (n + 1)))
+            ok, frame = cap.read()
+            if ok:
+                salida.append(frame)
+    else:
+        while len(salida) < n:
+            ok, frame = cap.read()
+            if not ok:
+                break
+            salida.append(frame)
+    cap.release()
+    return salida
+
+
+@router.post("/zones/apply")
+async def apply_suggested_zones(request: Request) -> Dict[str, Any]:
+    data = await request.json()
+    zonas = data.get("zones") or []
+    if not isinstance(zonas, list) or not zonas:
+        raise HTTPException(400, "No se recibieron zonas para guardar")
+    n = await run_in_threadpool(autozones.apply_zones, zonas,
+                                bool(data.get("replace")))
+    return {"ok": True, "guardadas": n}
 
 
 @router.put("/zones/{zone_id}")
@@ -409,6 +482,12 @@ def metrics_summary(hours: int = 24) -> Dict[str, Any]:
         """SELECT type, COUNT(*) n FROM events WHERE ts >= ?
            GROUP BY type ORDER BY n DESC""", (since,))
     zonas = _zone_rollup(since)
+    objetos = db.query(
+        """SELECT label AS clase, COUNT(*) AS unicos,
+                  ROUND(AVG(duration_s),1) AS permanencia_prom,
+                  ROUND(MAX(duration_s),1) AS permanencia_max
+           FROM tracks WHERE label <> 'person' AND last_ts >= ?
+           GROUP BY label ORDER BY unicos DESC""", (since,))
     recientes = db.query(
         "SELECT * FROM events WHERE ts >= ? ORDER BY id DESC LIMIT 25", (since,))
     alertas = db.query(
@@ -419,6 +498,7 @@ def metrics_summary(hours: int = 24) -> Dict[str, Any]:
            FROM sessions ORDER BY id DESC LIMIT 10""")
     return {"rango_horas": hours, "kpis": kpis, "eventos": events, "tracks": tracks,
             "serie": series, "por_hora": by_hour, "tipos": tipos, "zonas": zonas,
+            "objetos": objetos,
             "recientes": recientes, "alertas": alertas, "sesiones": sesiones,
             "en_vivo": metrics_live()}
 
@@ -518,10 +598,12 @@ def business_calls(day: str = "") -> List[Dict[str, Any]]:
 def business_attendance(day: str = "", limit: int = 200) -> Dict[str, Any]:
     day = day or business.default_day() or ""
     rows = db.query(
-        """SELECT name, area, check_in, check_out,
-                  ROUND(worked_min/60.0,2) horas, ROUND(late_min,1) retraso_min
-           FROM attendance a LEFT JOIN employees e ON e.emp_id=a.emp_id
-           WHERE date=? ORDER BY check_in LIMIT ?""", (day, limit))
+        """SELECT a.name AS name, e.area AS area, a.check_in AS check_in,
+                  a.check_out AS check_out,
+                  ROUND(a.worked_min/60.0, 2) AS horas,
+                  ROUND(a.late_min, 1) AS retraso_min
+           FROM attendance a LEFT JOIN employees e ON e.emp_id = a.emp_id
+           WHERE a.date = ? ORDER BY a.check_in LIMIT ?""", (day, limit))
     return {"day": day, "rows": rows, "por_hora": business.attendance_by_hour(day)}
 
 

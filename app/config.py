@@ -54,6 +54,11 @@ DEFAULTS: Dict[str, Any] = {
     "idle_zone_alert_s": 900,        # zona critica sin actividad en horario laboral
     "crowd_threshold": 8,            # personas simultaneas = aglomeracion
     "min_track_seconds": 1.0,        # tracks mas cortos se descartan como ruido
+    "track_objects": True,           # seguir tambien objetos, no solo personas
+    "object_warmup_frames": 25,      # cuadros antes de avisar "objeto nuevo"
+    "unattended_alert_s": 120,       # objeto de valor sin persona cerca
+    "unattended_radius": 0.22,       # radio (proporcion de la diagonal) de "cerca"
+    "valuable_classes": ["laptop", "cell phone", "backpack", "handbag", "suitcase"],
 
     # ---------------- Horario laboral (para contexto de alertas) --------------
     "work_start": "07:00",

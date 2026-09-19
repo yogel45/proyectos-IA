@@ -61,6 +61,21 @@
 
 <section class="grid g2" style="margin-top:14px">
   <div class="card">
+    <h3>Objetos reconocidos <small>elementos distintos por clase</small></h3>
+    <canvas class="chart" id="c-objetos"></canvas>
+  </div>
+  <div class="card">
+    <h3>Detalle de objetos</h3>
+    <div class="scroll" style="max-height:200px"><table>
+      <thead><tr><th>Clase</th><th class="right">Unicos</th>
+        <th class="right">Permanencia prom.</th><th class="right">Maxima</th></tr></thead>
+      <tbody id="t-objetos"><tr><td colspan="4" class="muted">Sin objetos</td></tr></tbody>
+    </table></div>
+  </div>
+</section>
+
+<section class="grid g2" style="margin-top:14px">
+  <div class="card">
     <h3>Detalle por zona</h3>
     <div class="scroll"><table>
       <thead><tr><th>Zona</th><th class="right">Ocup. prom</th><th class="right">Pico</th>
@@ -99,42 +114,49 @@ function pintarGraficas() {
   lineChart($('#c-serie'), {
     labels: serie.map(r => (r.minuto || '').slice(11)),
     series: [
-      {name: 'Personas (prom)', data: serie.map(r => r.personas), color: '#38bdf8'},
-      {name: 'Pico', data: serie.map(r => r.pico), color: '#a78bfa'},
+      {name: 'Personas (prom)', data: serie.map(r => r.personas), color: '#6ea8fe'},
+      {name: 'Pico', data: serie.map(r => r.pico), color: '#9d8df1'},
     ],
     empty: 'Aun no hay analisis en este rango',
   });
-  legend($('#l-serie'), [{name: 'Personas (prom)', color: '#38bdf8'}, {name: 'Pico', color: '#a78bfa'}]);
+  legend($('#l-serie'), [{name: 'Personas (prom)', color: '#6ea8fe'}, {name: 'Pico', color: '#9d8df1'}]);
 
   const horas = DATA.por_hora || [];
   barChart($('#c-hora'), {
     labels: horas.map(r => r.hora + ':00'),
     series: [
-      {name: 'Promedio', data: horas.map(r => r.personas), color: '#22c55e'},
-      {name: 'Pico', data: horas.map(r => r.pico), color: '#f59e0b'},
+      {name: 'Promedio', data: horas.map(r => r.personas), color: '#4ade80'},
+      {name: 'Pico', data: horas.map(r => r.pico), color: '#fbbf24'},
     ],
     empty: 'Sin muestras por hora',
   });
-  legend($('#l-hora'), [{name: 'Promedio', color: '#22c55e'}, {name: 'Pico', color: '#f59e0b'}]);
+  legend($('#l-hora'), [{name: 'Promedio', color: '#4ade80'}, {name: 'Pico', color: '#fbbf24'}]);
 
   const zonas = DATA.zonas || [];
   barChart($('#c-zonas'), {
     labels: zonas.map(z => z.zona),
     series: [
-      {name: 'Ocupacion promedio', data: zonas.map(z => z.ocupacion_prom), color: '#38bdf8'},
-      {name: 'Pico', data: zonas.map(z => z.pico), color: '#a78bfa'},
-      {name: 'Aforo', data: zonas.map(z => z.max_occupancy), color: '#f43f5e'},
+      {name: 'Ocupacion promedio', data: zonas.map(z => z.ocupacion_prom), color: '#6ea8fe'},
+      {name: 'Pico', data: zonas.map(z => z.pico), color: '#9d8df1'},
+      {name: 'Aforo', data: zonas.map(z => z.max_occupancy), color: '#8b919b'},
     ],
     empty: 'Analiza un video o la camara para ver zonas',
   });
-  legend($('#l-zonas'), [{name: 'Ocupacion promedio', color: '#38bdf8'},
-    {name: 'Pico', color: '#a78bfa'}, {name: 'Aforo configurado', color: '#f43f5e'}]);
+  legend($('#l-zonas'), [{name: 'Ocupacion promedio', color: '#6ea8fe'},
+    {name: 'Pico', color: '#9d8df1'}, {name: 'Aforo configurado', color: '#8b919b'}]);
 
   const tipos = DATA.tipos || [];
   barChart($('#c-tipos'), {
     labels: tipos.map(t => t.type),
-    series: [{name: 'Eventos', data: tipos.map(t => t.n), color: '#2dd4bf'}],
+    series: [{name: 'Eventos', data: tipos.map(t => t.n), color: '#5eead4'}],
     empty: 'Sin eventos registrados',
+  });
+
+  const objetos = DATA.objetos || [];
+  barChart($('#c-objetos'), {
+    labels: objetos.map(o => o.clase),
+    series: [{name: 'Objetos unicos', data: objetos.map(o => o.unicos), color: '#9d8df1'}],
+    empty: 'Aun no se reconocen objetos',
   });
 }
 
@@ -183,6 +205,12 @@ async function cargar() {
       <td><span class="tag ${s.status === 'running' ? 'ok' : 'muted'}">${esc(s.status)}</span></td>
       <td class="right">${s.frames_analyzed}</td><td class="small">${fmtTime(s.started_at)}</td></tr>`).join('')
     : '<tr><td colspan="6" class="muted">Sin sesiones</td></tr>';
+
+  $('#t-objetos').innerHTML = (DATA.objetos || []).length ? DATA.objetos.map(o => `
+    <tr><td>${esc(o.clase)}</td><td class="right">${o.unicos}</td>
+      <td class="right">${fmtDur(o.permanencia_prom)}</td>
+      <td class="right">${fmtDur(o.permanencia_max)}</td></tr>`).join('')
+    : '<tr><td colspan="4" class="muted">Sin objetos reconocidos todavia</td></tr>';
 
   feed($('#f-alertas'), DATA.alertas, 'Sin alertas en el rango.');
   feed($('#f-eventos'), DATA.recientes, 'Sin eventos.');

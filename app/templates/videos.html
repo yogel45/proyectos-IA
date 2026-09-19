@@ -134,10 +134,20 @@ async function verSesion(id) {
         <div class="sub">por persona</div></div>
       <div class="card kpi crit"><div class="label">Alertas</div><div class="value">${m.total_alerts ?? 0}</div>
         <div class="sub">${m.total_events ?? 0} eventos</div></div>
+      <div class="card kpi"><div class="label">Objetos reconocidos</div>
+        <div class="value">${m.objects_total ?? 0}</div>
+        <div class="sub">${Object.entries(m.objects_unique || {}).sort((a,b)=>b[1]-a[1])
+          .slice(0,3).map(([c,n]) => `${n} ${esc(c)}`).join(' · ') || 'sin objetos'}</div></div>
     </div>
     <div class="grid g2" style="margin-top:14px">
       <div class="card"><h3>Ocupacion a lo largo del video</h3>
         <canvas class="chart" id="c-det"></canvas></div>
+      <div class="card"><h3>Inventario de objetos <small>clases distintas</small></h3>
+        <table><thead><tr><th>Clase</th><th class="right">Unicos</th></tr></thead>
+          <tbody>${Object.entries(m.objects_unique || {}).sort((a,b)=>b[1]-a[1])
+            .map(([c, n]) => `<tr><td>${esc(c)}</td><td class="right">${n}</td></tr>`).join('')
+            || '<tr><td colspan="2" class="muted">Sin objetos reconocidos</td></tr>'}</tbody></table>
+      </div>
       <div class="card"><h3>Actividad por zona</h3>
         <table><thead><tr><th>Zona</th><th class="right">Entradas</th><th class="right">Salidas</th>
           <th class="right">Pico</th><th class="right">Permanencia</th></tr></thead>
@@ -166,8 +176,8 @@ async function verSesion(id) {
     </div>`;
   lineChart($('#c-det'), {
     labels: tl.map(p => p.video_ts != null ? fmtDur(p.video_ts) : fmtClock(p.ts)),
-    series: [{name: 'Personas', data: tl.map(p => p.persons), color: '#38bdf8'},
-             {name: 'Movimiento', data: tl.map(p => (p.movement_index || 0) * 10), color: '#a78bfa'}],
+    series: [{name: 'Personas', data: tl.map(p => p.persons), color: '#6ea8fe'},
+             {name: 'Movimiento', data: tl.map(p => (p.movement_index || 0) * 10), color: '#9d8df1'}],
     empty: 'Sin muestras',
   });
 }

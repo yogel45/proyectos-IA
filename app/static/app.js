@@ -55,7 +55,19 @@ function esc(text) {
 /* ------------------------------------------------------------------ */
 /* Graficas                                                            */
 /* ------------------------------------------------------------------ */
-const PALETTE = ['#38bdf8', '#a78bfa', '#22c55e', '#f59e0b', '#f43f5e', '#2dd4bf', '#f472b6'];
+const PALETTE = ['#6ea8fe', '#9d8df1', '#4ade80', '#fbbf24', '#f87171', '#2dd4bf', '#f472b6'];
+
+/* Tema claro / oscuro, recordado en el navegador. */
+function themeGet() { try { return localStorage.getItem('ov-theme') || 'dark'; } catch (e) { return 'dark'; } }
+function themeApply(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  try { localStorage.setItem('ov-theme', t); } catch (e) {}
+  const b = document.getElementById('theme-btn');
+  if (b) b.textContent = t === 'dark' ? 'Claro' : 'Oscuro';
+  REDRAW.forEach(f => { try { f(); } catch (e) {} });
+}
+function themeToggle() { themeApply(themeGet() === 'dark' ? 'light' : 'dark'); }
+document.documentElement.setAttribute('data-theme', themeGet());
 
 function prepCanvas(canvas) {
   const dpr = window.devicePixelRatio || 1;
@@ -70,8 +82,9 @@ function prepCanvas(canvas) {
 
 function axes(ctx, box, max, labels, opts = {}) {
   const {x0, y0, x1, y1} = box;
-  ctx.strokeStyle = 'rgba(148,163,184,.16)';
-  ctx.fillStyle = '#93a4bf';
+  const css = getComputedStyle(document.documentElement);
+  ctx.strokeStyle = css.getPropertyValue('--line').trim() || 'rgba(148,163,184,.16)';
+  ctx.fillStyle = css.getPropertyValue('--txt-3').trim() || '#93a4bf';
   ctx.font = '10px Segoe UI, system-ui, sans-serif';
   ctx.lineWidth = 1;
   const steps = 4;
@@ -87,12 +100,14 @@ function axes(ctx, box, max, labels, opts = {}) {
   labels.forEach((lab, i) => {
     if (i % every && i !== n - 1) return;
     const x = n === 1 ? (x0 + x1) / 2 : x0 + (i / (n - 1)) * (x1 - x0);
-    ctx.fillText(String(lab).slice(-8), x, y1 + 6);
+    const texto = String(lab);
+    ctx.fillText(texto.length > 11 ? texto.slice(0, 10) + '…' : texto, x, y1 + 6);
   });
 }
 
 function emptyChart(ctx, w, h, msg = 'Sin datos todavia') {
-  ctx.fillStyle = '#93a4bf';
+  ctx.fillStyle = getComputedStyle(document.documentElement)
+    .getPropertyValue('--txt-3').trim() || '#93a4bf';
   ctx.font = '13px Segoe UI, system-ui, sans-serif';
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillText(msg, w / 2, h / 2);

@@ -247,7 +247,18 @@ class MotionDetector(BaseDetector):
 # --------------------------------------------------------------------------
 # Fabrica con degradacion automatica
 # --------------------------------------------------------------------------
-def available_backends() -> Dict[str, bool]:
+_BACKENDS_CACHE: Optional[Dict[str, bool]] = None
+
+
+def available_backends(refresh: bool = False) -> Dict[str, bool]:
+    """Backends disponibles. Se cachea: comprobarlo importa PyTorch (lento)."""
+    global _BACKENDS_CACHE
+    if _BACKENDS_CACHE is not None and not refresh:
+        cache = dict(_BACKENDS_CACHE)
+        cfg_onnx = CONFIG.get("onnx_model") or ""
+        cache["onnx"] = bool(list(MODELS_DIR.glob("*.onnx"))) or (
+            bool(cfg_onnx) and Path(cfg_onnx).exists())
+        return cache
     try:
         import ultralytics  # noqa: F401
         yolo_ok = True
@@ -256,17 +267,24 @@ def available_backends() -> Dict[str, bool]:
     onnx_candidates = list(MODELS_DIR.glob("*.onnx"))
     cfg_onnx = CONFIG.get("onnx_model") or ""
     onnx_ok = bool(onnx_candidates) or (bool(cfg_onnx) and Path(cfg_onnx).exists())
-    return {"yolo": yolo_ok, "onnx": onnx_ok, "motion": True}
+    _BACKENDS_CACHE = {"yolo": yolo_ok, "onnx": onnx_ok, "motion": True}
+    return dict(_BACKENDS_CACHE)
 
 
-def build_detector(preferred: Optional[str] = None) -> BaseDetector:
-    """Construye el detector segun configuracion, degradando si algo falta."""
+def build_detector(preferred: Optional[str] = None,
+                   classes: Optional[List[str]] = None) -> BaseDetector:
+    """Construye el detector segun configuracion, degradando si algo falta.
+
+    `classes` permite pedir un juego de clases distinto al configurado (lo usa
+    la deteccion automatica de zonas, que necesita ver mobiliario aunque el
+    analisis normal solo siga a las personas).
+    """
     preferred = (preferred or CONFIG.get("detector") or "auto").lower()
     conf = float(CONFIG.get("conf_threshold"))
     iou = float(CONFIG.get("iou_threshold"))
     imgsz = int(CONFIG.get("imgsz"))
     device = str(CONFIG.get("device"))
-    classes = list(CONFIG.get("classes") or ["person"])
+    classes = list(classes or CONFIG.get("classes") or ["person"])
     order = [preferred] if preferred != "auto" else ["yolo", "onnx", "motion"]
     if preferred != "auto" and preferred != "motion":
         order.append("motion")                     # red de seguridad

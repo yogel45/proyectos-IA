@@ -65,6 +65,15 @@ class Analyzer:
             max_age=int(CONFIG.get("track_max_age")),
             min_hits=int(CONFIG.get("track_min_hits")),
         )
+        # Segundo tracker, solo para objetos: permite contar objetos unicos,
+        # avisar cuando aparece o desaparece uno y detectar objetos de valor
+        # sin supervision. Las reglas de aforo siguen contando solo personas.
+        self.obj_tracker = Tracker(
+            f"{session_tag}-O",
+            iou_threshold=0.35,
+            max_age=int(CONFIG.get("track_max_age")) * 2,
+            min_hits=int(CONFIG.get("track_min_hits")),
+        )
         self.base_wall = base_wall or datetime.now()
         self.lock = threading.RLock()
 
@@ -86,6 +95,10 @@ class Analyzer:
         self.total_alerts = 0
         self.movement_avg = 0.0
         self.class_counts: Dict[str, int] = {}
+        self.object_unique: Dict[str, int] = {}     # clase -> objetos distintos vistos
+        self._objects_seen: set = set()             # track_key ya anunciados
+        self._objects_alone: Dict[str, float] = {}  # track_key -> t sin persona cerca
+        self._objects_alerted: set = set()
         self.last_result: Dict[str, Any] = {}
         self._crowd_active = False
         self._after_hours_notified = False
@@ -125,6 +138,15 @@ class Analyzer:
             active, closed = self.tracker.update(persons, now, wall_iso, video_ts,
                                                  width, height)
             zone_events = self.zones.update(active, now, width, height)
+
+            obj_active: List[Track] = []
+            obj_closed: List[Track] = []
+            if CONFIG.get("track_objects") and others:
+                obj_active, obj_closed = self.obj_tracker.update(
+                    others, now, wall_iso, video_ts, width, height)
+            elif CONFIG.get("track_objects"):
+                obj_active, obj_closed = self.obj_tracker.update(
+                    [], now, wall_iso, video_ts, width, height)
             movement = self._movement_index(frame)
 
             self.frames_analyzed += 1
@@ -136,6 +158,8 @@ class Analyzer:
             # --- eventos de zona + reglas globales --------------------------
             events = list(zone_events)
             events.extend(self._global_rules(active, wall, now))
+            events.extend(self._object_rules(obj_active, obj_closed, active, now,
+                                             width, height))
             snapshot_path = ""
             if events:
                 worst = max(events, key=lambda e: SEVERITY_ORDER.get(e.severity, 0))
@@ -151,6 +175,8 @@ class Analyzer:
             self._maybe_summary(now, wall_iso, video_ts)
             for tr in closed:
                 self._save_track(tr)
+            for tr in obj_closed:
+                self._save_track(tr)
 
             elapsed = max(1e-6, time.monotonic() - t0)
             result = {
@@ -160,14 +186,17 @@ class Analyzer:
                 "width": width,
                 "height": height,
                 "persons": len(active),
-                "objects": len(others),
+                "objects": len(obj_active) or len(others),
                 "tracks": [t.as_dict(width, height) for t in active],
-                "objects_detail": [
-                    {"label": d.label, "conf": round(d.conf, 2),
+                "objects_detail": ([t.as_dict(width, height) for t in obj_active]
+                                   or [
+                    {"key": "", "label": d.label, "conf": round(d.conf, 2),
+                     "duration": 0, "zones": [],
                      "norm": [round(d.x1 / width, 4), round(d.y1 / height, 4),
                               round(d.x2 / width, 4), round(d.y2 / height, 4)]}
                     for d in others
-                ],
+                ]),
+                "inventory": self._inventory(obj_active or [], others),
                 "zones": self.zones.snapshot(),
                 "movement": round(movement, 3),
                 "fps": round(1.0 / elapsed, 1),
@@ -238,6 +267,86 @@ class Analyzer:
                         f"horario laboral", "warning", "", {"idle_s": idle_limit},
                     ))
         return out
+
+    # ------------------------------------------------------------------
+    def _object_rules(self, obj_active: List[Track], obj_closed: List[Track],
+                      persons: List[Track], now: float, width: int, height: int
+                      ) -> List[ZoneEvent]:
+        """Reconocimiento de objetos: altas, bajas y objetos sin supervision."""
+        out: List[ZoneEvent] = []
+        if not CONFIG.get("track_objects"):
+            return out
+        warmup = int(CONFIG.get("object_warmup_frames") or 25)
+        valiosos = set(CONFIG.get("valuable_classes") or [])
+        radio = float(CONFIG.get("unattended_radius") or 0.22)
+        limite = float(CONFIG.get("unattended_alert_s") or 120)
+        diagonal = (width ** 2 + height ** 2) ** 0.5
+
+        for tr in obj_active:
+            zona = ", ".join(sorted(self._zones_of(tr, width, height))) or "el encuadre"
+
+            # --- objeto nuevo en escena ---------------------------------
+            if tr.key not in self._objects_seen:
+                self._objects_seen.add(tr.key)
+                self.object_unique[tr.label] = self.object_unique.get(tr.label, 0) + 1
+                if self.frames_analyzed > warmup:
+                    out.append(ZoneEvent(
+                        "objeto_nuevo", "",
+                        f"Objeto nuevo en escena: {tr.label} ({tr.key}) en {zona}",
+                        "info", tr.key, {"clase": tr.label},
+                    ))
+
+            # --- objeto de valor sin persona cerca ----------------------
+            if tr.label not in valiosos:
+                continue
+            ox, oy = tr.centroid
+            cerca = any(
+                (((ox - px) ** 2 + (oy - py) ** 2) ** 0.5) / diagonal <= radio
+                for px, py in (t.centroid for t in persons)
+            )
+            if cerca:
+                self._objects_alone.pop(tr.key, None)
+                self._objects_alerted.discard(tr.key)
+                continue
+            inicio = self._objects_alone.setdefault(tr.key, now)
+            if now - inicio >= limite and tr.key not in self._objects_alerted:
+                self._objects_alerted.add(tr.key)
+                out.append(ZoneEvent(
+                    "objeto_sin_supervision", "",
+                    f"{tr.label} ({tr.key}) lleva {fmt_lapso(now - inicio)} sin nadie "
+                    f"cerca en {zona}", "warning", tr.key,
+                    {"clase": tr.label, "solo_s": round(now - inicio, 1)},
+                ))
+
+        # --- objeto retirado de la escena -------------------------------
+        for tr in obj_closed:
+            self._objects_alone.pop(tr.key, None)
+            self._objects_alerted.discard(tr.key)
+            if tr.key not in self._objects_seen or tr.duration < 10:
+                continue
+            severidad = "warning" if tr.label in valiosos else "info"
+            out.append(ZoneEvent(
+                "objeto_retirado", "",
+                f"{tr.label} ({tr.key}) dejo de verse tras {fmt_lapso(tr.duration)}",
+                severidad, tr.key, {"clase": tr.label},
+            ))
+        return out
+
+    def _zones_of(self, tr: Track, width: int, height: int) -> List[str]:
+        """Zonas que contienen el punto de apoyo de un track."""
+        ax, ay = tr.anchor
+        return [z.name for z in self.zones.zones if z.contains(ax, ay, width, height)]
+
+    def _inventory(self, obj_tracks: List[Track],
+                   raw: List[Detection]) -> Dict[str, Any]:
+        """Inventario de objetos: visibles ahora y distintos vistos en la sesion."""
+        visibles: Dict[str, int] = {}
+        for tr in obj_tracks:
+            visibles[tr.label] = visibles.get(tr.label, 0) + 1
+        if not obj_tracks:
+            for d in raw:
+                visibles[d.label] = visibles.get(d.label, 0) + 1
+        return {"visibles": visibles, "unicos": dict(self.object_unique)}
 
     # ------------------------------------------------------------------
     def _persist_event(self, ev: ZoneEvent, wall_iso: str, video_ts: Optional[float],
@@ -327,11 +436,14 @@ class Analyzer:
             "total_alerts": self.total_alerts,
             "movement_avg": round(self.movement_avg, 3),
             "classes": dict(self.class_counts),
+            "objects_unique": dict(self.object_unique),
+            "objects_total": sum(self.object_unique.values()),
         }
 
     # ------------------------------------------------------------------
     def annotate(self, frame: np.ndarray, tracks: List[Track],
-                 others: Optional[List[Detection]] = None) -> np.ndarray:
+                 others: Optional[List[Detection]] = None,
+                 objects: Optional[List[Track]] = None) -> np.ndarray:
         """Dibuja zonas, cajas y etiquetas. Difumina rostros si esta activado."""
         out = frame.copy()
         h, w = out.shape[:2]
@@ -370,14 +482,25 @@ class Analyzer:
             cv2.putText(out, tag, (x1 + 3, max(12, y1 - 6)),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.45, (12, 18, 28), 1, cv2.LINE_AA)
 
+        objetos = objects if objects is not None else [
+            t for t in self.obj_tracker.tracks.values()
+            if t.confirmed and not t.closed and t.misses == 0]
+        for obj in objetos:
+            x1, y1, x2, y2 = [int(v) for v in obj.bbox]
+            solo = obj.key in self._objects_alerted
+            color = (14, 165, 255) if solo else (168, 168, 168)
+            cv2.rectangle(out, (x1, y1), (x2, y2), color, 1)
+            cv2.putText(out, f"{obj.label} {obj.key.split('-')[-1]}",
+                        (x1 + 2, max(10, y1 - 4)), cv2.FONT_HERSHEY_SIMPLEX, 0.42,
+                        color, 1, cv2.LINE_AA)
         for det in others or []:
             cv2.rectangle(out, (int(det.x1), int(det.y1)), (int(det.x2), int(det.y2)),
                           (148, 163, 184), 1)
             cv2.putText(out, det.label, (int(det.x1), max(10, int(det.y1) - 4)),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.4, (148, 163, 184), 1, cv2.LINE_AA)
 
-        banner = (f"Personas: {len(tracks)} | Alertas: {self.total_alerts} | "
-                  f"Modelo: {self.detector.name}")
+        banner = (f"Personas: {len(tracks)} | Objetos: {len(objetos)} | "
+                  f"Alertas: {self.total_alerts} | Modelo: {self.detector.name}")
         cv2.rectangle(out, (0, 0), (w, 26), (15, 23, 42), -1)
         cv2.putText(out, banner, (10, 18), cv2.FONT_HERSHEY_SIMPLEX, 0.55,
                     (226, 232, 240), 1, cv2.LINE_AA)

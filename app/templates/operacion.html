@@ -89,16 +89,16 @@ function pintar() {
   const labels = t.map(r => r.hour);
   const s1 = [
     {name: 'Esperados (nomina)', data: t.map(r => r.esperados), color: '#64748b'},
-    {name: 'Biometrico', data: t.map(r => r.biometrico), color: '#22c55e'},
-    {name: 'Camara (prom)', data: t.map(r => r.detectados), color: '#38bdf8'},
-    {name: 'Llamadas', data: t.map(r => r.llamadas), color: '#f59e0b'},
+    {name: 'Biometrico', data: t.map(r => r.biometrico), color: '#4ade80'},
+    {name: 'Camara (prom)', data: t.map(r => r.detectados), color: '#6ea8fe'},
+    {name: 'Llamadas', data: t.map(r => r.llamadas), color: '#fbbf24'},
   ];
   lineChart($('#c-op'), {labels, series: s1, area: false, empty: 'Sin datos cruzados'});
   legend($('#l-op'), s1);
 
   const s2 = [
-    {name: 'Atendidas', data: t.map(r => r.atendidas), color: '#22c55e'},
-    {name: 'Perdidas', data: t.map(r => r.perdidas), color: '#f43f5e'},
+    {name: 'Atendidas', data: t.map(r => r.atendidas), color: '#4ade80'},
+    {name: 'Perdidas', data: t.map(r => r.perdidas), color: '#8b919b'},
   ];
   barChart($('#c-calls'), {labels, series: s2, stacked: true, empty: 'Sin llamadas'});
   legend($('#l-calls'), s2);
@@ -106,7 +106,7 @@ function pintar() {
   const p = (SUM?.puntualidad || []);
   barChart($('#c-punt'), {
     labels: p.map(r => (r.name || '').split(' ')[0]),
-    series: [{name: 'Retraso promedio (min)', data: p.map(r => r.retraso_prom), color: '#f59e0b'}],
+    series: [{name: 'Retraso promedio (min)', data: p.map(r => r.retraso_prom), color: '#fbbf24'}],
     empty: 'Sin datos de puntualidad',
   });
 }
@@ -136,7 +136,7 @@ async function cargar() {
     <td class="right">${r.biometrico}</td><td class="right">${r.detectados}</td>
     <td class="right">${r.pico_detectado}</td><td class="right">${r.llamadas}</td>
     <td class="right" style="color:#22c55e">${r.atendidas}</td>
-    <td class="right" style="color:${r.perdidas > r.atendidas ? '#f43f5e' : '#93a4bf'}">${r.perdidas}</td></tr>`).join('');
+    <td class="right" style="color:${r.perdidas > r.atendidas ? '#8b919b' : '#93a4bf'}">${r.perdidas}</td></tr>`).join('');
 
   $('#f-hallazgos').innerHTML = (CROSS.findings || []).map((f, i) =>
     `<div class="item ${i === 0 ? 'info' : 'warning'}"><div>${esc(f)}</div></div>`).join('')
@@ -159,7 +159,7 @@ async function cargar() {
     <td>${esc(r.name)}</td><td class="small muted">${esc(r.area || '')}</td>
     <td class="mono">${esc(r.check_in || '-')}</td><td class="mono">${esc(r.check_out || '-')}</td>
     <td class="right">${r.horas ?? '-'}</td>
-    <td class="right" style="color:${r.retraso_min > 5 ? '#f59e0b' : '#93a4bf'}">${r.retraso_min ?? 0} min</td>
+    <td class="right" style="color:${r.retraso_min > 5 ? '#fbbf24' : '#93a4bf'}">${r.retraso_min ?? 0} min</td>
     </tr>`).join('') || '<tr><td colspan="6" class="muted">Sin marcajes ese dia</td></tr>';
 
   pintar();

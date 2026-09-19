@@ -30,11 +30,18 @@ se mezcla entre fuentes, lo que permite analizar varias cámaras y videos a la v
    (*greedy*, mayor solape primero, solo entre la misma clase). Lo no asociado crea tracks
    nuevos; los tracks sin coincidencia envejecen (`misses`) y se cierran al superar `max_age`.
    Un track se considera válido tras `min_hits` coincidencias.
+   Hay **dos instancias**: una para personas y otra para objetos (con `max_age` doble,
+   porque un objeto quieto se ocluye con frecuencia). Separarlos evita que el mobiliario
+   contamine el aforo y permite reglas propias para cada uno.
 3. **Zonas.** Para cada track activo se evalúa el punto de contacto con el piso contra cada
    polígono (`cv2.pointPolygonTest`). Comparando con las zonas del cuadro anterior se derivan
    entradas, salidas y permanencia acumulada.
-4. **Reglas.** Aforo por zona, permanencia por track/zona, aglomeración global, zona inactiva
-   y actividad fuera de horario.
+4. **Reglas.** Sobre personas: aforo por zona, permanencia por track/zona, aglomeración
+   global, zona inactiva y actividad fuera de horario. Sobre objetos: alta en escena
+   (`objeto_nuevo`, tras un calentamiento que evita anunciar el mobiliario fijo), baja
+   (`objeto_retirado`) y `objeto_sin_supervision`, que compara la distancia del objeto a
+   la persona más cercana contra un radio proporcional a la diagonal del cuadro —así el
+   umbral no depende de la resolución.
 5. **Persistencia.**
    * eventos → `events` en el momento (con captura JPG si la severidad es warning o critical),
    * estado → `snapshots` cada `snapshot_interval_s`,
@@ -72,6 +79,37 @@ saber con qué se obtuvo.
 
 Para añadir un modelo nuevo: crear la clase, devolver `Detection` y registrarla en
 `build_detector()`. Tracking, zonas, reglas, base de datos y UI se reutilizan tal cual.
+
+## 3.1 Detección automática de zonas (`app/vision/autozones.py`)
+
+Ambos modos trabajan sobre una rejilla de 128×72 celdas y devuelven polígonos
+normalizados, listos para el mismo editor manual.
+
+**Por escena** (`suggest_from_image` / `suggest_from_frames`)
+
+1. Se detecta con un juego de clases ampliado (mobiliario y equipos, no solo el
+   configurado para el análisis normal).
+2. Cada caja suma en la rejilla; una dilatación 7×7 une lo contiguo (un escritorio con su
+   silla y su monitor forman un solo bloque).
+3. `connectedComponentsWithStats` → contorno → `approxPolyDP` → polígono de ≤10 vértices.
+4. Las clases dominantes dan nombre, tipo, aforo y umbral de permanencia.
+5. Con varios cuadros se normaliza dividiendo entre el número de muestras: cuatro sillas
+   vistas en seis cuadros son cuatro sillas, no veinticuatro.
+
+**Por actividad** (`suggest_from_activity`)
+
+1. Se leen las trayectorias de `tracks.path_json` (ya normalizadas).
+2. Se acumulan dos rejillas: presencia (muestras por celda) y desplazamiento (distancia
+   entre muestras consecutivas).
+3. Umbral en el percentil 60 de la presencia → componentes conexas → polígonos.
+4. Clasificación con dos señales independientes: `densidad = muestras/celdas` y
+   `velocidad = desplazamiento/muestras`. Baja densidad + alta velocidad = corredor de
+   paso; alta densidad = área de permanencia.
+5. El aforo sugerido sale del número de trayectorias distintas que cruzan la región,
+   acotado entre 2 y 20.
+
+Las propuestas nunca se guardan solas: la API devuelve la lista con su justificación y el
+usuario confirma cuáles aplicar (`POST /api/zones/apply`).
 
 ## 4. Esquema de datos
 
@@ -141,6 +179,10 @@ Se crea sola con los valores por defecto y se puede editar en caliente desde la 
 | `live_target_fps` / `video_target_fps` | 6 | Cuadros analizados por segundo |
 | `snapshot_interval_s` / `summary_interval_s` | 5 / 60 | Frecuencia de escritura en la base |
 | `crowd_threshold` | 8 | Umbral de aglomeración |
+| `track_objects` | true | Seguir también objetos, no solo personas |
+| `valuable_classes` | laptop, cell phone, backpack… | Objetos vigilados |
+| `unattended_alert_s` / `unattended_radius` | 120 / 0.22 | Objeto sin persona cerca |
+| `object_warmup_frames` | 25 | Cuadros antes de anunciar "objeto nuevo" |
 | `idle_zone_alert_s` | 900 | Zona sin actividad |
 | `work_start` / `work_end` / `work_days` | 07:00 / 18:00 / lun-sáb | Horario laboral |
 | `blur_faces` / `store_snapshots` / `snapshot_retention_days` | true / true / 15 | Privacidad |
@@ -150,6 +192,7 @@ Se crea sola con los valores por defecto y se puede editar en caliente desde la 
 | Necesidad | Dónde tocar |
 |---|---|
 | Otro modelo de IA | `app/vision/detector.py` (nueva clase + `build_detector`) |
+| Otro criterio de zonas automáticas | `app/vision/autozones.py` (`_nombrar`, umbrales) |
 | Nueva regla de alerta | `Analyzer._global_rules` o `ZoneManager.update` |
 | Otra base de datos | `app/db.py` (capa única de acceso) |
 | Nueva métrica en el dashboard | consulta en `app/api.py` + gráfica en `app/templates/index.html` |

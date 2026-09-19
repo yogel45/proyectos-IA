@@ -59,6 +59,16 @@
     </div>
 
     <div class="card" style="margin-top:14px">
+      <h3>Objetos reconocidos <small id="obj-total">—</small></h3>
+      <div id="s-objetos"><p class="muted small">Se listan al iniciar la camara.</p></div>
+      <p class="small muted" style="margin:10px 0 0">
+        Cada objeto recibe su propio identificador de seguimiento. El sistema avisa
+        cuando aparece uno nuevo, cuando desaparece y cuando un objeto de valor
+        (laptop, mochila, telefono) se queda sin nadie cerca.
+      </p>
+    </div>
+
+    <div class="card" style="margin-top:14px">
       <h3>Camara del servidor / IP <small>opcional</small></h3>
       <div class="row tight">
         <div style="flex:1;min-width:170px"><label>Fuente</label>
@@ -143,10 +153,12 @@ function drawOverlay() {
   });
   (lastResult?.objects_detail || []).forEach(o => {
     const [x1, y1, x2, y2] = o.norm.map((v, i) => v * (i % 2 ? H : W));
-    ctx.strokeStyle = 'rgba(148,163,184,.8)'; ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(160,168,180,.85)'; ctx.lineWidth = 1;
     ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
-    ctx.fillStyle = 'rgba(148,163,184,.9)'; ctx.font = '11px Segoe UI, sans-serif';
-    ctx.fillText(o.label, x1 + 2, Math.max(10, y1 - 3));
+    ctx.fillStyle = 'rgba(190,196,205,.95)';
+    ctx.font = '11px ui-sans-serif, system-ui, sans-serif';
+    const id = o.key ? ' ' + o.key.split('-').pop() : '';
+    ctx.fillText(o.label + id, x1 + 2, Math.max(10, y1 - 3));
   });
 }
 
@@ -196,6 +208,19 @@ function aplicarResultado(r) {
         <div class="muted">${z.entries} entradas</div>
       </div>
     </div>`).join('') || '<p class="muted small">No hay zonas configuradas.</p>';
+
+  const inv = r.inventory || {visibles: {}, unicos: {}};
+  const visibles = Object.entries(inv.visibles || {});
+  $('#obj-total').textContent =
+    `${r.objects} en pantalla · ${Object.values(inv.unicos || {}).reduce((a, b) => a + b, 0)} unicos`;
+  $('#s-objetos').innerHTML = visibles.length ? `<div class="zone-list">` + visibles
+    .sort((a, b) => b[1] - a[1]).map(([clase, n]) => `
+      <div class="zone-item">
+        <div style="flex:1"><strong>${esc(clase)}</strong></div>
+        <div class="right small"><strong>${n}</strong> ahora
+          <span class="muted">· ${(inv.unicos || {})[clase] || n} unicos</span></div>
+      </div>`).join('') + `</div>`
+    : '<p class="muted small">Ningun objeto en el encuadre.</p>';
 
   if (r.events?.length) {
     const cont = $('#f-live');
