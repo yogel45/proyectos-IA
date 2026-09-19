@@ -12,6 +12,18 @@ DocuFlow AI tiene su propio servidor, su propia base de datos
 su propia interfaz. **No importa código de ningún otro proyecto** y puede correr a la vez
 que ellos, en su propio puerto.
 
+
+## Dónde está cada entregable
+
+| Entregable pedido | Dónde está |
+|---|---|
+| Código fuente de la solución | GitHub: [`docsai/`](../docsai) y [`run_documentos.py`](../run_documentos.py) |
+| Instrucciones de instalación, configuración y ejecución | §Puesta en marcha (instalación y arranque) y §Configuración (los 10 parámetros) |
+| Descripción del flujo de procesamiento documental | §1, las siete etapas |
+| Convención de nombramiento propuesta | §4, con el porqué de cada campo y los cuatro esquemas de carpetas |
+| Uso de IA, OCR, NLP, reglas, modelos o herramientas | §5, y §3 para el detalle de los dos clasificadores |
+
+---
 ## Puesta en marcha
 
 ```bash
@@ -39,6 +51,41 @@ Probado sobre documentos reales de un despacho: demandas federales (FTCA),
 citaciones, mociones, órdenes, reclamaciones Standard Form 95, reportes de
 accidente, expedientes médicos, facturas, pólizas, contratos, declaraciones
 juradas y correspondencia.
+
+
+## Configuración
+
+Todo vive en `config_documentos.json`, que **se crea solo en el primer arranque**. Se
+edita desde la pantalla *Reglas y nombres* —con vista previa sobre un documento real— o
+con `POST /api/convencion`, sin reiniciar nada. Son diez parámetros:
+
+**Cómo se nombran y dónde se archivan**
+
+| Parámetro | Por defecto | Qué decide |
+|---|---|---|
+| `plantilla_nombre` | `{fecha}_{categoria}_{expediente}_{descriptor}` | El nombre del archivo. Campos disponibles: `{fecha} {anio} {mes} {categoria} {expediente} {descriptor} {emisor} {monto} {original} {hash}` |
+| `separador` | `_` | Qué separa los campos entre sí (dentro de cada campo siempre va `-`) |
+| `max_nombre` | `120` | Largo máximo del nombre, por los límites de Windows y de las unidades de red |
+| `esquema_carpetas` | `categoria_anio` | Cómo se reparten las carpetas: `categoria_anio`, `expediente`, `anio_mes`, `categoria` o `plano` (§4) |
+| `conservar_original` | `true` | Copiar en vez de mover. Con `false`, el archivo desaparece de la carpeta de entrada |
+
+**Cuándo decide la máquina y cuándo decide una persona**
+
+| Parámetro | Por defecto | Qué decide |
+|---|---|---|
+| `umbral_revision` | `0.55` | Confianza mínima para archivar sin preguntar. Por debajo, el documento queda en *revisión*. Subirlo manda más cosas a revisión; bajarlo archiva más por su cuenta |
+| `min_ejemplos_modelo` | `6` | Correcciones necesarias antes de que el Naive Bayes empiece a opinar. Con menos ejemplos que eso, mandan solo las reglas |
+
+**Lectura y almacenamiento**
+
+| Parámetro | Por defecto | Qué decide |
+|---|---|---|
+| `ocr_idiomas` | `spa+eng` | Idiomas que intenta Tesseract en los escaneos. Estos documentos mezclan español e inglés |
+| `guardar_texto` | `true` | Guardar el texto extraído en la base, para poder buscar dentro de los documentos. Con `false` se ahorra espacio y se pierde la búsqueda |
+| `max_trabajos` | `3` | Documentos procesándose a la vez |
+
+Las **categorías** no están aquí: las de fábrica viven en el código (`docsai/classify.py`)
+y las que añadas desde la interfaz se guardan en la base de datos (§3).
 
 ---
 
