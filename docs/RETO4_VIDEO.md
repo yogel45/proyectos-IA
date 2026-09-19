@@ -21,7 +21,7 @@ Capturas y resultados de una ejecución real: [`DEMO_VIDEO.md`](DEMO_VIDEO.md).
 | Entregable pedido | Dónde está |
 |---|---|
 | Código fuente de la solución | GitHub: [`app/`](../app) y [`run.py`](../run.py) |
-| Instrucciones de instalación, configuración y ejecución | §1 de este documento, y [`RETO4_GUIA_USO.md`](RETO4_GUIA_USO.md) paso a paso |
+| Instrucciones de instalación, configuración y ejecución | §1 (instalación y arranque), **§1 → Configuración** (los 38 parámetros, uno por uno) y [`RETO4_GUIA_USO.md`](RETO4_GUIA_USO.md) paso a paso |
 | Descripción del enfoque de visión por computadora | §3 |
 | Modelos, librerías, herramientas o servicios empleados | §3.1 y §3.2 |
 | Descripción del flujo de procesamiento de video | §4 |
@@ -71,6 +71,81 @@ en `models/`.
 > **Instalación ligera (sin PyTorch):** `pip install -r requirements-lite.txt`.
 > La app sigue funcionando con el detector de movimiento o con un modelo `.onnx`
 > que coloques en `models/`.
+
+
+### Configuración
+
+Todo se ajusta desde `config.json`, que **se crea solo en el primer arranque** y se puede
+editar en caliente, o desde la interfaz y `POST /api/config` sin reiniciar. Los 38
+parámetros, agrupados por lo que deciden:
+
+**Qué detector se usa y cómo**
+
+| Parámetro | Por defecto | Qué decide |
+|---|---|---|
+| `detector` | `auto` | `auto`, `yolo`, `onnx` o `motion`. En `auto` baja al siguiente si el anterior no está disponible |
+| `model` | `yolo11n.pt` | Pesos de Ultralytics. `yolo11s.pt` o `yolo11m.pt` dan más precisión a cambio de velocidad |
+| `onnx_model` | `""` | Ruta a un `.onnx` propio, para correr sin PyTorch |
+| `device` | `cpu` | `"0"` usa la GPU con CUDA sin tocar código |
+| `imgsz` | `640` | Resolución de inferencia |
+| `conf_threshold` | `0.35` | Confianza mínima para aceptar una detección |
+| `iou_threshold` | `0.5` | Supresión de cajas solapadas |
+
+**Qué se reconoce**
+
+| Parámetro | Por defecto | Qué decide |
+|---|---|---|
+| `detect_all_classes` | `true` | Nombrar las 80 clases del modelo, no solo una lista corta |
+| `classes` | `person`, `laptop`, `cell phone`, `chair`… | La lista corta, cuando `detect_all_classes` es `false` |
+| `primary_class` | `person` | Qué clase cuenta como "persona" para el aforo |
+| `track_objects` | `true` | Seguir también los objetos, no solo a las personas |
+| `valuable_classes` | `laptop`, `cell phone`, `backpack`, `handbag`, `suitcase` | Cuáles disparan aviso al quedar sin supervisión |
+| `object_warmup_frames` | `25` | Cuadros antes de dar por "nuevo" un objeto, para no avisar del mobiliario de siempre |
+
+**Cómo se sigue a cada persona**
+
+| Parámetro | Por defecto | Qué decide |
+|---|---|---|
+| `track_iou_match` | `0.3` | Solape mínimo para considerar que es la misma persona entre cuadros |
+| `track_min_hits` | `3` | Cuadros seguidos antes de confirmar un seguimiento (evita falsos) |
+| `track_max_age` | `30` | Cuadros sin verla antes de cerrarlo (aguanta oclusiones) |
+| `min_track_seconds` | `1.0` | Duración mínima para que un paso cuente como visita |
+
+**Cuándo salta una alerta**
+
+| Parámetro | Por defecto | Qué decide |
+|---|---|---|
+| `default_max_occupancy` | `6` | Aforo por defecto de una zona nueva |
+| `default_dwell_alert_s` | `180` | Permanencia que se considera excesiva |
+| `crowd_threshold` | `8` | Personas simultáneas que cuentan como aglomeración |
+| `idle_zone_alert_s` | `900` | Tiempo sin actividad para marcar una zona inactiva |
+| `unattended_alert_s` | `120` | Tiempo que un objeto de valor puede estar solo |
+| `unattended_radius` | `0.22` | Distancia (en fracción del encuadre) que cuenta como "cerca" |
+| `work_start` · `work_end` · `work_days` | `07:00` · `18:00` · lunes a sábado | La jornada, para detectar actividad fuera de horario |
+| `timezone_label` | `local` | Etiqueta de zona horaria que acompaña a las marcas de tiempo |
+
+**Rendimiento y almacenamiento**
+
+| Parámetro | Por defecto | Qué decide |
+|---|---|---|
+| `live_target_fps` · `video_target_fps` | `6.0` | Cuadros por segundo analizados; bajarlo alivia la CPU |
+| `max_concurrent_jobs` | `2` | Videos procesándose a la vez |
+| `jpeg_quality` | `70` | Calidad de las capturas |
+| `snapshot_interval_s` | `5.0` | Cada cuánto se guarda una foto de estado |
+| `summary_interval_s` | `60.0` | Cada cuánto se narra un resumen |
+| `render_annotated_video` | `true` | Generar el video anotado (cuesta tiempo; se puede apagar) |
+| `store_snapshots` | `true` | Guardar evidencia visual de los eventos |
+| `snapshot_retention_days` | `15` | Borrado automático de capturas |
+
+**Privacidad**
+
+| Parámetro | Por defecto | Qué decide |
+|---|---|---|
+| `blur_faces` | `true` | Difuminar rostros **antes** de escribir cualquier imagen |
+| `anonymous_ids` | `true` | Identificadores anónimos (`P4-0007`), sin nombres |
+
+Las **zonas** no viven en `config.json` sino en la base de datos, y se editan desde la
+pantalla *Puntos críticos* (§5).
 
 ### Requisitos
 * Python 3.9 – 3.12
