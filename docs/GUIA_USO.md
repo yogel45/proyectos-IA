@@ -24,8 +24,9 @@
    * **Fondo desde cámara** (o sube una foto), haz clic para trazar el polígono, ponle
      nombre, tipo, aforo y umbral de permanencia → **Guardar zona**.
 
-   También ahí eliges **qué clases reconocer** (personas, laptops, sillas, mochilas…) con
-   un clic en los chips.
+   También ahí está **Qué debe reconocer**: por defecto el sistema nombra todo lo que ve
+   (80 tipos de elementos, en español). Si lo desactivas, puedes limitarlo a las clases
+   que marques con un clic en los chips.
 
 3. **Analiza en vivo** — pestaña *Cámara en vivo*
    * **Iniciar cámara** y acepta el permiso del navegador.
@@ -73,7 +74,8 @@ En *Cámara en vivo* → sección **Cámara del servidor / IP**, escribe la fuen
 | Quiero más precisión | `"model": "yolo11s.pt"` y, si hay GPU, `"device": "0"` |
 | Demasiadas alertas de permanencia | Sube el umbral de la zona en *Puntos críticos* |
 | Divide a una persona en varios IDs | Sube `track_max_age` (40–60) o baja `track_iou_match` (0.25) |
-| No reconoce objetos | Actívalos en los chips de *Clases a reconocer*; con el detector `motion` solo hay personas |
+| No reconoce objetos | Revisa que esté activo *Reconocer todo lo que vea*; con el detector `motion` solo hay personas |
+| Nombra cosas que no son | El modelo COCO confunde objetos parecidos (un producto redondo puede salir como "tazón"); sube `conf_threshold` o limita las clases |
 | Demasiadas alertas de objeto sin vigilancia | Sube *Objeto sin vigilancia (min)* o el `unattended_radius` |
 | Las zonas automáticas salen raras | Usa una toma más amplia, o acumula más actividad antes de *Detectar por actividad* |
 

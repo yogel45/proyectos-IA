@@ -59,9 +59,12 @@
     </div>
 
     <div class="card" style="margin-top:14px">
-      <h3>Objetos reconocidos <small id="obj-total">—</small></h3>
+      <h3>Que esta viendo <small id="obj-total">—</small></h3>
+      <p id="s-descripcion" style="font-size:15px;margin:0 0 12px">
+        <span class="muted">Inicia la camara para que describa la escena.</span></p>
       <div id="s-objetos"><p class="muted small">Se listan al iniciar la camara.</p></div>
       <p class="small muted" style="margin:10px 0 0">
+        El modelo reconoce 80 tipos de elementos y los nombra en espanol.
         Cada objeto recibe su propio identificador de seguimiento. El sistema avisa
         cuando aparece uno nuevo, cuando desaparece y cuando un objeto de valor
         (laptop, mochila, telefono) se queda sin nadie cerca.
@@ -158,7 +161,8 @@ function drawOverlay() {
     ctx.fillStyle = 'rgba(178,181,186,.95)';
     ctx.font = '11px ui-sans-serif, system-ui, sans-serif';
     const id = o.key ? ' ' + o.key.split('-').pop() : '';
-    ctx.fillText(o.label + id, x1 + 2, Math.max(10, y1 - 3));
+    const etiq = (lastResult?.inventory?.etiquetas || {})[o.label] || o.label;
+    ctx.fillText(etiq + id, x1 + 2, Math.max(10, y1 - 3));
   });
 }
 
@@ -209,16 +213,19 @@ function aplicarResultado(r) {
       </div>
     </div>`).join('') || '<p class="muted small">No hay zonas configuradas.</p>';
 
-  const inv = r.inventory || {visibles: {}, unicos: {}};
+  const inv = r.inventory || {visibles: {}, unicos: {}, etiquetas: {}};
+  const nom = c => (inv.etiquetas || {})[c] || c;
+  $('#s-descripcion').textContent = r.descripcion || 'nada reconocible en el encuadre';
   const visibles = Object.entries(inv.visibles || {});
   $('#obj-total').textContent =
     `${r.objects} en pantalla · ${Object.values(inv.unicos || {}).reduce((a, b) => a + b, 0)} unicos`;
   $('#s-objetos').innerHTML = visibles.length ? `<div class="zone-list">` + visibles
     .sort((a, b) => b[1] - a[1]).map(([clase, n]) => `
       <div class="zone-item">
-        <div style="flex:1"><strong>${esc(clase)}</strong></div>
+        <div style="flex:1"><strong>${esc(nom(clase))}</strong>
+          <span class="muted small">· ${esc(clase)}</span></div>
         <div class="right small"><strong>${n}</strong> ahora
-          <span class="muted">· ${(inv.unicos || {})[clase] || n} unicos</span></div>
+          <span class="muted">· ${(inv.unicos || {})[clase] || n} distintos</span></div>
       </div>`).join('') + `</div>`
     : '<p class="muted small">Ningun objeto en el encuadre.</p>';
 

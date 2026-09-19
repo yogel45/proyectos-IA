@@ -61,13 +61,13 @@
 
 <section class="grid g2" style="margin-top:14px">
   <div class="card">
-    <h3>Objetos reconocidos <small>elementos distintos por clase</small></h3>
+    <h3>Que ha reconocido <small id="obj-resumen">elementos distintos</small></h3>
     <canvas class="chart" id="c-objetos"></canvas>
   </div>
   <div class="card">
     <h3>Detalle de objetos</h3>
     <div class="scroll" style="max-height:200px"><table>
-      <thead><tr><th>Clase</th><th class="right">Unicos</th>
+      <thead><tr><th>Elemento</th><th class="right">Distintos</th>
         <th class="right">Permanencia prom.</th><th class="right">Maxima</th></tr></thead>
       <tbody id="t-objetos"><tr><td colspan="4" class="muted">Sin objetos</td></tr></tbody>
     </table></div>
@@ -154,7 +154,7 @@ function pintarGraficas() {
 
   const objetos = DATA.objetos || [];
   barChart($('#c-objetos'), {
-    labels: objetos.map(o => o.clase),
+    labels: objetos.map(o => o.nombre || o.clase),
     series: [{name: 'Objetos unicos', data: objetos.map(o => o.unicos), color: '#8a8698'}],
     empty: 'Aun no se reconocen objetos',
   });
@@ -206,8 +206,10 @@ async function cargar() {
       <td class="right">${s.frames_analyzed}</td><td class="small">${fmtTime(s.started_at)}</td></tr>`).join('')
     : '<tr><td colspan="6" class="muted">Sin sesiones</td></tr>';
 
+  $('#obj-resumen').textContent = DATA.objetos_resumen || 'elementos distintos';
   $('#t-objetos').innerHTML = (DATA.objetos || []).length ? DATA.objetos.map(o => `
-    <tr><td>${esc(o.clase)}</td><td class="right">${o.unicos}</td>
+    <tr><td>${esc(o.nombre || o.clase)} <span class="muted small mono">${esc(o.clase)}</span></td>
+      <td class="right">${o.unicos}</td>
       <td class="right">${fmtDur(o.permanencia_prom)}</td>
       <td class="right">${fmtDur(o.permanencia_max)}</td></tr>`).join('')
     : '<tr><td colspan="4" class="muted">Sin objetos reconocidos todavia</td></tr>';

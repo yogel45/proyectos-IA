@@ -17,6 +17,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 import numpy as np
 
 from .. import db
+from .labels import nombre
 from .tracker import Track
 
 
@@ -129,8 +130,8 @@ class ZoneManager:
                 self.last_activity[name] = now
                 events.append(ZoneEvent(
                     "zone_enter", name,
-                    f"{tr.label} {tr.key} entro a '{name}'",
-                    "info", tr.key, {"label": tr.label},
+                    f"{nombre(tr.label).capitalize()} {tr.key} entro a '{name}'",
+                    "info", tr.key, {"label": tr.label, "nombre": nombre(tr.label)},
                 ))
             for name in left:
                 started = tr.zone_since.pop(name, now)
@@ -141,7 +142,8 @@ class ZoneManager:
                 tr.zone_alerted.discard(name)
                 events.append(ZoneEvent(
                     "zone_exit", name,
-                    f"{tr.label} {tr.key} salio de '{name}' tras {fmt_lapso(dwell)}",
+                    f"{nombre(tr.label).capitalize()} {tr.key} salio de '{name}' "
+                    f"tras {fmt_lapso(dwell)}",
                     "info", tr.key, {"dwell_s": round(dwell, 1)},
                 ))
             tr.current_zones = inside

@@ -33,6 +33,9 @@ DEFAULTS: Dict[str, Any] = {
     "conf_threshold": 0.35,
     "iou_threshold": 0.5,
     "device": "cpu",                 # cpu | 0 (gpu) | cuda
+    # Con detect_all_classes activo el modelo reconoce las 80 clases que conoce
+    # y nombra lo que ve; `classes` solo se usa si se desactiva esa opcion.
+    "detect_all_classes": True,
     "classes": ["person", "laptop", "cell phone", "chair", "backpack", "handbag", "cup", "book", "tv"],
     "primary_class": "person",
 

@@ -71,14 +71,18 @@ def system() -> Dict[str, Any]:
 
 @router.get("/classes")
 def list_classes() -> Dict[str, Any]:
-    """Clases que el modelo puede reconocer y cuales estan activas."""
-    from .vision.detector import COCO_CLASSES
+    """Todo lo que el modelo sabe reconocer, con su nombre en espanol."""
+    from .vision import labels
     utiles = ["person", "laptop", "cell phone", "chair", "tv", "keyboard", "mouse",
               "backpack", "handbag", "suitcase", "cup", "bottle", "book",
               "dining table", "couch", "potted plant", "clock", "scissors",
               "umbrella", "refrigerator", "microwave", "sink", "tie"]
-    return {"activas": CONFIG.get("classes"), "sugeridas": utiles,
-            "todas": COCO_CLASSES, "primaria": CONFIG.get("primary_class")}
+    return {"activas": CONFIG.get("classes"),
+            "sugeridas": [{"clase": c, "nombre": labels.nombre(c)} for c in utiles],
+            "todas": labels.catalogo(),
+            "detect_all": bool(CONFIG.get("detect_all_classes")),
+            "primaria": CONFIG.get("primary_class"),
+            "nombres": labels.etiquetas(labels.ES.keys())}
 
 
 @router.get("/config")
@@ -488,6 +492,10 @@ def metrics_summary(hours: int = 24) -> Dict[str, Any]:
                   ROUND(MAX(duration_s),1) AS permanencia_max
            FROM tracks WHERE label <> 'person' AND last_ts >= ?
            GROUP BY label ORDER BY unicos DESC""", (since,))
+    from .vision.labels import describir, nombre as _nombre
+    for fila in objetos:
+        fila["nombre"] = _nombre(fila["clase"], fila["unicos"])
+    escena = {o["clase"]: o["unicos"] for o in objetos}
     recientes = db.query(
         "SELECT * FROM events WHERE ts >= ? ORDER BY id DESC LIMIT 25", (since,))
     alertas = db.query(
@@ -498,7 +506,7 @@ def metrics_summary(hours: int = 24) -> Dict[str, Any]:
            FROM sessions ORDER BY id DESC LIMIT 10""")
     return {"rango_horas": hours, "kpis": kpis, "eventos": events, "tracks": tracks,
             "serie": series, "por_hora": by_hour, "tipos": tipos, "zonas": zonas,
-            "objetos": objetos,
+            "objetos": objetos, "objetos_resumen": describir(escena),
             "recientes": recientes, "alertas": alertas, "sesiones": sesiones,
             "en_vivo": metrics_live()}
 

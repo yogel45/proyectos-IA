@@ -24,6 +24,7 @@ import numpy as np
 from . import db
 from .config import CONFIG, SNAPSHOT_DIR
 from .vision.detector import BaseDetector, Detection, build_detector
+from .vision.labels import describir, etiquetas, nombre
 from .vision.tracker import Track, Tracker
 from .vision.zones import ZoneEvent, ZoneManager, fmt_lapso
 
@@ -179,6 +180,7 @@ class Analyzer:
                 self._save_track(tr)
 
             elapsed = max(1e-6, time.monotonic() - t0)
+            inventario = self._inventory(obj_active or [], others, len(active))
             result = {
                 "session_id": self.session_id,
                 "ts": wall_iso,
@@ -196,7 +198,8 @@ class Analyzer:
                               round(d.x2 / width, 4), round(d.y2 / height, 4)]}
                     for d in others
                 ]),
-                "inventory": self._inventory(obj_active or [], others),
+                "inventory": inventario,
+                "descripcion": inventario["descripcion"],
                 "zones": self.zones.snapshot(),
                 "movement": round(movement, 3),
                 "fps": round(1.0 / elapsed, 1),
@@ -292,8 +295,9 @@ class Analyzer:
                 if self.frames_analyzed > warmup:
                     out.append(ZoneEvent(
                         "objeto_nuevo", "",
-                        f"Objeto nuevo en escena: {tr.label} ({tr.key}) en {zona}",
-                        "info", tr.key, {"clase": tr.label},
+                        f"Reconocido en escena: {nombre(tr.label)} ({tr.key}) en {zona}",
+                        "info", tr.key,
+                        {"clase": tr.label, "nombre": nombre(tr.label)},
                     ))
 
             # --- objeto de valor sin persona cerca ----------------------
@@ -313,9 +317,11 @@ class Analyzer:
                 self._objects_alerted.add(tr.key)
                 out.append(ZoneEvent(
                     "objeto_sin_supervision", "",
-                    f"{tr.label} ({tr.key}) lleva {fmt_lapso(now - inicio)} sin nadie "
-                    f"cerca en {zona}", "warning", tr.key,
-                    {"clase": tr.label, "solo_s": round(now - inicio, 1)},
+                    f"{nombre(tr.label).capitalize()} ({tr.key}) lleva "
+                    f"{fmt_lapso(now - inicio)} sin nadie cerca en {zona}",
+                    "warning", tr.key,
+                    {"clase": tr.label, "nombre": nombre(tr.label),
+                     "solo_s": round(now - inicio, 1)},
                 ))
 
         # --- objeto retirado de la escena -------------------------------
@@ -327,8 +333,9 @@ class Analyzer:
             severidad = "warning" if tr.label in valiosos else "info"
             out.append(ZoneEvent(
                 "objeto_retirado", "",
-                f"{tr.label} ({tr.key}) dejo de verse tras {fmt_lapso(tr.duration)}",
-                severidad, tr.key, {"clase": tr.label},
+                f"{nombre(tr.label).capitalize()} ({tr.key}) dejo de verse tras "
+                f"{fmt_lapso(tr.duration)}", severidad, tr.key,
+                {"clase": tr.label, "nombre": nombre(tr.label)},
             ))
         return out
 
@@ -337,16 +344,22 @@ class Analyzer:
         ax, ay = tr.anchor
         return [z.name for z in self.zones.zones if z.contains(ax, ay, width, height)]
 
-    def _inventory(self, obj_tracks: List[Track],
-                   raw: List[Detection]) -> Dict[str, Any]:
-        """Inventario de objetos: visibles ahora y distintos vistos en la sesion."""
+    def _inventory(self, obj_tracks: List[Track], raw: List[Detection],
+                   personas: int = 0) -> Dict[str, Any]:
+        """Inventario de lo que se ve: nombres, cantidades y una frase legible."""
         visibles: Dict[str, int] = {}
         for tr in obj_tracks:
             visibles[tr.label] = visibles.get(tr.label, 0) + 1
         if not obj_tracks:
             for d in raw:
                 visibles[d.label] = visibles.get(d.label, 0) + 1
-        return {"visibles": visibles, "unicos": dict(self.object_unique)}
+        escena = dict(visibles)
+        if personas:
+            escena["person"] = personas
+        claves = set(visibles) | set(self.object_unique) | {"person"}
+        return {"visibles": visibles, "unicos": dict(self.object_unique),
+                "etiquetas": etiquetas(claves),
+                "descripcion": describir(escena)}
 
     # ------------------------------------------------------------------
     def _persist_event(self, ev: ZoneEvent, wall_iso: str, video_ts: Optional[float],
@@ -389,9 +402,11 @@ class Analyzer:
         peak = max(window)
         entries = ", ".join(f"{z}: {n}" for z, n in sorted(self._interval_entries.items())) or "sin movimientos entre zonas"
         ventana = (f"{interval/60:.0f} min" if interval >= 60 else f"{interval:.0f} s")
+        vistos = describir({c: n for c, n in self.object_unique.items()})
         message = (
             f"Resumen {ventana} - promedio {avg:.1f} personas "
             f"(pico {peak}); entradas por zona: {entries}; "
+            f"reconocido hasta ahora: {vistos}; "
             f"{self._interval_events} eventos, {self._interval_alerts} alertas."
         )
         db.insert_event(
@@ -438,6 +453,8 @@ class Analyzer:
             "classes": dict(self.class_counts),
             "objects_unique": dict(self.object_unique),
             "objects_total": sum(self.object_unique.values()),
+            "objects_labels": etiquetas(self.object_unique.keys()),
+            "objects_resumen": describir(dict(self.object_unique)),
         }
 
     # ------------------------------------------------------------------
@@ -491,13 +508,13 @@ class Analyzer:
             solo = obj.key in self._objects_alerted
             color = (98, 149, 176) if solo else (150, 150, 150)
             cv2.rectangle(out, (x1, y1), (x2, y2), color, 1)
-            cv2.putText(out, f"{obj.label} {obj.key.split('-')[-1]}",
+            cv2.putText(out, f"{nombre(obj.label)} {obj.key.split('-')[-1]}",
                         (x1 + 2, max(10, y1 - 4)), cv2.FONT_HERSHEY_SIMPLEX, 0.42,
                         color, 1, cv2.LINE_AA)
         for det in others or []:
             cv2.rectangle(out, (int(det.x1), int(det.y1)), (int(det.x2), int(det.y2)),
                           (140, 145, 152), 1)
-            cv2.putText(out, det.label, (int(det.x1), max(10, int(det.y1) - 4)),
+            cv2.putText(out, nombre(det.label), (int(det.x1), max(10, int(det.y1) - 4)),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.4, (140, 145, 152), 1, cv2.LINE_AA)
 
         banner = (f"Personas: {len(tracks)} | Objetos: {len(objetos)} | "

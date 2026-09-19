@@ -87,12 +87,18 @@
     <div><strong>Objeto sin vigilancia</strong><p class="small muted">Una laptop, mochila o telefono sin ninguna persona cerca durante el tiempo configurado.</p></div>
   </div>
   <div class="sep"></div>
-  <h3>Clases a reconocer <small>que debe buscar el modelo en la imagen</small></h3>
+  <h3>Que debe reconocer <small>el modelo conoce 80 tipos de elementos</small></h3>
+  <label style="display:flex;align-items:center;gap:9px;text-transform:none;
+                letter-spacing:0;font-size:13.5px;color:var(--txt);margin-bottom:12px">
+    <input type="checkbox" id="cfg-todo" style="width:auto">
+    Reconocer todo lo que vea y nombrarlo (recomendado)
+  </label>
   <div class="chips" id="chips-clases"><span class="muted small">Cargando…</span></div>
-  <p class="small muted" style="margin-top:10px">
-    Cada clase activa se detecta, se le asigna un identificador de seguimiento y se
-    registra en la base de datos. "person" siempre esta activa porque las reglas de
-    aforo y permanencia se calculan sobre personas.
+  <p class="small muted" style="margin-top:10px" id="clases-nota">
+    Con la opcion activada el sistema nombra cualquier elemento conocido que aparezca
+    (persona, laptop, silla, mochila, mesa, pantalla…). Si la desactivas, solo buscara
+    las clases que marques, lo que reduce ruido en escenas muy cargadas. Las personas
+    siempre se detectan: las reglas de aforo y permanencia se calculan sobre ellas.
   </p>
 
   <div class="sep"></div>
@@ -347,26 +353,47 @@ let CLASES = {activas: [], sugeridas: []};
 
 async function cargarClases() {
   CLASES = await API.get('/api/classes');
-  const todas = Array.from(new Set([...(CLASES.sugeridas || []), ...(CLASES.activas || [])]));
-  $('#chips-clases').innerHTML = todas.map(c => {
-    const on = (CLASES.activas || []).includes(c);
+  const nombres = CLASES.nombres || {};
+  const todo = !!CLASES.detect_all;
+  $('#cfg-todo').checked = todo;
+
+  const lista = Array.from(new Set([
+    ...(CLASES.sugeridas || []).map(x => x.clase),
+    ...(CLASES.activas || []),
+  ]));
+  $('#chips-clases').innerHTML = lista.map(c => {
+    const on = !todo && (CLASES.activas || []).includes(c);
     const fija = c === (CLASES.primaria || 'person');
     return `<span class="chip ${on ? 'on' : ''}" data-clase="${esc(c)}"
-       ${fija ? 'title="siempre activa" style="opacity:.75;cursor:default"' : ''}>${esc(c)}</span>`;
+       title="${esc(c)}"
+       style="${todo ? 'opacity:.4;cursor:default' : (fija ? 'opacity:.7;cursor:default' : '')}"
+       >${esc(nombres[c] || c)}</span>`;
   }).join('');
+
   $$('#chips-clases .chip').forEach(el => {
     el.onclick = async () => {
+      if ($('#cfg-todo').checked) {
+        return toast('Desactiva "reconocer todo" para elegir clases sueltas', 'warning');
+      }
       const clase = el.dataset.clase;
       if (clase === (CLASES.primaria || 'person')) return;
       const activas = new Set(CLASES.activas || []);
       activas.has(clase) ? activas.delete(clase) : activas.add(clase);
       activas.add(CLASES.primaria || 'person');
       await API.send('/api/config', {classes: Array.from(activas)});
-      toast('Clases actualizadas · afecta a los analisis nuevos', 'ok');
+      toast('Listo · se aplica a los analisis nuevos', 'ok');
       cargarClases();
     };
   });
 }
+
+$('#cfg-todo').onchange = async () => {
+  await API.send('/api/config', {detect_all_classes: $('#cfg-todo').checked});
+  toast($('#cfg-todo').checked
+    ? 'El sistema nombrara todo lo que reconozca'
+    : 'Solo se buscaran las clases marcadas', 'ok');
+  cargarClases();
+};
 
 async function cargarConfig() {
   const c = await API.get('/api/config');

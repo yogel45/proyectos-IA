@@ -123,9 +123,12 @@ class YoloDetector(BaseDetector):
         self.lock = threading.Lock()
         names = self.model.names if isinstance(self.model.names, dict) else dict(enumerate(self.model.names))
         self._names = {int(k): str(v) for k, v in names.items()}
-        wanted = set(classes or ["person"])
-        self._class_ids = [i for i, n in self._names.items() if n in wanted] or None
-        self.description = f"Ultralytics {Path(weights).name} ({device}) - {len(self._class_ids or self._names)} clases"
+        wanted = set(classes or [])
+        # sin lista de clases = reconoce todo lo que el modelo conoce
+        self._class_ids = ([i for i, n in self._names.items() if n in wanted]
+                           if wanted else None)
+        total = len(self._class_ids) if self._class_ids else len(self._names)
+        self.description = f"Ultralytics {Path(weights).name} ({device}) - {total} clases"
 
     def detect(self, frame: np.ndarray) -> List[Detection]:
         with self.lock:
@@ -159,7 +162,7 @@ class OnnxYoloDetector(BaseDetector):
         self.conf = conf
         self.iou = iou
         self.imgsz = imgsz
-        self.wanted = set(classes or ["person"])
+        self.wanted = set(classes or [])
         self.lock = threading.Lock()
         self.description = f"ONNX {Path(model_path).name} via OpenCV DNN"
 
@@ -284,7 +287,10 @@ def build_detector(preferred: Optional[str] = None,
     iou = float(CONFIG.get("iou_threshold"))
     imgsz = int(CONFIG.get("imgsz"))
     device = str(CONFIG.get("device"))
-    classes = list(classes or CONFIG.get("classes") or ["person"])
+    if classes is None and CONFIG.get("detect_all_classes"):
+        classes = []                      # lista vacia = todas las clases
+    else:
+        classes = list(classes or CONFIG.get("classes") or ["person"])
     order = [preferred] if preferred != "auto" else ["yolo", "onnx", "motion"]
     if preferred != "auto" and preferred != "motion":
         order.append("motion")                     # red de seguridad

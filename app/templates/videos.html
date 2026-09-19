@@ -136,17 +136,17 @@ async function verSesion(id) {
         <div class="sub">${m.total_events ?? 0} eventos</div></div>
       <div class="card kpi"><div class="label">Objetos reconocidos</div>
         <div class="value">${m.objects_total ?? 0}</div>
-        <div class="sub">${Object.entries(m.objects_unique || {}).sort((a,b)=>b[1]-a[1])
-          .slice(0,3).map(([c,n]) => `${n} ${esc(c)}`).join(' · ') || 'sin objetos'}</div></div>
+        <div class="sub">${esc(m.objects_resumen || 'sin objetos')}</div></div>
     </div>
     <div class="grid g2" style="margin-top:14px">
       <div class="card"><h3>Ocupacion a lo largo del video</h3>
         <canvas class="chart" id="c-det"></canvas></div>
-      <div class="card"><h3>Inventario de objetos <small>clases distintas</small></h3>
-        <table><thead><tr><th>Clase</th><th class="right">Unicos</th></tr></thead>
+      <div class="card"><h3>Que reconocio el sistema <small>elementos distintos</small></h3>
+        <table><thead><tr><th>Elemento</th><th>Clase del modelo</th><th class="right">Distintos</th></tr></thead>
           <tbody>${Object.entries(m.objects_unique || {}).sort((a,b)=>b[1]-a[1])
-            .map(([c, n]) => `<tr><td>${esc(c)}</td><td class="right">${n}</td></tr>`).join('')
-            || '<tr><td colspan="2" class="muted">Sin objetos reconocidos</td></tr>'}</tbody></table>
+            .map(([c, n]) => `<tr><td>${esc((m.objects_labels || {})[c] || c)}</td>
+              <td class="small muted mono">${esc(c)}</td><td class="right">${n}</td></tr>`).join('')
+            || '<tr><td colspan="3" class="muted">Sin objetos reconocidos</td></tr>'}</tbody></table>
       </div>
       <div class="card"><h3>Actividad por zona</h3>
         <table><thead><tr><th>Zona</th><th class="right">Entradas</th><th class="right">Salidas</th>

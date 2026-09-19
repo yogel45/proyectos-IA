@@ -116,9 +116,19 @@ Cuadro (webcam o video)
 
 ### Reconocimiento de objetos, no solo de personas
 
-El modelo detecta 80 clases COCO; en la pantalla *Puntos críticos* se eligen con un clic
-cuáles buscar (por defecto: `person`, `laptop`, `cell phone`, `chair`, `backpack`,
-`handbag`, `cup`, `book`, `tv`). Cada objeto detectado:
+Por defecto el sistema **reconoce las 80 clases que conoce el modelo y las nombra en
+español**: persona, laptop, silla, mochila, mesa, pantalla, taza, mochila, celular… En
+cada cuadro produce una frase legible de lo que ve —*"3 personas y 2 tazones"*— que
+aparece en la pantalla *Cámara en vivo*, en el resumen de cada video y en los resúmenes
+periódicos que se guardan en la base.
+
+Los nombres en español viven en `app/vision/labels.py`, con singular y plural correctos;
+en la base de datos se guarda siempre la clase original del modelo (`bowl`), que es la
+clave estable, y la traducción se aplica al mostrarla. En *Puntos críticos* se puede
+desactivar "reconocer todo" y limitar la búsqueda a las clases que marques, útil en
+escenas muy cargadas.
+
+Cada objeto detectado:
 
 * recibe su **propio identificador de seguimiento** (`P7-O-0003`) y se guarda en `tracks`
   con su duración en escena y las zonas por las que pasó;
@@ -160,7 +170,8 @@ el sistema propone, la persona decide.
 
 | Componente | Tecnología | Rol |
 |---|---|---|
-| Detección | **Ultralytics YOLO11n** (COCO, 80 clases) | Detección de personas y objetos |
+| Detección | **Ultralytics YOLO11n** (COCO, 80 clases) | Detección y nombrado de personas y objetos |
+| Nombres | `app/vision/labels.py` | Traducción al español con singular/plural y frase de escena |
 | Detección alterna | **OpenCV DNN + ONNX** | Mismo modelo sin PyTorch |
 | Respaldo sin modelo | **OpenCV MOG2 + contornos** | Funciona offline, sin descargas |
 | Seguimiento | Implementación propia (IoU + centroides) | IDs anónimos, permanencia, trayectoria |
@@ -209,7 +220,7 @@ Zonas precargadas: Recepción, Área de trabajo, Sala de juntas y Pasillo / Acce
 | `aforo_excedido` | critical | La ocupación instantánea supera el máximo de la zona |
 | `aglomeracion` | critical | Más de N personas simultáneas en el encuadre |
 | `zona_inactiva` | warning | Zona sin actividad durante el horario laboral |
-| `objeto_nuevo` | info | Aparece en escena un objeto que antes no estaba |
+| `objeto_nuevo` | info | Aparece en escena un objeto que antes no estaba, nombrado en español ("Reconocido en escena: mochila (P4-O-0003) en Recepción") |
 | `objeto_retirado` | info / warning | Un objeto deja de verse (warning si es de valor) |
 | `objeto_sin_supervision` | warning | Objeto de valor sin ninguna persona cerca |
 | `actividad_fuera_horario` | warning | Presencia detectada fuera de la jornada configurada |
@@ -335,6 +346,7 @@ proyectos-IA/
 │   ├── vision/
 │   │   ├── detector.py        Backends YOLO / ONNX / movimiento
 │   │   ├── tracker.py         Seguimiento multi-objeto (personas y objetos)
+│   │   ├── labels.py          Nombres en espanol de las 80 clases
 │   │   ├── autozones.py       Deteccion automatica de puntos criticos
 │   │   └── zones.py           Polígonos, aforo y permanencia
 │   ├── templates/             6 páginas (Jinja2)
