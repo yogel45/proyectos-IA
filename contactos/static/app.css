@@ -149,7 +149,16 @@ aside:not(:hover):not(.abierta) .nota{white-space:nowrap}
 .menu-btn:hover{background:var(--paper-dim);opacity:1}
 .velo{display:none;position:fixed;inset:0;background:rgb(0 0 0 / .4);z-index:35}
 
-main{margin-left:var(--rail);padding:16px 24px 64px;max-width:none;min-width:0}
+main{
+  padding:16px 24px 64px;min-width:0;
+  /* En monitores grandes el contenido se centra en vez de estirarse de borde
+     a borde: una linea de texto de 2 500 px no se lee. El max() garantiza
+     que el margen izquierdo nunca baje del ancho del carril, asi que el
+     contenido jamas queda debajo de la barra lateral. */
+  max-width:1600px;
+  margin-left:max(var(--rail), calc((100vw - 1600px) / 2));
+  margin-right:0;
+}
 header.page{
   display:flex;justify-content:space-between;align-items:center;gap:16px;
   margin-bottom:20px;flex-wrap:wrap;min-height:48px;
@@ -314,13 +323,13 @@ canvas.chart{width:100%;height:200px;display:block}
 .toast .tag{background:transparent;border-color:rgb(255 255 255 / .3);color:var(--paper)}
 .sep{height:1px;background:var(--line);margin:18px 0}
 
-@media(max-width:1020px){
+@media(max-width:1180px){
   .split{grid-template-columns:1fr}
   main{padding:16px 18px 56px}
 }
 
 /* ---------- telefono y tableta ---------- */
-@media(max-width:860px){
+@media(max-width:1023.98px){
   .menu-btn{display:block}
   aside{
     width:min(85vw,320px);padding:12px 0;border-radius:0 16px 16px 0;

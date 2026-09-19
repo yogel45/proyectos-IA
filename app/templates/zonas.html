@@ -58,7 +58,7 @@
       <div class="row tight" style="margin-top:10px">
         <div><label>Aforo maximo</label><input id="z-max" type="number" value="6" min="0"></div>
         <div><label>Minimo de personas</label><input id="z-min" type="number" value="0" min="0"></div>
-        <div style="max-width:90px"><label>Color</label><input id="z-color" type="color" value="#7d97b8" style="padding:2px;height:36px"></div>
+        <div style="max-width:90px"><label>Color</label><input id="z-color" type="color" value="#1a73e8" style="padding:2px;height:36px"></div>
       </div>
       <div class="row tight" style="margin-top:10px">
         <div><label>Alerta de permanencia (min)</label><input id="z-dwell" type="number" value="3" min="0" step="0.5"></div>
@@ -140,7 +140,7 @@ function dibujar() {
     cx.strokeStyle = css.getPropertyValue('--line').trim() || 'rgba(148,163,184,.12)';
     for (let x = 0; x < cv.width; x += 64) { cx.beginPath(); cx.moveTo(x, 0); cx.lineTo(x, cv.height); cx.stroke(); }
     for (let y = 0; y < cv.height; y += 64) { cx.beginPath(); cx.moveTo(0, y); cx.lineTo(cv.width, y); cx.stroke(); }
-    cx.fillStyle = css.getPropertyValue('--txt-3').trim() || '#767c86';
+    cx.fillStyle = css.getPropertyValue('--txt-3').trim() || '#5f6368';
     cx.font = '18px ui-sans-serif, system-ui, sans-serif'; cx.textAlign = 'center';
     cx.fillText('Carga un fondo (camara o imagen) y traza las zonas', cv.width / 2, cv.height / 2);
     cx.textAlign = 'start';
@@ -178,7 +178,7 @@ function dibujar() {
     cx.setLineDash([]);
     pts.forEach((p, i) => {
       cx.beginPath(); cx.arc(p[0], p[1], 6, 0, 7);
-      cx.fillStyle = i === 0 ? '#839a8c' : '#fff'; cx.fill();
+      cx.fillStyle = i === 0 ? '#188038' : '#fff'; cx.fill();
     });
   }
   $('#edit-info').textContent = `Puntos: ${puntos.length}` + (editId ? ` · editando zona #${editId}` : '');

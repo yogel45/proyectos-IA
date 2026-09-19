@@ -552,7 +552,7 @@ class Analyzer:
 
 
 def _hex_to_bgr(value: str) -> Tuple[int, int, int]:
-    value = (value or "#7d97b8").lstrip("#")
+    value = (value or "#1a73e8").lstrip("#")
     if len(value) != 6:
         value = "7d97b8"
     r, g, b = (int(value[i:i + 2], 16) for i in (0, 2, 4))

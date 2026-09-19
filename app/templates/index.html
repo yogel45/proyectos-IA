@@ -116,48 +116,48 @@ function pintarGraficas() {
   lineChart($('#c-serie'), {
     labels: serie.map(r => (r.minuto || '').slice(11)),
     series: [
-      {name: 'Personas (prom)', data: serie.map(r => r.personas), color: '#7d97b8'},
-      {name: 'Pico', data: serie.map(r => r.pico), color: '#8a8698'},
+      {name: 'Personas (prom)', data: serie.map(r => r.personas), color: '#1a73e8'},
+      {name: 'Pico', data: serie.map(r => r.pico), color: '#e37400'},
     ],
     empty: 'Aun no hay analisis en este rango',
   });
-  legend($('#l-serie'), [{name: 'Personas (prom)', color: '#7d97b8'}, {name: 'Pico', color: '#8a8698'}]);
+  legend($('#l-serie'), [{name: 'Personas (prom)', color: '#1a73e8'}, {name: 'Pico', color: '#e37400'}]);
 
   const horas = DATA.por_hora || [];
   barChart($('#c-hora'), {
     labels: horas.map(r => r.hora + ':00'),
     series: [
-      {name: 'Promedio', data: horas.map(r => r.personas), color: '#839a8c'},
-      {name: 'Pico', data: horas.map(r => r.pico), color: '#a89578'},
+      {name: 'Promedio', data: horas.map(r => r.personas), color: '#188038'},
+      {name: 'Pico', data: horas.map(r => r.pico), color: '#e37400'},
     ],
     empty: 'Sin muestras por hora',
   });
-  legend($('#l-hora'), [{name: 'Promedio', color: '#839a8c'}, {name: 'Pico', color: '#a89578'}]);
+  legend($('#l-hora'), [{name: 'Promedio', color: '#188038'}, {name: 'Pico', color: '#e37400'}]);
 
   const zonas = DATA.zonas || [];
   barChart($('#c-zonas'), {
     labels: zonas.map(z => z.zona),
     series: [
-      {name: 'Ocupacion promedio', data: zonas.map(z => z.ocupacion_prom), color: '#7d97b8'},
-      {name: 'Pico', data: zonas.map(z => z.pico), color: '#8a8698'},
-      {name: 'Aforo', data: zonas.map(z => z.max_occupancy), color: '#767c86'},
+      {name: 'Ocupacion promedio', data: zonas.map(z => z.ocupacion_prom), color: '#1a73e8'},
+      {name: 'Pico', data: zonas.map(z => z.pico), color: '#e37400'},
+      {name: 'Aforo', data: zonas.map(z => z.max_occupancy), color: '#5f6368'},
     ],
     empty: 'Analiza un video o la camara para ver zonas',
   });
-  legend($('#l-zonas'), [{name: 'Ocupacion promedio', color: '#7d97b8'},
-    {name: 'Pico', color: '#8a8698'}, {name: 'Aforo configurado', color: '#767c86'}]);
+  legend($('#l-zonas'), [{name: 'Ocupacion promedio', color: '#1a73e8'},
+    {name: 'Pico', color: '#e37400'}, {name: 'Aforo configurado', color: '#5f6368'}]);
 
   const tipos = DATA.tipos || [];
   barChart($('#c-tipos'), {
     labels: tipos.map(t => t.type),
-    series: [{name: 'Eventos', data: tipos.map(t => t.n), color: '#7d9495'}],
+    series: [{name: 'Eventos', data: tipos.map(t => t.n), color: '#12b5cb'}],
     empty: 'Sin eventos registrados',
   });
 
   const objetos = DATA.objetos || [];
   barChart($('#c-objetos'), {
     labels: objetos.map(o => o.nombre || o.clase),
-    series: [{name: 'Objetos unicos', data: objetos.map(o => o.unicos), color: '#8a8698'}],
+    series: [{name: 'Objetos unicos', data: objetos.map(o => o.unicos), color: '#e37400'}],
     empty: 'Aun no se reconocen objetos',
   });
 }

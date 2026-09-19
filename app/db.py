@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS zones (
     name            TEXT NOT NULL UNIQUE,
     kind            TEXT NOT NULL DEFAULT 'area',  -- area | acceso | restringida
     polygon_json    TEXT NOT NULL,          -- [[x,y], ...] normalizado 0..1
-    color           TEXT DEFAULT '#7d97b8',
+    color           TEXT DEFAULT '#1a73e8',
     max_occupancy   INTEGER DEFAULT 6,
     min_occupancy   INTEGER DEFAULT 0,      -- 0 = la zona puede quedar vacia
     vacancy_alert_s INTEGER DEFAULT 300,    -- tolerancia antes de avisar
@@ -304,21 +304,28 @@ def insert_event(session_id: Optional[int], ts: str, type_: str, message: str,
 
 DEFAULT_ZONES = [
     # Rejilla inicial util para una camara de oficina; editable desde la UI.
-    ("Recepcion", "acceso", [[0.02, 0.45], [0.33, 0.45], [0.33, 0.97], [0.02, 0.97]], "#7d97b8", 4, 300),
-    ("Area de trabajo", "area", [[0.34, 0.35], [0.74, 0.35], [0.74, 0.97], [0.34, 0.97]], "#839a8c", 10, 3600),
-    ("Sala de juntas", "area", [[0.75, 0.30], [0.98, 0.30], [0.98, 0.97], [0.75, 0.97]], "#a89578", 8, 5400),
-    ("Pasillo / Acceso", "acceso", [[0.02, 0.05], [0.98, 0.05], [0.98, 0.34], [0.02, 0.34]], "#8a8698", 6, 120),
+    ("Recepcion", "acceso", [[0.02, 0.45], [0.33, 0.45], [0.33, 0.97], [0.02, 0.97]], "#1a73e8", 4, 300),
+    ("Area de trabajo", "area", [[0.34, 0.35], [0.74, 0.35], [0.74, 0.97], [0.34, 0.97]], "#188038", 10, 3600),
+    ("Sala de juntas", "area", [[0.75, 0.30], [0.98, 0.30], [0.98, 0.97], [0.75, 0.97]], "#e37400", 8, 5400),
+    ("Pasillo / Acceso", "acceso", [[0.02, 0.05], [0.98, 0.05], [0.98, 0.34], [0.02, 0.34]], "#e37400", 6, 120),
 ]
 
 # Colores vivos de la primera version -> equivalentes apagados. Solo se
 # reemplazan los que nadie ha tocado, para no pisar elecciones del usuario.
+# Las zonas guardan su color en la base, asi que cambiar la paleta del CSS no
+# basta: hay que traer las que ya estan creadas. Cada fila lleva de una paleta
+# antigua a su equivalente en la actual (Material).
 COLOR_MIGRACION = {
     # paleta viva original
-    "#38bdf8": "#7d97b8", "#22c55e": "#839a8c",
-    "#f59e0b": "#a89578", "#a78bfa": "#8a8698",
-    # primer ajuste de saturacion -> paleta definitiva
-    "#7fa48c": "#839a8c", "#b09562": "#a89578", "#8b84a3": "#8a8698",
-    "#6f9b9b": "#7d9495", "#b0736f": "#a87b77",
+    "#38bdf8": "#1a73e8", "#22c55e": "#188038",
+    "#f59e0b": "#e37400", "#a78bfa": "#9334e6",
+    # ajuste de saturacion intermedio
+    "#7fa48c": "#188038", "#b09562": "#e37400", "#8b84a3": "#9334e6",
+    "#6f9b9b": "#12b5cb", "#b0736f": "#c5221f",
+    # paleta apagada -> Material
+    "#7d97b8": "#1a73e8", "#839a8c": "#188038", "#a89578": "#e37400",
+    "#a87b77": "#c5221f", "#8a8698": "#9334e6", "#7d9495": "#12b5cb",
+    "#9a8b96": "#9334e6",
 }
 
 

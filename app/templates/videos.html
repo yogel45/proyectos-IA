@@ -176,8 +176,8 @@ async function verSesion(id) {
     </div>`;
   lineChart($('#c-det'), {
     labels: tl.map(p => p.video_ts != null ? fmtDur(p.video_ts) : fmtClock(p.ts)),
-    series: [{name: 'Personas', data: tl.map(p => p.persons), color: '#7d97b8'},
-             {name: 'Movimiento', data: tl.map(p => (p.movement_index || 0) * 10), color: '#8a8698'}],
+    series: [{name: 'Personas', data: tl.map(p => p.persons), color: '#1a73e8'},
+             {name: 'Movimiento', data: tl.map(p => (p.movement_index || 0) * 10), color: '#e37400'}],
     empty: 'Sin muestras',
   });
 }

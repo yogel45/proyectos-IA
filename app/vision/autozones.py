@@ -32,7 +32,7 @@ GW, GH = 128, 72          # rejilla de analisis (relacion 16:9)
 MIN_CELLS = 28            # area minima de una zona candidata
 MAX_ZONES = 8
 
-PALETA = ["#7d97b8", "#839a8c", "#a89578", "#8a8698", "#7d9495", "#9a8b96",
+PALETA = ["#1a73e8", "#188038", "#e37400", "#e37400", "#12b5cb", "#9334e6",
           "#72879c", "#a98a72"]
 
 TRABAJO = {"laptop", "keyboard", "mouse", "tv", "book", "cup", "cell phone"}
@@ -303,7 +303,7 @@ def apply_zones(zonas: Sequence[Dict[str, Any]], reemplazar: bool = False) -> in
                                   enabled, created_at)
                VALUES (?,?,?,?,?,?,?,?,1,?)""",
             (nombre, z.get("kind", "area"), json.dumps(z.get("polygon", [])),
-             z.get("color", "#7d97b8"), int(z.get("max_occupancy", 6)),
+             z.get("color", "#1a73e8"), int(z.get("max_occupancy", 6)),
              int(z.get("min_occupancy", 0)), int(z.get("vacancy_alert_s", 300)),
              int(z.get("dwell_alert_s", 300)), db.now_iso()))
         guardadas += 1

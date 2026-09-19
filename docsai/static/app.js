@@ -84,7 +84,7 @@ function axes(ctx, box, max, labels, opts = {}) {
   const {x0, y0, x1, y1} = box;
   const css = getComputedStyle(document.documentElement);
   ctx.strokeStyle = css.getPropertyValue('--line').trim() || 'rgba(148,163,184,.16)';
-  ctx.fillStyle = css.getPropertyValue('--txt-3').trim() || '#93a4bf';
+  ctx.fillStyle = css.getPropertyValue('--txt-3').trim() || '#5f6368';
   ctx.font = '10px Segoe UI, system-ui, sans-serif';
   ctx.lineWidth = 1;
   const steps = 4;
@@ -109,7 +109,7 @@ function axes(ctx, box, max, labels, opts = {}) {
 
 function emptyChart(ctx, w, h, msg = 'Sin datos todavia') {
   ctx.fillStyle = getComputedStyle(document.documentElement)
-    .getPropertyValue('--txt-3').trim() || '#93a4bf';
+    .getPropertyValue('--txt-3').trim() || '#5f6368';
   ctx.font = '13px Segoe UI, system-ui, sans-serif';
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillText(msg, w / 2, h / 2);

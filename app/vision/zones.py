@@ -27,7 +27,7 @@ class Zone:
     name: str
     kind: str
     polygon: List[List[float]]
-    color: str = "#7d97b8"
+    color: str = "#1a73e8"
     max_occupancy: int = 6
     min_occupancy: int = 0          # 0 = puede quedar vacia
     vacancy_alert_s: int = 300      # cuanto se tolera por debajo del minimo
@@ -71,7 +71,7 @@ def load_zones() -> List[Zone]:
             continue
         zones.append(Zone(
             id=r["id"], name=r["name"], kind=r["kind"], polygon=poly,
-            color=r["color"] or "#7d97b8",
+            color=r["color"] or "#1a73e8",
             max_occupancy=int(r["max_occupancy"] or 0),
             min_occupancy=int(r["min_occupancy"] or 0),
             vacancy_alert_s=int(r["vacancy_alert_s"] or 0),
