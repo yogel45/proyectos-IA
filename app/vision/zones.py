@@ -29,6 +29,8 @@ class Zone:
     polygon: List[List[float]]
     color: str = "#7d97b8"
     max_occupancy: int = 6
+    min_occupancy: int = 0          # 0 = puede quedar vacia
+    vacancy_alert_s: int = 300      # cuanto se tolera por debajo del minimo
     dwell_alert_s: int = 180
     enabled: bool = True
     _scaled: Dict[Tuple[int, int], Any] = field(default_factory=dict, repr=False)
@@ -52,8 +54,10 @@ class Zone:
         return {
             "id": self.id, "name": self.name, "kind": self.kind,
             "polygon": self.polygon, "color": self.color,
-            "max_occupancy": self.max_occupancy, "dwell_alert_s": self.dwell_alert_s,
-            "enabled": self.enabled,
+            "max_occupancy": self.max_occupancy,
+            "min_occupancy": self.min_occupancy,
+            "vacancy_alert_s": self.vacancy_alert_s,
+            "dwell_alert_s": self.dwell_alert_s, "enabled": self.enabled,
         }
 
 
@@ -69,6 +73,8 @@ def load_zones() -> List[Zone]:
             id=r["id"], name=r["name"], kind=r["kind"], polygon=poly,
             color=r["color"] or "#7d97b8",
             max_occupancy=int(r["max_occupancy"] or 0),
+            min_occupancy=int(r["min_occupancy"] or 0),
+            vacancy_alert_s=int(r["vacancy_alert_s"] or 0),
             dwell_alert_s=int(r["dwell_alert_s"] or 0),
             enabled=bool(r["enabled"]),
         ))
@@ -108,12 +114,15 @@ class ZoneManager:
         self.visits: Dict[str, int] = {z.name: 0 for z in self.zones}
         self.last_activity: Dict[str, float] = {z.name: 0.0 for z in self.zones}
         self._over_capacity: Dict[str, bool] = {z.name: False for z in self.zones}
+        self._vacancy_since: Dict[str, float] = {}   # zona -> t en que quedo bajo minimo
+        self._vacancy_alerted: Set[str] = set()
+        self.vacancy_total: Dict[str, float] = {z.name: 0.0 for z in self.zones}
 
     def reload(self) -> None:
         self.__init__(load_zones())
 
-    def update(self, tracks: List[Track], now: float, width: int, height: int
-               ) -> List[ZoneEvent]:
+    def update(self, tracks: List[Track], now: float, width: int, height: int,
+               en_horario: bool = True) -> List[ZoneEvent]:
         events: List[ZoneEvent] = []
         occ = {z.name: 0 for z in self.zones}
 
@@ -164,7 +173,7 @@ class ZoneManager:
                             sev, tr.key, {"dwell_s": round(elapsed, 1)},
                         ))
 
-        # --- aforo -----------------------------------------------------------
+        # --- aforo maximo y minimo -------------------------------------------
         for zone in self.zones:
             n = occ.get(zone.name, 0)
             self.occupancy[zone.name] = n
@@ -178,8 +187,51 @@ class ZoneManager:
                     "critical", "", {"count": n, "max": zone.max_occupancy},
                 ))
             self._over_capacity[zone.name] = over
+            events.extend(self._revisar_minimo(zone, n, now, en_horario))
 
         return events
+
+    def _revisar_minimo(self, zone: Zone, n: int, now: float,
+                        en_horario: bool) -> List[ZoneEvent]:
+        """Puesto que debe estar atendido: avisa si nadie lo cubre y cuando se retoma."""
+        if zone.min_occupancy <= 0:
+            return []
+        if not en_horario:
+            self._vacancy_since.pop(zone.name, None)
+            self._vacancy_alerted.discard(zone.name)
+            return []
+
+        eventos: List[ZoneEvent] = []
+        if n < zone.min_occupancy:
+            inicio = self._vacancy_since.setdefault(zone.name, now)
+            transcurrido = now - inicio
+            if (transcurrido >= zone.vacancy_alert_s
+                    and zone.name not in self._vacancy_alerted):
+                self._vacancy_alerted.add(zone.name)
+                falta = zone.min_occupancy - n
+                detalle = ("sin nadie" if n == 0
+                           else f"con {n} de {zone.min_occupancy} personas")
+                eventos.append(ZoneEvent(
+                    "puesto_desatendido", zone.name,
+                    f"'{zone.name}' lleva {fmt_lapso(transcurrido)} {detalle} "
+                    f"(minimo {zone.min_occupancy})",
+                    "critical" if n == 0 else "warning", "",
+                    {"ocupacion": n, "minimo": zone.min_occupancy,
+                     "faltan": falta, "desatendido_s": round(transcurrido, 1)},
+                ))
+            return eventos
+
+        inicio = self._vacancy_since.pop(zone.name, None)
+        if zone.name in self._vacancy_alerted:
+            self._vacancy_alerted.discard(zone.name)
+            hueco = now - inicio if inicio is not None else 0.0
+            self.vacancy_total[zone.name] = self.vacancy_total.get(zone.name, 0.0) + hueco
+            eventos.append(ZoneEvent(
+                "puesto_atendido", zone.name,
+                f"'{zone.name}' vuelve a estar atendida tras {fmt_lapso(hueco)}",
+                "info", "", {"desatendido_s": round(hueco, 1)},
+            ))
+        return eventos
 
     def _zone(self, name: str) -> Optional[Zone]:
         for z in self.zones:
@@ -197,6 +249,9 @@ class ZoneManager:
                 "dwell_total_s": round(self.dwell_total.get(z.name, 0.0), 1),
                 "visits": self.visits.get(z.name, 0),
                 "max_occupancy": z.max_occupancy,
+                "min_occupancy": z.min_occupancy,
+                "desatendida": z.name in self._vacancy_alerted,
+                "sin_cubrir_s": round(self.vacancy_total.get(z.name, 0.0), 1),
                 "color": z.color,
                 "kind": z.kind,
             }

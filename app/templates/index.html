@@ -79,8 +79,10 @@
     <h3>Detalle por zona</h3>
     <div class="scroll"><table>
       <thead><tr><th>Zona</th><th class="right">Ocup. prom</th><th class="right">Pico</th>
-        <th class="right">Entradas</th><th class="right">Permanencia</th><th class="right">Aforo</th></tr></thead>
-      <tbody id="t-zonas"><tr><td colspan="6" class="muted">Sin datos</td></tr></tbody>
+        <th class="right">Entradas</th><th class="right">Permanencia</th>
+        <th class="right">Aforo</th><th class="right">Minimo</th>
+        <th class="right">Sin cubrir</th></tr></thead>
+      <tbody id="t-zonas"><tr><td colspan="8" class="muted">Sin datos</td></tr></tbody>
     </table></div>
   </div>
   <div class="card">
@@ -196,8 +198,11 @@ async function cargar() {
     <tr><td><span class="tag" style="background:${esc(z.color)}22;color:${esc(z.color)}">${esc(z.zona)}</span></td>
       <td class="right">${z.ocupacion_prom}</td><td class="right">${z.pico}</td>
       <td class="right">${z.entradas}</td><td class="right">${z.permanencia_total_min} min</td>
-      <td class="right">${z.max_occupancy}</td></tr>`).join('')
-    : '<tr><td colspan="6" class="muted">Sin datos de zonas todavia</td></tr>';
+      <td class="right">${z.max_occupancy}</td>
+      <td class="right">${z.min_occupancy || '—'}</td>
+      <td class="right" style="color:${z.sin_cubrir_min > 0 ? 'var(--crit)' : 'inherit'}">
+        ${z.min_occupancy ? z.sin_cubrir_min + ' min' : '—'}</td></tr>`).join('')
+    : '<tr><td colspan="8" class="muted">Sin datos de zonas todavia</td></tr>';
 
   $('#t-sesiones').innerHTML = (DATA.sesiones || []).length ? DATA.sesiones.map(s => `
     <tr><td class="mono">${s.id}</td><td>${esc(s.name)}</td>

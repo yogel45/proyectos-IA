@@ -22,7 +22,10 @@
 
    *La vía manual:*
    * **Fondo desde cámara** (o sube una foto), haz clic para trazar el polígono, ponle
-     nombre, tipo, aforo y umbral de permanencia → **Guardar zona**.
+     nombre, tipo, aforo, **mínimo de personas** y umbrales → **Guardar zona**.
+   * *Mínimo de personas* = 0 significa que la zona puede quedar vacía. Ponle 1 (o más)
+     a los puestos que deben estar atendidos: avisará cuando queden por debajo más
+     tiempo del tolerado y cuando se vuelvan a cubrir.
 
    También ahí está **Qué debe reconocer**: por defecto el sistema nombra todo lo que ve
    (80 tipos de elementos, en español). Si lo desactivas, puedes limitarlo a las clases
@@ -73,6 +76,8 @@ En *Cámara en vivo* → sección **Cámara del servidor / IP**, escribe la fuen
 | Va lento | Baja `live_target_fps` / `video_target_fps`, o resolución de envío a 480 |
 | Quiero más precisión | `"model": "yolo11s.pt"` y, si hay GPU, `"device": "0"` |
 | Demasiadas alertas de permanencia | Sube el umbral de la zona en *Puntos críticos* |
+| Quiero saber si dejan un puesto solo | Pon *Mínimo de personas* = 1 en esa zona y ajusta la tolerancia |
+| Avisa de puesto desatendido fuera de hora | La regla solo corre en horario laboral; revisa *Inicio/Fin de jornada* |
 | Divide a una persona en varios IDs | Sube `track_max_age` (40–60) o baja `track_iou_match` (0.25) |
 | No reconoce objetos | Revisa que esté activo *Reconocer todo lo que vea*; con el detector `motion` solo hay personas |
 | Nombra cosas que no son | El modelo COCO confunde objetos parecidos (un producto redondo puede salir como "tazón"); sube `conf_threshold` o limita las clases |

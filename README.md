@@ -208,7 +208,11 @@ abre la fuente en el servidor y publica un stream MJPEG anotado en `/api/camera/
 ## 5. Puntos críticos y métricas generadas
 
 **Zonas** (editables en la pantalla *Puntos críticos*): nombre, tipo (`area`, `acceso`,
-`restringida`), polígono, aforo máximo y umbral de permanencia.
+`restringida`), polígono, **aforo máximo**, **mínimo de personas** con su tolerancia y
+umbral de permanencia. El mínimo es lo que convierte una zona en un *puesto que debe
+estar atendido*: con `min_occupancy = 1`, la recepción que se queda sola dispara una
+alerta y, al volver a cubrirse, el sistema registra cuántos minutos estuvo sin nadie
+(acumulados por zona en el dashboard, columna *Sin cubrir*).
 Zonas precargadas: Recepción, Área de trabajo, Sala de juntas y Pasillo / Acceso.
 
 **Eventos que se registran**
@@ -220,6 +224,8 @@ Zonas precargadas: Recepción, Área de trabajo, Sala de juntas y Pasillo / Acce
 | `aforo_excedido` | critical | La ocupación instantánea supera el máximo de la zona |
 | `aglomeracion` | critical | Más de N personas simultáneas en el encuadre |
 | `zona_inactiva` | warning | Zona sin actividad durante el horario laboral |
+| `puesto_desatendido` | critical / warning | La zona baja de su **mínimo de personas** más tiempo del tolerado (recepción sin nadie, sala con menos gente de la requerida). Crítico si queda vacía |
+| `puesto_atendido` | info | La zona vuelve a cubrirse, indicando cuánto tiempo estuvo sin cubrir |
 | `objeto_nuevo` | info | Aparece en escena un objeto que antes no estaba, nombrado en español ("Reconocido en escena: mochila (P4-O-0003) en Recepción") |
 | `objeto_retirado` | info / warning | Un objeto deja de verse (warning si es de valor) |
 | `objeto_sin_supervision` | warning | Objeto de valor sin ninguna persona cerca |

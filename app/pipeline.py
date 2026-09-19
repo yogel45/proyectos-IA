@@ -138,7 +138,8 @@ class Analyzer:
 
             active, closed = self.tracker.update(persons, now, wall_iso, video_ts,
                                                  width, height)
-            zone_events = self.zones.update(active, now, width, height)
+            zone_events = self.zones.update(active, now, width, height,
+                                            en_horario=in_work_hours(wall))
 
             obj_active: List[Track] = []
             obj_closed: List[Track] = []

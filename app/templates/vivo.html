@@ -204,12 +204,14 @@ function aplicarResultado(r) {
     <div class="zone-item">
       <span class="swatch" style="background:${esc(z.color)}"></span>
       <div style="flex:1">
-        <div><strong>${esc(name)}</strong> <span class="muted small">· ${esc(z.kind)}</span></div>
+        <div><strong>${esc(name)}</strong> <span class="muted small">· ${esc(z.kind)}</span>
+          ${z.desatendida ? '<span class="tag critical">sin cubrir</span>' : ''}</div>
         <div class="bar" style="margin-top:5px"><span style="width:${Math.min(100, z.max_occupancy ? z.occupancy / z.max_occupancy * 100 : 0)}%"></span></div>
       </div>
       <div class="right small">
         <div><strong>${z.occupancy}</strong>/${z.max_occupancy}</div>
-        <div class="muted">${z.entries} entradas</div>
+        <div class="muted">${z.entries} entradas${z.min_occupancy > 0
+          ? ` · min ${z.min_occupancy}` : ''}</div>
       </div>
     </div>`).join('') || '<p class="muted small">No hay zonas configuradas.</p>';
 

@@ -36,8 +36,11 @@ se mezcla entre fuentes, lo que permite analizar varias cámaras y videos a la v
 3. **Zonas.** Para cada track activo se evalúa el punto de contacto con el piso contra cada
    polígono (`cv2.pointPolygonTest`). Comparando con las zonas del cuadro anterior se derivan
    entradas, salidas y permanencia acumulada.
-4. **Reglas.** Sobre personas: aforo por zona, permanencia por track/zona, aglomeración
-   global, zona inactiva y actividad fuera de horario. Sobre objetos: alta en escena
+4. **Reglas.** Sobre personas: aforo máximo y **mínimo** por zona (puesto desatendido,
+   con su evento de recuperación y el tiempo sin cubrir acumulado), permanencia por
+   track/zona, aglomeración global, zona inactiva y actividad fuera de horario. El
+   mínimo solo se evalúa en horario laboral: el pipeline le pasa esa condición al
+   `ZoneManager`, que es quien lleva el reloj de cada hueco. Sobre objetos: alta en escena
    (`objeto_nuevo`, tras un calentamiento que evita anunciar el mobiliario fijo), baja
    (`objeto_retirado`) y `objeto_sin_supervision`, que compara la distancia del objeto a
    la persona más cercana contra un radio proporcional a la diagonal del cuadro —así el
@@ -127,7 +130,8 @@ tracks(id, session_id, track_key, label, first_ts, last_ts,
 events(id, session_id, ts, video_ts, type, severity, track_key, zone,
        message, snapshot, meta_json)
 
-zones(id, name, kind, polygon_json, color, max_occupancy, dwell_alert_s, enabled, created_at)
+zones(id, name, kind, polygon_json, color, max_occupancy, min_occupancy,
+      vacancy_alert_s, dwell_alert_s, enabled, created_at)
 
 employees(emp_id, name, area, entry_time, lunch, exit_time)
 attendance(emp_id, name, date, check_in, check_out, worked_min, late_min, early_min, month)
@@ -193,7 +197,7 @@ Se crea sola con los valores por defecto y se puede editar en caliente desde la 
 |---|---|
 | Otro modelo de IA | `app/vision/detector.py` (nueva clase + `build_detector`) |
 | Otro criterio de zonas automáticas | `app/vision/autozones.py` (`_nombrar`, umbrales) |
-| Nueva regla de alerta | `Analyzer._global_rules` o `ZoneManager.update` |
+| Nueva regla de alerta | `Analyzer._global_rules`, `ZoneManager.update` o `ZoneManager._revisar_minimo` |
 | Otra base de datos | `app/db.py` (capa única de acceso) |
 | Nueva métrica en el dashboard | consulta en `app/api.py` + gráfica en `app/templates/index.html` |
 | Otra fuente operativa (ERP, CRM) | `app/business.py` siguiendo el patrón de importación |

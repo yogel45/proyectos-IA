@@ -101,6 +101,8 @@ CREATE TABLE IF NOT EXISTS zones (
     polygon_json    TEXT NOT NULL,          -- [[x,y], ...] normalizado 0..1
     color           TEXT DEFAULT '#7d97b8',
     max_occupancy   INTEGER DEFAULT 6,
+    min_occupancy   INTEGER DEFAULT 0,      -- 0 = la zona puede quedar vacia
+    vacancy_alert_s INTEGER DEFAULT 300,    -- tolerancia antes de avisar
     dwell_alert_s   INTEGER DEFAULT 180,
     enabled         INTEGER DEFAULT 1,
     created_at      TEXT NOT NULL
@@ -184,6 +186,7 @@ def init_db() -> None:
     with _LOCK:
         conn.executescript(SCHEMA)
         conn.commit()
+    migrate_zone_columns()
     seed_default_zones()
     migrate_zone_colors()
 
@@ -318,6 +321,15 @@ COLOR_MIGRACION = {
 }
 
 
+def migrate_zone_columns() -> None:
+    """Anade las columnas nuevas a bases de datos creadas con versiones previas."""
+    columnas = {r["name"] for r in query("PRAGMA table_info(zones)")}
+    if "min_occupancy" not in columnas:
+        execute("ALTER TABLE zones ADD COLUMN min_occupancy INTEGER DEFAULT 0")
+    if "vacancy_alert_s" not in columnas:
+        execute("ALTER TABLE zones ADD COLUMN vacancy_alert_s INTEGER DEFAULT 300")
+
+
 def migrate_zone_colors() -> None:
     for viejo, nuevo in COLOR_MIGRACION.items():
         execute("UPDATE zones SET color=? WHERE color=?", (nuevo, viejo))
@@ -328,9 +340,11 @@ def seed_default_zones() -> None:
     if existing and existing["n"]:
         return
     for name, kind, poly, color, cap, dwell in DEFAULT_ZONES:
+        minimo = 1 if name == "Recepcion" else 0     # ejemplo de puesto atendido
         execute(
             """INSERT OR IGNORE INTO zones (name, kind, polygon_json, color, max_occupancy,
-                                            dwell_alert_s, enabled, created_at)
-               VALUES (?,?,?,?,?,?,1,?)""",
-            (name, kind, json.dumps(poly), color, cap, dwell, now_iso()),
+                                            min_occupancy, vacancy_alert_s, dwell_alert_s,
+                                            enabled, created_at)
+               VALUES (?,?,?,?,?,?,?,?,1,?)""",
+            (name, kind, json.dumps(poly), color, cap, minimo, 300, dwell, now_iso()),
         )

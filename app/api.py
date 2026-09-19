@@ -117,15 +117,20 @@ async def create_zone(request: Request) -> Dict[str, Any]:
         raise HTTPException(400, "El poligono necesita al menos 3 puntos")
     zone_id = db.execute(
         """INSERT INTO zones (name, kind, polygon_json, color, max_occupancy,
-                              dwell_alert_s, enabled, created_at)
-           VALUES (?,?,?,?,?,?,?,?)
+                              min_occupancy, vacancy_alert_s, dwell_alert_s,
+                              enabled, created_at)
+           VALUES (?,?,?,?,?,?,?,?,?,?)
            ON CONFLICT(name) DO UPDATE SET
              kind=excluded.kind, polygon_json=excluded.polygon_json,
              color=excluded.color, max_occupancy=excluded.max_occupancy,
+             min_occupancy=excluded.min_occupancy,
+             vacancy_alert_s=excluded.vacancy_alert_s,
              dwell_alert_s=excluded.dwell_alert_s, enabled=excluded.enabled""",
         (name, data.get("kind", "area"), json.dumps(polygon),
          data.get("color", "#7d97b8"),
          int(data.get("max_occupancy", CONFIG.get("default_max_occupancy"))),
+         int(data.get("min_occupancy", 0)),
+         int(data.get("vacancy_alert_s", 300)),
          int(data.get("dwell_alert_s", CONFIG.get("default_dwell_alert_s"))),
          1 if data.get("enabled", True) else 0, db.now_iso()))
     return {"id": zone_id, "ok": True}
@@ -196,7 +201,8 @@ async def update_zone(zone_id: int, request: Request) -> Dict[str, Any]:
     data = await request.json()
     fields, values = [], []
     mapping = {"name": "name", "kind": "kind", "color": "color",
-               "max_occupancy": "max_occupancy", "dwell_alert_s": "dwell_alert_s"}
+               "max_occupancy": "max_occupancy", "min_occupancy": "min_occupancy",
+               "vacancy_alert_s": "vacancy_alert_s", "dwell_alert_s": "dwell_alert_s"}
     for key, col in mapping.items():
         if key in data:
             fields.append(f"{col}=?")
@@ -524,13 +530,16 @@ def _zone_rollup(since: str) -> List[Dict[str, Any]]:
         for name, info in data.items():
             a = agg.setdefault(name, {"ocupacion_sum": 0.0, "muestras": 0, "pico": 0,
                                       "entradas": 0, "permanencia": 0.0,
+                                      "sin_cubrir": 0.0,
                                       "color": info.get("color", "#7d97b8"),
-                                      "max_occupancy": info.get("max_occupancy", 0)})
+                                      "max_occupancy": info.get("max_occupancy", 0),
+                                      "min_occupancy": info.get("min_occupancy", 0)})
             a["ocupacion_sum"] += float(info.get("occupancy", 0))
             a["muestras"] += 1
             a["pico"] = max(a["pico"], int(info.get("peak", 0)))
             a["entradas"] = max(a["entradas"], int(info.get("entries", 0)))
             a["permanencia"] = max(a["permanencia"], float(info.get("dwell_total_s", 0)))
+            a["sin_cubrir"] = max(a["sin_cubrir"], float(info.get("sin_cubrir_s", 0)))
     out = []
     for name, a in agg.items():
         out.append({
@@ -538,7 +547,9 @@ def _zone_rollup(since: str) -> List[Dict[str, Any]]:
             "ocupacion_prom": round(a["ocupacion_sum"] / max(1, a["muestras"]), 2),
             "pico": a["pico"], "entradas": a["entradas"],
             "permanencia_total_min": round(a["permanencia"] / 60, 1),
+            "sin_cubrir_min": round(a["sin_cubrir"] / 60, 1),
             "color": a["color"], "max_occupancy": a["max_occupancy"],
+            "min_occupancy": a["min_occupancy"],
         })
     return sorted(out, key=lambda r: r["ocupacion_prom"], reverse=True)
 

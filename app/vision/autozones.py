@@ -299,10 +299,12 @@ def apply_zones(zonas: Sequence[Dict[str, Any]], reemplazar: bool = False) -> in
         existentes.add(nombre)
         db.execute(
             """INSERT INTO zones (name, kind, polygon_json, color, max_occupancy,
-                                  dwell_alert_s, enabled, created_at)
-               VALUES (?,?,?,?,?,?,1,?)""",
+                                  min_occupancy, vacancy_alert_s, dwell_alert_s,
+                                  enabled, created_at)
+               VALUES (?,?,?,?,?,?,?,?,1,?)""",
             (nombre, z.get("kind", "area"), json.dumps(z.get("polygon", [])),
              z.get("color", "#7d97b8"), int(z.get("max_occupancy", 6)),
+             int(z.get("min_occupancy", 0)), int(z.get("vacancy_alert_s", 300)),
              int(z.get("dwell_alert_s", 300)), db.now_iso()))
         guardadas += 1
     return guardadas
