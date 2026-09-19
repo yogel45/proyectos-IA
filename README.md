@@ -8,6 +8,7 @@ ejecutan por separado (pueden correr a la vez).
 |---|---|---|---|
 | **OfficeVision AI** | Análisis de video con IA: cámara de la PC, videos y cámaras IP; personas, objetos, zonas críticas y alertas | `python run.py` | 8000 |
 | **DocuFlow AI** | Clasificación, nombramiento y archivado automático de documentos | `python run_documentos.py` | 8100 |
+| **Directorio vivo** | Prototipo navegable del rediseño de una plataforma de contactos | abrir `prototipo-contactos/index.html` | — |
 
 ```bash
 pip install -r requirements.txt     # dependencias de las dos
@@ -390,6 +391,8 @@ proyectos-IA/
 │   ├── naming.py              Convención de nombres y carpetas
 │   ├── pipeline.py            Flujo completo y cola de trabajo
 │   └── templates/ · static/   Interfaz propia
+├── prototipo-contactos/       Prototipo del rediseño de contactos (Reto 6)
+│   └── index.html             Se abre con doble clic, sin servidor
 ├── scripts/video_demo.py      Generador de video sintético de prueba
 ├── scripts/documentos_demo.py Generador de documentos de ejemplo
 ├── sample_data/               Biométrico y RingCentral de ejemplo
@@ -451,6 +454,7 @@ Detalle completo del enfoque, las categorías, la convención y las métricas:
 | Documento | Contenido |
 |---|---|
 | [`docs/DEMOSTRACION.md`](docs/DEMOSTRACION.md) | **Demostración funcional**: capturas y resultados de una ejecución real de las dos apps |
+| [`docs/RETO6_CONTACTOS.md`](docs/RETO6_CONTACTOS.md) | Análisis crítico de plataformas de contactos y propuesta de rediseño, con prototipo navegable |
 | [`docs/ENTREGABLES.md`](docs/ENTREGABLES.md) | Dónde está cubierto cada entregable y cada criterio de evaluación |
 | [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md) | Decisiones técnicas del módulo de video, esquema de datos y puntos de extensión |
 | [`docs/GUIA_USO.md`](docs/GUIA_USO.md) | Guía paso a paso y problemas frecuentes |

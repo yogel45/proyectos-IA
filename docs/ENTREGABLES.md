@@ -65,6 +65,29 @@ Aplicación: **DocuFlow AI** (`python run_documentos.py`).
 
 ---
 
+## Reto 6 — Análisis crítico y rediseño de plataformas de contactos
+
+Entregable documental + prototipo: [`docs/RETO6_CONTACTOS.md`](RETO6_CONTACTOS.md) y
+[`prototipo-contactos/`](../prototipo-contactos/).
+
+### Entregables
+
+| Entregable | Dónde está |
+|---|---|
+| Documento con el análisis de plataformas existentes | [`docs/RETO6_CONTACTOS.md`](RETO6_CONTACTOS.md) §2 (Google, Apple, Outlook y software jurídico) y §3 (supuestos de diseño) |
+| Listado de funcionalidades o flujos a eliminar, simplificar o rediseñar | [`docs/RETO6_CONTACTOS.md`](RETO6_CONTACTOS.md) §4, en cuatro tablas: eliminar, simplificar, rediseñar y mantener |
+| Propuesta de experiencia o flujo mejorado | [`docs/RETO6_CONTACTOS.md`](RETO6_CONTACTOS.md) §5 y **prototipo navegable** en `prototipo-contactos/index.html` (§6, con capturas) |
+
+### Criterios de evaluación
+
+| Criterio | Cómo se atiende |
+|---|---|
+| **Simplificación** | Seis funciones eliminadas y cinco flujos simplificados, cada uno con el riesgo que se asume escrito. Se quita la lista paralela de "otros contactos", los campos de catálogo fijo, los grupos manuales, la fusión masiva y la importación con mapeo de 40 columnas. |
+| **Innovación** | Tres ideas que ninguna de las plataformas analizadas tiene: la ficha como **línea de tiempo** en lugar de formulario, los **roles derivados** de los documentos ya clasificados (cero mantenimiento) y la vista **"quién es quién en el expediente"**. El alta pegando una firma reutiliza el extractor del Reto 5. |
+| **Justificación** | Cada crítica se apoya en documentación oficial o en foros donde los usuarios describen la fricción (§9), y cada cambio propuesto declara su riesgo (§8) y cómo se mediría su impacto (§7). Las estimaciones se presentan como hipótesis a validar, no como resultados. |
+
+---
+
 ## Nota sobre los datos de prueba
 
 No se recibieron las carpetas `Desktop/Hackathon/Reto 4/Recursos` ni
