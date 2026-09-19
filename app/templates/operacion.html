@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block heading %}Operacion de la oficina{% endblock %}
+{% block subtitle %}La camara cruzada con el biometrico de asistencia y el historico de llamadas{% endblock %}
+
+{% block content %}
+<section class="grid g4">
+  <div class="card kpi acc"><div class="label">Empleados en nomina</div><div class="value" id="b-emp">0</div>
+    <div class="sub" id="b-areas">—</div></div>
+  <div class="card kpi"><div class="label">Marcajes biometricos</div><div class="value" id="b-marcajes">0</div>
+    <div class="sub" id="b-rango">—</div></div>
+  <div class="card kpi ok"><div class="label">Jornada promedio</div><div class="value" id="b-horas">0 h</div>
+    <div class="sub" id="b-retraso">—</div></div>
+  <div class="card kpi warn"><div class="label">Llamadas registradas</div><div class="value" id="b-llamadas">0</div>
+    <div class="sub" id="b-atendidas">—</div></div>
+</section>
+
+<div class="row tight" style="margin:14px 0">
+  <div style="min-width:200px"><label>Dia a analizar</label><select id="dia"></select></div>
+  <div style="min-width:180px"><label>Modo</label>
+    <select id="modo"><option value="auto" selected>Automatico</option>
+      <option value="day">Dia seleccionado</option>
+      <option value="avg">Dia tipico (promedio)</option></select></div>
+  <div style="align-self:end"><button class="ghost" onclick="cargar()">Actualizar</button></div>
+  <div style="align-self:end"><a class="btn ghost" id="exp-op" href="/api/export/operacion.csv">Exportar CSV</a></div>
+  <div style="align-self:end"><button class="ghost" id="btn-xlsx">⤒ Importar Excel</button>
+    <input type="file" id="xlsx" accept=".xlsx" style="display:none"></div>
+</div>
+
+<section class="grid g2">
+  <div class="card">
+    <h3>Demanda vs personal <small id="op-etiqueta"></small></h3>
+    <canvas class="chart" id="c-op"></canvas>
+    <div class="legend" id="l-op"></div>
+  </div>
+  <div class="card">
+    <h3>Llamadas por hora <small>atendidas vs perdidas</small></h3>
+    <canvas class="chart" id="c-calls"></canvas>
+    <div class="legend" id="l-calls"></div>
+  </div>
+</section>
+
+<section class="grid g2" style="margin-top:14px">
+  <div class="card">
+    <h3>Tabla horaria integrada</h3>
+    <div class="scroll"><table>
+      <thead><tr><th>Hora</th><th class="right">Esperados</th><th class="right">Biometrico</th>
+        <th class="right">Camara (prom)</th><th class="right">Camara (pico)</th>
+        <th class="right">Llamadas</th><th class="right">Atendidas</th><th class="right">Perdidas</th></tr></thead>
+      <tbody id="t-op"><tr><td colspan="8" class="muted">Sin datos</td></tr></tbody>
+    </table></div>
+  </div>
+  <div class="card">
+    <h3>Hallazgos automaticos <small>reglas sobre los datos cruzados</small></h3>
+    <div class="feed" id="f-hallazgos"><p class="muted small">Sin hallazgos.</p></div>
+    <h3 style="margin-top:16px">Extensiones con mas trafico</h3>
+    <div class="scroll" style="max-height:220px"><table>
+      <thead><tr><th>Extension</th><th class="right">Llamadas</th><th class="right">Atendidas</th><th class="right">% atencion</th></tr></thead>
+      <tbody id="t-ext"></tbody></table></div>
+  </div>
+</section>
+
+<section class="grid g2" style="margin-top:14px">
+  <div class="card">
+    <h3>Asistencia del dia <small id="a-dia"></small></h3>
+    <div class="scroll"><table>
+      <thead><tr><th>Colaborador</th><th>Area</th><th>Entrada</th><th>Salida</th>
+        <th class="right">Horas</th><th class="right">Retraso</th></tr></thead>
+      <tbody id="t-att"><tr><td colspan="6" class="muted">Sin datos</td></tr></tbody>
+    </table></div>
+  </div>
+  <div class="card">
+    <h3>Retrasos promedio <small>top por colaborador</small></h3>
+    <canvas class="chart" id="c-punt"></canvas>
+    <p class="small muted" style="margin-top:8px">
+      Fuente: biometrico contra el horario de la nomina. Sirve para contrastar con lo
+      que la camara observa en piso, sin usar reconocimiento facial.
+    </p>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let CROSS = null, SUM = null;
+
+function pintar() {
+  if (!CROSS) return;
+  const t = CROSS.table;
+  const labels = t.map(r => r.hour);
+  const s1 = [
+    {name: 'Esperados (nomina)', data: t.map(r => r.esperados), color: '#64748b'},
+    {name: 'Biometrico', data: t.map(r => r.biometrico), color: '#22c55e'},
+    {name: 'Camara (prom)', data: t.map(r => r.detectados), color: '#38bdf8'},
+    {name: 'Llamadas', data: t.map(r => r.llamadas), color: '#f59e0b'},
+  ];
+  lineChart($('#c-op'), {labels, series: s1, area: false, empty: 'Sin datos cruzados'});
+  legend($('#l-op'), s1);
+
+  const s2 = [
+    {name: 'Atendidas', data: t.map(r => r.atendidas), color: '#22c55e'},
+    {name: 'Perdidas', data: t.map(r => r.perdidas), color: '#f43f5e'},
+  ];
+  barChart($('#c-calls'), {labels, series: s2, stacked: true, empty: 'Sin llamadas'});
+  legend($('#l-calls'), s2);
+
+  const p = (SUM?.puntualidad || []);
+  barChart($('#c-punt'), {
+    labels: p.map(r => (r.name || '').split(' ')[0]),
+    series: [{name: 'Retraso promedio (min)', data: p.map(r => r.retraso_prom), color: '#f59e0b'}],
+    empty: 'Sin datos de puntualidad',
+  });
+}
+
+async function cargar() {
+  const dia = $('#dia').value, modo = $('#modo').value;
+  [CROSS, SUM] = await Promise.all([
+    API.get(`/api/business/cross?day=${encodeURIComponent(dia)}&mode=${modo}`),
+    API.get('/api/business/summary'),
+  ]);
+  $('#exp-op').href = '/api/export/operacion.csv?day=' + encodeURIComponent(dia || '');
+  $('#op-etiqueta').textContent = CROSS.etiqueta;
+
+  const a = SUM.asistencia || {}, c = SUM.llamadas || {};
+  $('#b-emp').textContent = SUM.empleados || 0;
+  $('#b-areas').textContent = (SUM.areas || []).map(x => `${x.area}: ${x.n}`).join(' · ') || '—';
+  $('#b-marcajes').textContent = a.n || 0;
+  $('#b-rango').textContent = a.desde ? `${a.desde} a ${a.hasta}` : '—';
+  $('#b-horas').textContent = (a.horas_prom ?? 0) + ' h';
+  $('#b-retraso').textContent = `retraso promedio ${a.retraso_prom ?? 0} min`;
+  $('#b-llamadas').textContent = c.n || 0;
+  $('#b-atendidas').textContent = c.n
+    ? `${c.atendidas} atendidas (${Math.round(c.atendidas / c.n * 100)}%) · ${c.dur_prom}s prom` : '—';
+
+  $('#t-op').innerHTML = CROSS.table.map(r => `<tr>
+    <td class="mono">${esc(r.hour)}</td><td class="right">${r.esperados}</td>
+    <td class="right">${r.biometrico}</td><td class="right">${r.detectados}</td>
+    <td class="right">${r.pico_detectado}</td><td class="right">${r.llamadas}</td>
+    <td class="right" style="color:#22c55e">${r.atendidas}</td>
+    <td class="right" style="color:${r.perdidas > r.atendidas ? '#f43f5e' : '#93a4bf'}">${r.perdidas}</td></tr>`).join('');
+
+  $('#f-hallazgos').innerHTML = (CROSS.findings || []).map((f, i) =>
+    `<div class="item ${i === 0 ? 'info' : 'warning'}"><div>${esc(f)}</div></div>`).join('')
+    || '<p class="muted small">Sin hallazgos relevantes.</p>';
+
+  $('#t-ext').innerHTML = (SUM.extensiones || []).map(e => `<tr>
+    <td>${esc(e.extension)}</td><td class="right">${e.llamadas}</td>
+    <td class="right">${e.atendidas}</td>
+    <td class="right">${Math.round(e.atendidas / Math.max(1, e.llamadas) * 100)}%</td></tr>`).join('');
+
+  if (!$('#dia').options.length) {
+    $('#dia').innerHTML = (CROSS.dias_disponibles || []).map(d =>
+      `<option value="${d}">${d}</option>`).join('') || '<option value="">(sin dias)</option>';
+    $('#dia').value = CROSS.day || '';
+  }
+
+  const att = await API.get('/api/business/attendance?day=' + encodeURIComponent(CROSS.day || ''));
+  $('#a-dia').textContent = att.day || '';
+  $('#t-att').innerHTML = (att.rows || []).map(r => `<tr>
+    <td>${esc(r.name)}</td><td class="small muted">${esc(r.area || '')}</td>
+    <td class="mono">${esc(r.check_in || '-')}</td><td class="mono">${esc(r.check_out || '-')}</td>
+    <td class="right">${r.horas ?? '-'}</td>
+    <td class="right" style="color:${r.retraso_min > 5 ? '#f59e0b' : '#93a4bf'}">${r.retraso_min ?? 0} min</td>
+    </tr>`).join('') || '<tr><td colspan="6" class="muted">Sin marcajes ese dia</td></tr>';
+
+  pintar();
+}
+
+$('#dia').onchange = () => { $('#modo').value = 'day'; cargar(); };
+$('#modo').onchange = cargar;
+$('#btn-xlsx').onclick = () => $('#xlsx').click();
+$('#xlsx').onchange = async ev => {
+  const f = ev.target.files[0]; if (!f) return;
+  const fd = new FormData(); fd.append('file', f);
+  toast('Importando ' + esc(f.name) + '…');
+  const r = await fetch('/api/business/import', {method: 'POST', body: fd});
+  const data = await r.json();
+  if (r.ok) { toast('Importado: ' + JSON.stringify(data.resultado), 'ok', 5000); cargar(); }
+  else toast('Error al importar', 'critical');
+};
+
+registerChart(pintar);
+cargar();
+</script>
+{% endblock %}

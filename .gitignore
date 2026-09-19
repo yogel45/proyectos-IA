@@ -1,0 +1,25 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.DS_Store
+.idea/
+.vscode/
+
+# Datos generados en tiempo de ejecucion
+data/officevision.db
+data/officevision.db-wal
+data/officevision.db-shm
+data/uploads/*
+data/outputs/*
+data/snapshots/*
+!data/uploads/.gitkeep
+!data/outputs/.gitkeep
+!data/snapshots/.gitkeep
+
+# Pesos de modelos (se descargan solos)
+models/*.pt
+models/*.onnx
+*.pt
+config.json

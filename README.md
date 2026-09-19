@@ -1,2 +1,287 @@
-# proyectos-IA
-Analizar apykeys con Ia
+# OfficeVision AI — Análisis de video con IA para entornos de oficina
+
+Aplicación web lista para ejecutar que analiza **la cámara de tu PC** y **videos que subas**,
+identifica personas y objetos, mide lo que ocurre en **zonas críticas** del espacio y va
+**llenando una base de datos** con lo que pasó y lo que está pasando: ocupación, entradas y
+salidas, permanencia, alertas y resúmenes periódicos.
+
+Además cruza esos datos de video con la **operación real de la oficina**: marcajes del
+biométrico (`Datos_Biometrico_2.xlsx`) e historial de llamadas de RingCentral
+(`RingCentral_History.xlsx`).
+
+---
+
+## 1. Puesta en marcha (3 pasos)
+
+```bash
+# 1) Dependencias
+pip install -r requirements.txt
+
+# 2) Verificar el entorno (opcional pero recomendado)
+python run.py --check
+
+# 3) Arrancar
+python run.py
+```
+
+Se abre solo en <http://127.0.0.1:8000>. No hace falta configurar nada más: la base de datos
+SQLite, las zonas de ejemplo y los datos operativos de `sample_data/` se cargan en el primer
+arranque. El modelo YOLO (5 MB) se descarga automáticamente la primera vez y queda guardado
+en `models/`.
+
+| Comando | Para qué sirve |
+|---|---|
+| `python run.py` | Arranca la app y abre el navegador |
+| `python run.py --port 9000` | Otro puerto |
+| `python run.py --host 0.0.0.0` | Accesible desde otras máquinas de la red |
+| `python run.py --check` | Diagnóstico de dependencias y del detector activo |
+| `python scripts/video_demo.py` | Genera un video sintético de prueba en `data/uploads/` |
+
+> **Instalación ligera (sin PyTorch):** `pip install -r requirements-lite.txt`.
+> La app sigue funcionando con el detector de movimiento o con un modelo `.onnx`
+> que coloques en `models/`.
+
+### Requisitos
+* Python 3.9 – 3.12
+* ~1.5 GB de disco para PyTorch + YOLO (o ~150 MB en modo ligero)
+* Navegador moderno (Chrome, Edge o Firefox). Para usar la cámara de la PC, el navegador
+  exige contexto seguro: `localhost` funciona directamente; si sirves en otra máquina usa
+  HTTPS o habilita el origen como seguro.
+
+---
+
+## 2. Qué hace cada pantalla
+
+| Pantalla | Contenido |
+|---|---|
+| **Dashboard** | KPIs (personas ahora, ocupación promedio, pico, permanencia, eventos, alertas), ocupación en el tiempo, actividad por hora, ocupación por zona, tipos de evento, alertas y últimos eventos |
+| **Cámara en vivo** | Captura la webcam, dibuja detecciones y zonas sobre el video, muestra ocupación por zona en tiempo real y el flujo de eventos. También conecta una cámara del servidor o **IP/RTSP** |
+| **Videos** | Subida por arrastre (multi-archivo), procesamiento en segundo plano con barra de progreso, resultado por sesión con métricas, zonas, eventos, personas seguidas y **video anotado descargable** |
+| **Puntos críticos** | Editor de zonas sobre un fondo tomado de la cámara o de una imagen; aforo, alerta de permanencia, tipo de zona y reglas globales |
+| **Operación** | Cruce de la cámara con el biométrico y las llamadas: demanda vs. personal por hora, hallazgos automáticos, asistencia del día y retrasos |
+| **Reportes** | Todos los eventos filtrables (rango, severidad, tipo, sesión, texto), personas seguidas, evidencia visual y exportación CSV |
+
+---
+
+## 3. Enfoque de visión por computadora
+
+El pipeline es **detección → seguimiento → geometría de zonas → reglas → persistencia**.
+Cada cuadro analizado recorre estas etapas:
+
+```
+Cuadro (webcam o video)
+   │
+   ├─▶ 1. DETECCIÓN         YOLO11n (Ultralytics) · ONNX vía OpenCV DNN · MOG2 (respaldo)
+   │                        Clases: person + laptop, cell phone, chair, backpack, cup, tv…
+   │
+   ├─▶ 2. SEGUIMIENTO       Tracker propio por IoU + centroides (app/vision/tracker.py)
+   │                        IDs anónimos persistentes: P<sesión>-0001, 0002…
+   │                        Confirmación por min_hits, cierre por max_age
+   │
+   ├─▶ 3. ZONAS             Polígonos normalizados (0..1) · punto de contacto con el piso
+   │                        Entradas, salidas, ocupación instantánea y permanencia por track
+   │
+   ├─▶ 4. REGLAS            Aforo, permanencia excesiva, aglomeración, zona inactiva,
+   │                        actividad fuera de horario
+   │
+   └─▶ 5. PERSISTENCIA      Eventos al instante · foto de estado cada N s ·
+                            resumen narrado cada minuto · tracks al cerrarse
+```
+
+**Decisiones técnicas y por qué:**
+
+* **Detección por modelo, no por movimiento.** YOLO11n da cajas y clase con ~19–22 fps en CPU,
+  suficiente para vigilancia operativa, y distingue personas de objetos y de cambios de luz,
+  que es el punto débil de la sustracción de fondo.
+* **Tracker propio en lugar del tracker del modelo.** Así el seguimiento es idéntico con
+  cualquier backend (YOLO, ONNX o movimiento) y controlamos el ciclo de vida del track, que
+  es lo que permite medir permanencia y trayectoria. Asociación *greedy* por IoU con
+  confirmación (`min_hits`) para evitar falsos positivos y tolerancia a oclusiones
+  (`max_age`).
+* **Punto de contacto con el piso.** Para decidir si alguien está en una zona se usa el centro
+  del borde inferior de la caja, no el centroide: es mucho más estable en perspectiva.
+* **Coordenadas normalizadas.** Las zonas se guardan en 0..1, por lo que las mismas zonas
+  sirven para la webcam, para un video 4K o para una cámara IP sin volver a dibujarlas.
+* **Reloj de video vs. reloj de pared.** En videos, la permanencia se mide en *tiempo de video*
+  (aunque se procese 10× más rápido) y el sello de tiempo se reconstruye desde el inicio de la
+  sesión; en vivo se usa el reloj monótono. Las métricas son comparables entre ambos modos.
+* **Degradación garantizada.** Si falta PyTorch o no hay red, el detector cae a ONNX y luego a
+  MOG2. La app nunca queda inutilizable, solo cambia la precisión (el backend activo siempre
+  se muestra en pantalla).
+
+### Modelos, librerías y herramientas
+
+| Componente | Tecnología | Rol |
+|---|---|---|
+| Detección | **Ultralytics YOLO11n** (COCO, 80 clases) | Detección de personas y objetos |
+| Detección alterna | **OpenCV DNN + ONNX** | Mismo modelo sin PyTorch |
+| Respaldo sin modelo | **OpenCV MOG2 + contornos** | Funciona offline, sin descargas |
+| Seguimiento | Implementación propia (IoU + centroides) | IDs anónimos, permanencia, trayectoria |
+| Geometría | `cv2.pointPolygonTest` | Pertenencia a zonas poligonales |
+| Backend | **FastAPI + Uvicorn** (REST + WebSocket) | API y streaming de análisis |
+| Base de datos | **SQLite (WAL)** | Persistencia sin servidor |
+| Frontend | HTML + CSS + JS puro, gráficas en `<canvas>` propias | Sin CDNs: funciona offline |
+| Datos operativos | **openpyxl** | Importación de biométrico y RingCentral |
+
+---
+
+## 4. Flujo de procesamiento de video
+
+**Cámara en vivo (navegador).** El navegador captura la webcam, reduce el cuadro a la
+resolución elegida (480/640/960 px), lo comprime a JPEG y lo envía por **WebSocket**. El
+servidor analiza y responde con un JSON (detecciones normalizadas, zonas, métricas, eventos)
+que el navegador dibuja sobre el video. El envío es *pull*: solo se manda un cuadro nuevo
+cuando llegó la respuesta del anterior, así nunca se acumula retraso. **No se guarda el video**,
+solo métricas y capturas de eventos críticos.
+
+**Videos subidos.** Se guardan en `data/uploads/` y se procesan en un pool de hilos
+(2 simultáneos por defecto). Se aplica **muestreo de cuadros**: si el video es de 25 fps y el
+objetivo de análisis son 6 fps, se analiza 1 de cada 4 cuadros. Esto permite procesar videos
+largos rápido sin perder eventos, porque la permanencia se mide en tiempo de video. En
+paralelo se genera un **video anotado** con zonas, cajas, IDs y rostros difuminados (si hay
+`ffmpeg` en el sistema se reconvierte a H.264 para verlo dentro del navegador).
+
+**Cámara IP / RTSP.** `POST /api/camera/start` con `{"source": "rtsp://usuario:clave@ip:554/stream"}`
+abre la fuente en el servidor y publica un stream MJPEG anotado en `/api/camera/stream`.
+
+---
+
+## 5. Puntos críticos y métricas generadas
+
+**Zonas** (editables en la pantalla *Puntos críticos*): nombre, tipo (`area`, `acceso`,
+`restringida`), polígono, aforo máximo y umbral de permanencia.
+Zonas precargadas: Recepción, Área de trabajo, Sala de juntas y Pasillo / Acceso.
+
+**Eventos que se registran**
+
+| Tipo | Severidad | Cuándo se dispara |
+|---|---|---|
+| `zone_enter` / `zone_exit` | info | Una persona entra o sale de una zona (con permanencia acumulada) |
+| `permanencia_excesiva` | warning / critical | Supera el umbral de minutos dentro de la zona |
+| `aforo_excedido` | critical | La ocupación instantánea supera el máximo de la zona |
+| `aglomeracion` | critical | Más de N personas simultáneas en el encuadre |
+| `zona_inactiva` | warning | Zona sin actividad durante el horario laboral |
+| `actividad_fuera_horario` | warning | Presencia detectada fuera de la jornada configurada |
+| `resumen` | info | Cada minuto: promedio y pico de personas, entradas por zona, eventos y alertas |
+
+**Métricas disponibles**: personas simultáneas (instantánea, promedio y pico), personas únicas
+(tracks confirmados), permanencia por persona y por zona, entradas/salidas por zona,
+ocupación vs. aforo, índice de movimiento (proporción de píxeles que cambian), fps de
+procesamiento y latencia por cuadro, conteo por clase de objeto.
+
+---
+
+## 6. Base de datos
+
+SQLite en `data/officevision.db` (modo WAL, escrituras serializadas entre hilos).
+
+| Tabla | Contenido |
+|---|---|
+| `sources` / `sessions` | Cada cámara o video analizado, con estado, progreso y métricas finales |
+| `snapshots` | Foto del estado cada N segundos: personas, objetos, movimiento, ocupación por zona |
+| `tracks` | Una fila por persona seguida: duración, cuadros, confianza, distancia recorrida, permanencia por zona y trayectoria |
+| `events` | Entradas/salidas, alertas y resúmenes, con severidad, zona, ID de track y evidencia |
+| `zones` | Puntos críticos configurados |
+| `employees` / `attendance` | Nómina y marcajes del biométrico |
+| `calls` | Historial de llamadas de RingCentral |
+
+Todo es exportable a CSV desde *Reportes* o vía `GET /api/export/{events,snapshots,tracks,operacion}.csv`.
+
+---
+
+## 7. Integración y escalabilidad
+
+* **API REST documentada** (OpenAPI en `/docs`): todo lo que hace la interfaz está disponible
+  como endpoint, listo para un dashboard externo, un ERP o un bot de alertas.
+* **WebSocket** `/ws/live` para consumir el análisis cuadro a cuadro desde otra aplicación.
+* **Más cámaras**: cada sesión es independiente (detector, tracker y zonas propios). Se pueden
+  abrir varias pestañas en vivo o varias fuentes RTSP; los hilos de video se limitan con
+  `max_concurrent_jobs`.
+* **Más modelos**: `app/vision/detector.py` es un registro de backends. Añadir un modelo nuevo
+  (pose, EPP, ocupación de escritorios, conteo de vehículos) es implementar `detect()` y
+  devolver `Detection`. Todo lo demás —tracking, zonas, reglas, base de datos— se reutiliza.
+* **Migrar a otro motor de datos**: las escrituras pasan por `app/db.py`; cambiar SQLite por
+  PostgreSQL o TimescaleDB es sustituir esa capa.
+* **GPU**: `"device": "0"` en `config.json` (o desde `POST /api/config`) usa CUDA sin tocar código.
+
+---
+
+## 8. Privacidad y seguridad
+
+* **Sin reconocimiento facial y sin identificación de personas.** Los IDs (`P3-0007`) son
+  anónimos y se reinician en cada sesión: sirven para contar y medir, no para identificar.
+* **No se almacena video de la cámara en vivo.** Solo métricas, y capturas JPG **únicamente**
+  en eventos de severidad warning o critical.
+* **Difuminado de rostros** activado por defecto en toda imagen anotada (`blur_faces`).
+* **Retención configurable**: las capturas se borran automáticamente a los 15 días
+  (`snapshot_retention_days`).
+* **Todo queda en local**: no hay servicios externos ni telemetría; la app escucha en
+  `127.0.0.1` salvo que se pida lo contrario.
+* Los datos de nómina, asistencia y llamadas viven en la misma base local; si se expone el
+  servidor en red conviene ponerlo detrás de un proxy con autenticación.
+
+---
+
+## 9. Rendimiento medido
+
+Medido en este proyecto sobre CPU de 4 núcleos, sin GPU:
+
+| Resolución | YOLO11n | Modo movimiento |
+|---|---|---|
+| 640×360 | 52 ms/cuadro (**19 fps**) | 8 ms (124 fps) |
+| 960×540 | 53 ms/cuadro (**19 fps**) | 19 ms (53 fps) |
+| 1280×720 | 44 ms/cuadro (**22 fps**) | 34 ms (29 fps) |
+
+Un video de 30 s a 20 fps (600 cuadros) se procesa con muestreo a 6 fps en ~13 s, generando
+video anotado, 200 cuadros analizados, tracks, eventos y resúmenes. La latencia extremo a
+extremo en vivo (captura → análisis → dibujo) se mantiene por debajo de 100 ms en 640 px.
+
+---
+
+## 10. Limitaciones y mejoras futuras
+
+**Limitaciones actuales**
+* Una cámara mal ubicada (contrapicado extremo, mucha oclusión) degrada el conteo: el tracker
+  puede dividir una persona en dos IDs tras una oclusión larga.
+* El modo de respaldo por movimiento cuenta de más cuando hay cambios de iluminación.
+* Sin re-identificación entre cámaras: una persona que pasa de una cámara a otra es un track nuevo.
+* El cruce con el biométrico es a nivel agregado por hora (por diseño: no se identifica a nadie).
+
+**Mejoras previstas**
+* Re-identificación por apariencia (OSNet/FastReID) para trayectorias entre cámaras.
+* Mapa de calor acumulado y planos en planta (homografía) para métricas en metros.
+* Detección de posturas (caídas, personas en el piso) y de EPP con un modelo secundario.
+* Alertas salientes por correo, Teams o webhook, y agregados por turno en tablas materializadas.
+* Modelo más grande (`yolo11s/m`) o GPU para escenas con mucha gente.
+
+---
+
+## 11. Estructura del proyecto
+
+```
+proyectos-IA/
+├── run.py                     Arranque y diagnóstico
+├── requirements.txt           Dependencias (lite en requirements-lite.txt)
+├── config.json                Configuración (se crea sola, editable en caliente)
+├── app/
+│   ├── main.py                App FastAPI, páginas y arranque
+│   ├── api.py                 API REST + WebSocket
+│   ├── pipeline.py            Analyzer: cuadro → eventos → base de datos
+│   ├── workers.py             Cámara en vivo, cámara IP y trabajos de video
+│   ├── business.py            Biométrico + RingCentral y análisis cruzado
+│   ├── db.py                  Esquema y acceso a SQLite
+│   ├── config.py              Configuración persistente
+│   ├── vision/
+│   │   ├── detector.py        Backends YOLO / ONNX / movimiento
+│   │   ├── tracker.py         Seguimiento multi-objeto
+│   │   └── zones.py           Polígonos, aforo y permanencia
+│   ├── templates/             6 páginas (Jinja2)
+│   └── static/                CSS y JS (gráficas propias en canvas)
+├── scripts/video_demo.py      Generador de video sintético de prueba
+├── sample_data/               Biométrico y RingCentral de ejemplo
+├── docs/                      Arquitectura y guía de uso
+└── data/                      Base de datos, subidas, salidas y capturas
+```
+
+Documentación adicional: [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md) ·
+[`docs/GUIA_USO.md`](docs/GUIA_USO.md)

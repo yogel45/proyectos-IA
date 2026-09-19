@@ -1,0 +1,14 @@
+# --- Nucleo de la aplicacion (obligatorio) ---------------------------------
+fastapi>=0.110
+uvicorn[standard]>=0.27
+jinja2>=3.1
+python-multipart>=0.0.9
+opencv-python-headless>=4.8
+numpy>=1.24
+openpyxl>=3.1
+
+# --- Modelo de deteccion (recomendado) -------------------------------------
+# YOLO11/YOLOv8. Si no se instala, la app sigue funcionando en modo
+# "motion" (sustraccion de fondo) o con un modelo .onnx propio en models/.
+ultralytics>=8.3
+lap>=0.5
