@@ -12,10 +12,10 @@
   --txt:#e9eaec;
   --txt-2:#9aa1ab;
   --txt-3:#6b727c;
-  --accent:#6ea8fe;
-  --ok:#4ade80;
-  --warn:#fbbf24;
-  --crit:#f87171;
+  --accent:#7d97b8;
+  --ok:#839a8c;
+  --warn:#a89578;
+  --crit:#a87b77;
   --radius:10px;
   --gap:16px;
 }
@@ -29,10 +29,10 @@
   --txt:#16181c;
   --txt-2:#5c636d;
   --txt-3:#878e98;
-  --accent:#2563eb;
-  --ok:#16a34a;
-  --warn:#c2820a;
-  --crit:#dc2626;
+  --accent:#55718f;
+  --ok:#5f7a68;
+  --warn:#867045;
+  --crit:#8a5f5a;
 }
 
 *{box-sizing:border-box}

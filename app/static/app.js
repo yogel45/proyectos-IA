@@ -55,7 +55,7 @@ function esc(text) {
 /* ------------------------------------------------------------------ */
 /* Graficas                                                            */
 /* ------------------------------------------------------------------ */
-const PALETTE = ['#6ea8fe', '#9d8df1', '#4ade80', '#fbbf24', '#f87171', '#2dd4bf', '#f472b6'];
+const PALETTE = ['#7d97b8', '#8a8698', '#839a8c', '#a89578', '#a87b77', '#7d9495', '#9a8b96'];
 
 /* Tema claro / oscuro, recordado en el navegador. */
 function themeGet() { try { return localStorage.getItem('ov-theme') || 'dark'; } catch (e) { return 'dark'; } }

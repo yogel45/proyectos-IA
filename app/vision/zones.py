@@ -26,7 +26,7 @@ class Zone:
     name: str
     kind: str
     polygon: List[List[float]]
-    color: str = "#38bdf8"
+    color: str = "#7d97b8"
     max_occupancy: int = 6
     dwell_alert_s: int = 180
     enabled: bool = True
@@ -66,7 +66,7 @@ def load_zones() -> List[Zone]:
             continue
         zones.append(Zone(
             id=r["id"], name=r["name"], kind=r["kind"], polygon=poly,
-            color=r["color"] or "#38bdf8",
+            color=r["color"] or "#7d97b8",
             max_occupancy=int(r["max_occupancy"] or 0),
             dwell_alert_s=int(r["dwell_alert_s"] or 0),
             enabled=bool(r["enabled"]),

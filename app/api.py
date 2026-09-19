@@ -120,7 +120,7 @@ async def create_zone(request: Request) -> Dict[str, Any]:
              color=excluded.color, max_occupancy=excluded.max_occupancy,
              dwell_alert_s=excluded.dwell_alert_s, enabled=excluded.enabled""",
         (name, data.get("kind", "area"), json.dumps(polygon),
-         data.get("color", "#38bdf8"),
+         data.get("color", "#7d97b8"),
          int(data.get("max_occupancy", CONFIG.get("default_max_occupancy"))),
          int(data.get("dwell_alert_s", CONFIG.get("default_dwell_alert_s"))),
          1 if data.get("enabled", True) else 0, db.now_iso()))
@@ -516,7 +516,7 @@ def _zone_rollup(since: str) -> List[Dict[str, Any]]:
         for name, info in data.items():
             a = agg.setdefault(name, {"ocupacion_sum": 0.0, "muestras": 0, "pico": 0,
                                       "entradas": 0, "permanencia": 0.0,
-                                      "color": info.get("color", "#38bdf8"),
+                                      "color": info.get("color", "#7d97b8"),
                                       "max_occupancy": info.get("max_occupancy", 0)})
             a["ocupacion_sum"] += float(info.get("occupancy", 0))
             a["muestras"] += 1

@@ -473,14 +473,15 @@ class Analyzer:
 
         for tr in tracks:
             x1, y1, x2, y2 = [int(v) for v in tr.bbox]
-            color = (34, 197, 94) if not tr.zone_alerted else (14, 165, 255)
+            # sage para seguimiento normal, ocre cuando hay alerta (BGR)
+            color = (140, 164, 127) if not tr.zone_alerted else (98, 149, 176)
             cv2.rectangle(out, (x1, y1), (x2, y2), color, 2)
             tag = f"{tr.key} {tr.duration:.0f}s"
             if tr.current_zones:
                 tag += " | " + ",".join(sorted(tr.current_zones))[:22]
             cv2.rectangle(out, (x1, max(0, y1 - 20)), (x1 + 8 * len(tag), y1), color, -1)
             cv2.putText(out, tag, (x1 + 3, max(12, y1 - 6)),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.45, (12, 18, 28), 1, cv2.LINE_AA)
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.45, (20, 22, 26), 1, cv2.LINE_AA)
 
         objetos = objects if objects is not None else [
             t for t in self.obj_tracker.tracks.values()
@@ -488,22 +489,22 @@ class Analyzer:
         for obj in objetos:
             x1, y1, x2, y2 = [int(v) for v in obj.bbox]
             solo = obj.key in self._objects_alerted
-            color = (14, 165, 255) if solo else (168, 168, 168)
+            color = (98, 149, 176) if solo else (150, 150, 150)
             cv2.rectangle(out, (x1, y1), (x2, y2), color, 1)
             cv2.putText(out, f"{obj.label} {obj.key.split('-')[-1]}",
                         (x1 + 2, max(10, y1 - 4)), cv2.FONT_HERSHEY_SIMPLEX, 0.42,
                         color, 1, cv2.LINE_AA)
         for det in others or []:
             cv2.rectangle(out, (int(det.x1), int(det.y1)), (int(det.x2), int(det.y2)),
-                          (148, 163, 184), 1)
+                          (140, 145, 152), 1)
             cv2.putText(out, det.label, (int(det.x1), max(10, int(det.y1) - 4)),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.4, (148, 163, 184), 1, cv2.LINE_AA)
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.4, (140, 145, 152), 1, cv2.LINE_AA)
 
         banner = (f"Personas: {len(tracks)} | Objetos: {len(objetos)} | "
                   f"Alertas: {self.total_alerts} | Modelo: {self.detector.name}")
-        cv2.rectangle(out, (0, 0), (w, 26), (15, 23, 42), -1)
+        cv2.rectangle(out, (0, 0), (w, 26), (18, 20, 23), -1)
         cv2.putText(out, banner, (10, 18), cv2.FONT_HERSHEY_SIMPLEX, 0.55,
-                    (226, 232, 240), 1, cv2.LINE_AA)
+                    (236, 234, 233), 1, cv2.LINE_AA)
         return out
 
     def _store_snapshot(self, frame: np.ndarray, tracks: List[Track],
@@ -533,8 +534,8 @@ class Analyzer:
 
 
 def _hex_to_bgr(value: str) -> Tuple[int, int, int]:
-    value = (value or "#38bdf8").lstrip("#")
+    value = (value or "#7d97b8").lstrip("#")
     if len(value) != 6:
-        value = "38bdf8"
+        value = "7d97b8"
     r, g, b = (int(value[i:i + 2], 16) for i in (0, 2, 4))
     return (b, g, r)

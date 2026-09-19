@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS zones (
     name            TEXT NOT NULL UNIQUE,
     kind            TEXT NOT NULL DEFAULT 'area',  -- area | acceso | restringida
     polygon_json    TEXT NOT NULL,          -- [[x,y], ...] normalizado 0..1
-    color           TEXT DEFAULT '#38bdf8',
+    color           TEXT DEFAULT '#7d97b8',
     max_occupancy   INTEGER DEFAULT 6,
     dwell_alert_s   INTEGER DEFAULT 180,
     enabled         INTEGER DEFAULT 1,
@@ -185,6 +185,7 @@ def init_db() -> None:
         conn.executescript(SCHEMA)
         conn.commit()
     seed_default_zones()
+    migrate_zone_colors()
 
 
 def now_iso() -> str:
@@ -299,11 +300,27 @@ def insert_event(session_id: Optional[int], ts: str, type_: str, message: str,
 
 DEFAULT_ZONES = [
     # Rejilla inicial util para una camara de oficina; editable desde la UI.
-    ("Recepcion", "acceso", [[0.02, 0.45], [0.33, 0.45], [0.33, 0.97], [0.02, 0.97]], "#38bdf8", 4, 300),
-    ("Area de trabajo", "area", [[0.34, 0.35], [0.74, 0.35], [0.74, 0.97], [0.34, 0.97]], "#22c55e", 10, 3600),
-    ("Sala de juntas", "area", [[0.75, 0.30], [0.98, 0.30], [0.98, 0.97], [0.75, 0.97]], "#f59e0b", 8, 5400),
-    ("Pasillo / Acceso", "acceso", [[0.02, 0.05], [0.98, 0.05], [0.98, 0.34], [0.02, 0.34]], "#a78bfa", 6, 120),
+    ("Recepcion", "acceso", [[0.02, 0.45], [0.33, 0.45], [0.33, 0.97], [0.02, 0.97]], "#7d97b8", 4, 300),
+    ("Area de trabajo", "area", [[0.34, 0.35], [0.74, 0.35], [0.74, 0.97], [0.34, 0.97]], "#839a8c", 10, 3600),
+    ("Sala de juntas", "area", [[0.75, 0.30], [0.98, 0.30], [0.98, 0.97], [0.75, 0.97]], "#a89578", 8, 5400),
+    ("Pasillo / Acceso", "acceso", [[0.02, 0.05], [0.98, 0.05], [0.98, 0.34], [0.02, 0.34]], "#8a8698", 6, 120),
 ]
+
+# Colores vivos de la primera version -> equivalentes apagados. Solo se
+# reemplazan los que nadie ha tocado, para no pisar elecciones del usuario.
+COLOR_MIGRACION = {
+    # paleta viva original
+    "#38bdf8": "#7d97b8", "#22c55e": "#839a8c",
+    "#f59e0b": "#a89578", "#a78bfa": "#8a8698",
+    # primer ajuste de saturacion -> paleta definitiva
+    "#7fa48c": "#839a8c", "#b09562": "#a89578", "#8b84a3": "#8a8698",
+    "#6f9b9b": "#7d9495", "#b0736f": "#a87b77",
+}
+
+
+def migrate_zone_colors() -> None:
+    for viejo, nuevo in COLOR_MIGRACION.items():
+        execute("UPDATE zones SET color=? WHERE color=?", (nuevo, viejo))
 
 
 def seed_default_zones() -> None:
