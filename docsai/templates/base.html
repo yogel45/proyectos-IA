@@ -10,8 +10,6 @@
   {% block head %}{% endblock %}
 </head>
 <body>
-<button class="menu-btn" onclick="menuAbrir()" aria-label="Menu"
-        aria-expanded="false">≡</button>
 <div class="velo" onclick="menuAbrir(false)"></div>
 <div class="layout">
   <aside>
@@ -38,7 +36,9 @@
 
   <main>
     <header class="page">
-      <div>
+      <button class="menu-btn" onclick="menuAbrir()" aria-label="Abrir menu"
+              aria-haspopup="dialog" aria-expanded="false">≡</button>
+      <div class="titulo">
         <h2>{% block heading %}{{ title }}{% endblock %}</h2>
         <p>{% block subtitle %}{% endblock %}</p>
       </div>
