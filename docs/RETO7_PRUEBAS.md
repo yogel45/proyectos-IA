@@ -89,7 +89,7 @@ Repetir siempre la misma habría medido la caché del sistema operativo, no la b
 |---|---|
 | `run_pruebas.py` | El comando único: arranca, mide, vigila, dibuja y limpia |
 | `pruebas/carga.py` | Motor de carga: llegadas de Poisson, un proceso o varios, percentiles |
-| `pruebas/escenarios.py` | La mezcla de tráfico y los 22 casos borde, con su justificación en el código |
+| `pruebas/escenarios.py` | La mezcla de tráfico y los 26 casos borde, con su justificación en el código |
 | `pruebas/monitor.py` | Vigilancia de CPU, memoria, hilos y conexiones de cada servidor |
 | `pruebas/orquesta.py` | Ciclo de vida de los servidores y los siete escenarios |
 | `pruebas/reporte.py` | Las gráficas |
@@ -357,7 +357,7 @@ mismos 4 núcleos— y confirma lo que ya decía §5.2: **a partir de 400 pet./s
 manda**, y cualquier cosa que consuma CPU al lado se nota.
 
 Lo mismo en el resto de escenarios: ráfagas y resistencia con cero errores en las dos, y
-**22 de 22 casos borde correctos en ambas**.
+**22 de 26 casos borde correctos en ambas**.
 
 ### 5.10 Las pantallas, bajo carga
 
@@ -383,7 +383,7 @@ creando en ese momento (se retiran al terminar).
 
 ## 6. Tolerancia a errores y seguridad
 
-22 peticiones mal formadas, inexistentes o abiertamente maliciosas. La regla del examen:
+26 peticiones mal formadas, inexistentes o abiertamente maliciosas. La regla del examen:
 **un error del cliente se contesta con 4xx y un mensaje; un 5xx significa que el servidor
 se rompió, y eso no es aceptable.**
 
@@ -395,6 +395,10 @@ se rompió, y eso no es aceptable.**
 | **JSON malformado** | 400 | 400 ✓ *(era 500)* |
 | **Cuerpo vacío donde se espera JSON** | 400 | 400 ✓ *(era 500)* |
 | Nota vacía | 400 | 400 ✓ |
+| **Anotar en una ficha que no existe** | 404 | 404 ✓ *(era 500)* |
+| **Agregar un dato a una ficha que no existe** | 404 | 404 ✓ *(era 500)* |
+| **Vincular a un expediente una ficha que no existe** | 404 | 404 ✓ *(era 500)* |
+| **Editar una ficha que no existe** | 404 | 404 ✓ *(era 200 sin hacer nada)* |
 | Consulta de 200 000 caracteres | no romperse | 200, la procesa ✓ |
 | `'; DROP TABLE personas;--` | 200 sin efecto | 200, y la tabla sigue ahí ✓ |
 | Fusionar una ficha consigo misma | 400 | 400 ✓ |
@@ -410,7 +414,7 @@ se rompió, y eso no es aceptable.**
 | **Cancelar un trabajo inexistente** | 404 | 404 ✓ *(era 200)* |
 | Parámetro negativo | no romperse | 200 ✓ |
 
-**22 de 22 correctos · 0 errores 500.**
+**26 de 26 correctos · 0 errores 500.**
 
 Tres notas sobre seguridad, porque el resultado bueno tiene explicación:
 
@@ -438,21 +442,96 @@ ejecutarlas.
 | 2 | **Un cuerpo JSON mal formado tiraba el endpoint con un 500** | Casos borde | Un lector común (`_cuerpo`) en las tres aplicaciones: si el JSON viene roto o no es un objeto, 400 con mensaje |
 | 3 | **Cancelar un trabajo inexistente devolvía 200** | Casos borde | 404, para distinguir "no existe" de "no se pudo cancelar" |
 | 4 | **El primer usuario pagaba 1,1 s** por sondear los detectores | Arranque en frío | El sondeo se lanza en segundo plano al arrancar |
+| 5 | **Escribir en una ficha que no existe devolvía 500** (anotar, agregar un dato, vincular a expediente) y **editarla devolvía 200 sin hacer nada** | Ejecución en la máquina del despacho, contra una base vacía | Una comprobación común antes de escribir: 404 con mensaje. Seis endpoints protegidos |
 
 El defecto 1 es el mejor argumento a favor de haber hecho estas pruebas: **pulsar el
 botón a mano nunca lo habría encontrado**, porque la primera nota siempre funcionaba.
 
 ---
 
+## 6.1 La ejecución en la máquina del despacho
+
+El arnés se llevó a la máquina donde de verdad va a correr esto —**Windows, con más
+núcleos que la de desarrollo**— y la primera ejecución allí encontró **dos defectos más**,
+uno de la aplicación y otro de las propias pruebas.
+
+### Lo que salió
+
+```
+oficina x25    … errores 0.36 %
+oficina x150   … errores 0.53 % · p95 1 172 ms
+oficina x245   … errores 0.59 % · p95 21 611 ms
+25s de escrituras concurrentes … errores 3.35 %
+```
+
+Un suelo constante de error donde en desarrollo había cero. El desglose:
+
+| Nivel | Errores |
+|---|---|
+| ×25 a ×300 | `HTTP 404` (de 3 a 58), y a partir de ×150 entre 1 y 6 `RemoteProtocolError` |
+| Escrituras | **`HTTP 500`: 48**, más un `ReadError` y un `RemoteProtocolError` |
+
+### Defecto 5, de la aplicación: escribir en una ficha que no existe
+
+Los 48 errores 500 eran reales. La base estaba vacía, así que las escrituras iban a una
+ficha inexistente y **saltaba la restricción de clave foránea de SQLite sin que nadie la
+atrapara**. Al reproducirlo aparecieron cuatro endpoints afectados, no uno:
+
+| Petición sobre una ficha inexistente | Antes | Ahora |
+|---|---|---|
+| Anotar algo | 500 | 404 |
+| Agregar un teléfono o correo | 500 | 404 |
+| Vincular a un expediente | 500 | 404 |
+| Editar la ficha | **200, sin hacer nada** | 404 |
+| Archivar la ficha | 200, sin hacer nada | 404 |
+
+El cuarto era el más engañoso: la interfaz habría dicho "guardado" sobre algo que nunca
+se guardó. Se añadieron **cuatro casos borde nuevos** a la batería, que pasa de 22 a **26**.
+
+### Defecto 6, de las pruebas: daban por hechos los datos
+
+Los 404 de la escalada **no eran fallos del sistema, sino de la prueba**. El escenario
+pedía la ficha 26 y el expediente 1 porque estaban escritos a mano en el código; en una
+base vacía no existen, y el arnés los contaba como error. Un 0,6 % de error que nunca fue
+real.
+
+Arreglado en dos capas:
+
+* El arnés **consulta el sistema antes de medir** y elige la ficha con más historia y el
+  expediente con más partes, en vez de suponer identificadores.
+* Si el directorio está vacío, **se planta y lo dice** en lugar de producir un informe
+  que no mide nada:
+
+```
+[AVISO] el directorio esta vacio. Las busquedas no mediran nada util.
+        Para medir en condiciones, primero:  python scripts/contactos_demo.py --limpio
+```
+
+(Con `--igual` se puede forzar la medición de todos modos.)
+
+### Lo que queda sin explicar
+
+Los `RemoteProtocolError` y `ReadError` —entre 1 y 6 por nivel, sobre miles de
+peticiones— **no están diagnosticados**. Aparecen sólo en Windows y sólo por encima de
+150 peticiones/s. La hipótesis es agotamiento de puertos efímeros al abrir y cerrar
+miles de conexiones, que es un comportamiento conocido de la pila TCP de Windows, pero
+**no se ha comprobado** y no se va a afirmar sin medirlo.
+
+Tampoco está explicado del todo por qué esa máquina se degrada antes que la de
+desarrollo pese a tener más núcleos: a 244 peticiones/s su p95 fue de 1 172 ms frente a
+14 ms. Queda como pendiente, y es el siguiente sitio donde mirar.
+
+---
+
 ## 7. Integridad de los datos
 
 Después de la escalada, las ráfagas, 25 segundos de escrituras concurrentes, 120 de
-resistencia, un video completo y 22 peticiones maliciosas:
+resistencia, un video completo y 26 peticiones maliciosas:
 
 | Comprobación | Resultado |
 |---|---|
-| La ficha de Dona M. Fry sigue intacta | ✓ |
-| El expediente `3:24-cv-05148-MGL` conserva sus 5 partes | ✓ |
+| La ficha de referencia sigue intacta | ✓ |
+| El expediente de referencia conserva sus 5 partes | ✓ |
 | Tablas presentes tras el intento de inyección | ✓ |
 | Fichas creadas por la propia prueba | 320, retiradas al terminar |
 | Registros reales perdidos o corrompidos | **0** |
@@ -486,6 +565,9 @@ resistencia, un video completo y 22 peticiones maliciosas:
 
 Escrito aquí porque un informe de rendimiento sin esta sección no es creíble.
 
+* **Dos plataformas, no muchas.** Se midió en Linux con 4 núcleos (desarrollo) y en
+  Windows con más núcleos (la máquina del despacho, §6.1). Los resultados difieren de
+  forma que todavía no está explicada del todo.
 * **Todo corre en la misma máquina.** Generadores y servidores comparten 4 núcleos. A
   partir de 400 peticiones/s esa convivencia influye; se acotó midiendo la CPU de cada
   proceso por separado (los generadores no pasaron del 4 %), pero no es lo mismo que

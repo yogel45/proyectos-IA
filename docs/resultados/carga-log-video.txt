@@ -1,13 +1,2 @@
-16:33:48 | INFO    | officevision | OfficeVision AI listo - detector configurado: auto
-16:33:50 | INFO    | officevision | Detectores sondeados y en cache
-[h264_v4l2m2m @ 0x7f05e81fc880] Could not find a valid device
-[h264_v4l2m2m @ 0x7f05e81fc880] can't configure encoder
-[ERROR:0@424.620] global cap_ffmpeg_impl.hpp:3568 open Could not open codec h264_v4l2m2m, error: Unspecified error (-22)
-[ERROR:0@424.620] global cap_ffmpeg_impl.hpp:3585 open VIDEOIO/FFMPEG: Failed to initialize VideoWriter
-OpenCV: FFMPEG: tag 0x34363248/'H264' is not supported with codec id 27 and format 'mp4 / MP4 (MPEG-4 Part 14)'
-OpenCV: FFMPEG: fallback to use tag 0x31637661/'avc1'
-[h264_v4l2m2m @ 0x7f05e8149180] Could not find a valid device
-[h264_v4l2m2m @ 0x7f05e8149180] can't configure encoder
-[ERROR:0@424.620] global cap_ffmpeg_impl.hpp:3568 open Could not open codec h264_v4l2m2m, error: Unspecified error (-22)
-[ERROR:0@424.620] global cap_ffmpeg_impl.hpp:3585 open VIDEOIO/FFMPEG: Failed to initialize VideoWriter
-16:40:53 | INFO    | officevision.workers | Video anotado con codec mp4v
+18:07:48 | INFO    | officevision | OfficeVision AI listo - detector configurado: auto
+18:07:50 | INFO    | officevision | Detectores sondeados y en cache

@@ -70,6 +70,17 @@ def recientes(limite: int = 12) -> List[Dict[str, Any]]:
 # --------------------------------------------------------------------------
 # Personas
 # --------------------------------------------------------------------------
+def _persona_o_404(persona_id: int) -> Dict[str, Any]:
+    """Comprueba que la ficha existe antes de escribir sobre ella.
+
+    Sin esto, escribir en una ficha inexistente reventaba con un 500 de clave
+    foranea, o —peor— devolvia 200 sin haber hecho nada. Lo encontro la prueba
+    de carga del Reto 7 al ejecutarse contra una base vacia.
+    """
+    fila = db.query_one("SELECT * FROM personas WHERE id=?", (persona_id,))
+    if not fila:
+        raise HTTPException(404, f"No existe la ficha {persona_id}")
+    return fila
 @router.get("/personas")
 def listar_personas(limite: int = 60, interno: Optional[int] = None) -> List[Dict[str, Any]]:
     sql = ["SELECT id FROM personas WHERE activo=1"]
@@ -145,6 +156,7 @@ async def crear_persona(request: Request) -> Dict[str, Any]:
 
 @router.patch("/personas/{persona_id}")
 async def editar_persona(persona_id: int, request: Request) -> Dict[str, Any]:
+    _persona_o_404(persona_id)
     datos = await _cuerpo(request)
     modelo.actualizar_persona(persona_id, **datos)
     return modelo.ficha(persona_id) or {}
@@ -152,6 +164,7 @@ async def editar_persona(persona_id: int, request: Request) -> Dict[str, Any]:
 
 @router.post("/personas/{persona_id}/identificadores")
 async def agregar_identificador(persona_id: int, request: Request) -> Dict[str, Any]:
+    _persona_o_404(persona_id)
     datos = await _cuerpo(request)
     valor = (datos.get("valor") or "").strip()
     if not valor:
@@ -163,6 +176,7 @@ async def agregar_identificador(persona_id: int, request: Request) -> Dict[str, 
 
 @router.delete("/personas/{persona_id}/identificadores")
 async def quitar_identificador(persona_id: int, tipo: str, valor: str) -> Dict[str, Any]:
+    _persona_o_404(persona_id)
     db.execute("DELETE FROM identificadores WHERE persona_id=? AND tipo=? AND valor_norm=?",
                (persona_id, tipo, modelo.normalizar(tipo, valor)))
     return {"identificadores": modelo.identificadores_de(persona_id)}
@@ -170,6 +184,7 @@ async def quitar_identificador(persona_id: int, tipo: str, valor: str) -> Dict[s
 
 @router.post("/personas/{persona_id}/nota")
 async def agregar_nota(persona_id: int, request: Request) -> Dict[str, Any]:
+    _persona_o_404(persona_id)
     datos = await _cuerpo(request)
     texto = (datos.get("texto") or "").strip()
     if not texto:
@@ -185,6 +200,7 @@ async def agregar_nota(persona_id: int, request: Request) -> Dict[str, Any]:
 
 @router.post("/personas/{persona_id}/casos")
 async def vincular_caso(persona_id: int, request: Request) -> Dict[str, Any]:
+    _persona_o_404(persona_id)
     datos = await _cuerpo(request)
     expediente = (datos.get("expediente") or "").strip()
     if not expediente:
@@ -197,6 +213,7 @@ async def vincular_caso(persona_id: int, request: Request) -> Dict[str, Any]:
 
 @router.delete("/personas/{persona_id}")
 def archivar_persona(persona_id: int) -> Dict[str, Any]:
+    _persona_o_404(persona_id)
     modelo.actualizar_persona(persona_id, activo=0)
     return {"ok": True}
 

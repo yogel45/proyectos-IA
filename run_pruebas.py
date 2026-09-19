@@ -131,16 +131,29 @@ async def sesion(args) -> int:
     try:
         solo = set(args.solo or [])
 
-        # ---------------- 0. Arranque en frio ----------------
-        _titulo("0. Arranque en frio: lo que espera la primera persona del dia")
+        # ---------------- 0. Contra que se mide ----------------
+        _titulo("0. Contra que datos se mide")
+        refs = orq.fijar_referencias()
+        informe["referencias"] = refs
+        if not refs["con_datos"] and not args.igual:
+            print("\n  Sin datos, la mitad de los escenarios no mide nada util.")
+            print("  Carga los datos y vuelve a lanzarlo:\n")
+            print("      python scripts/contactos_demo.py --limpio")
+            print("      python run_pruebas.py\n")
+            print("  (o lanza 'python run_pruebas.py --igual' para medir de todos modos)")
+            registro.cerrar()
+            orq.detener(servidores)
+            return 2
+
+        _titulo("1. Arranque en frio: lo que espera la primera persona del dia")
         marca("frio")
         informe["arranque_frio"] = orq.arranque_en_frio()
         print("\n    calentando antes de medir en regimen estable …")
-        await orq.calentar(3 if args.rapido else 6)
+        await orq.calentar(3 if args.rapido else 6, refs)
 
         # ---------------- 1. Escalada ----------------
         if not solo or "escalada" in solo:
-            _titulo("1. Escalada: la hora pico real, multiplicada")
+            _titulo("2. Escalada: la hora pico real, multiplicada")
             print(f"    carga nominal medida = {esc.RPS_NOMINAL:.2f} peticiones/s "
                   f"({esc.PICO_LLAMADAS_HORA} llamadas en la hora pico real, "
                   f"{esc.PANELES_ABIERTOS} paneles abiertos)\n")
@@ -148,7 +161,7 @@ async def sesion(args) -> int:
             niveles = ([1, 10, 50] if args.rapido else
                        [1, 5, 10, 25, 50, 100, 150, 200, 245, 300])
             segundos = 6 if args.rapido else 20
-            resultados = await orq.escalada(niveles, segundos)
+            resultados = await orq.escalada(niveles, segundos, refs=refs)
             resumenes = []
             for r in resultados:
                 guardar_muestras(r, salida / f"muestras_{r.escenario.replace(' ', '_')}.csv")
@@ -164,7 +177,7 @@ async def sesion(args) -> int:
 
         # ---------------- 2. Rafagas ----------------
         if not solo or "rafaga" in solo:
-            _titulo("2. Rafaga: todas a la vez desde reposo")
+            _titulo("3. Rafaga: todas a la vez desde reposo")
             marca("rafagas")
             tam = [50, 200] if args.rapido else [10, 50, 100, 250, 500]
             resultados = await orq.rafagas(tam)
@@ -175,10 +188,10 @@ async def sesion(args) -> int:
 
         # ---------------- 3. Escrituras ----------------
         if not solo or "escrituras" in solo:
-            _titulo("3. Escrituras concurrentes sobre la misma base")
+            _titulo("4. Escrituras concurrentes sobre la misma base")
             marca("escrituras")
             r = await orq.escrituras(rps=30 if args.rapido else 60,
-                                     segundos=8 if args.rapido else 25)
+                                     segundos=8 if args.rapido else 25, refs=refs)
             guardar_muestras(r, salida / "muestras_escrituras.csv")
             informe["escrituras"] = r.resumen()
             informe["escrituras_por_operacion"] = r.por_operacion()
@@ -187,9 +200,9 @@ async def sesion(args) -> int:
 
         # ---------------- 4. Resistencia ----------------
         if not solo or "resistencia" in solo:
-            _titulo("4. Resistencia: caudal sostenido")
+            _titulo("5. Resistencia: caudal sostenido")
             marca("resistencia")
-            r = await orq.resistencia(rps=50, segundos=20 if args.rapido else 120)
+            r = await orq.resistencia(rps=50, segundos=20 if args.rapido else 120, refs=refs)
             guardar_muestras(r, salida / "muestras_resistencia.csv")
             informe["resistencia"] = r.resumen()
             rep.grafica_resistencia(salida / "muestras_resistencia.csv",
@@ -197,7 +210,7 @@ async def sesion(args) -> int:
 
         # ---------------- 5. Video en proceso ----------------
         if (not solo or "video" in solo) and not args.sin_video:
-            _titulo("5. Trabajo de video pesado mientras se consulta")
+            _titulo("6. Trabajo de video pesado mientras se consulta")
             marca("video")
             video = _buscar_video()
             resultado = await orq.video_en_proceso(
@@ -214,17 +227,17 @@ async def sesion(args) -> int:
 
         # ---------------- 6. Tolerancia a errores ----------------
         if not solo or "errores" in solo:
-            _titulo("6. Tolerancia a errores: peticiones mal formadas")
+            _titulo("7. Tolerancia a errores: peticiones mal formadas")
             marca("errores")
-            informe["tolerancia"] = orq.tolerancia_errores()
+            informe["tolerancia"] = orq.tolerancia_errores(refs)
             t = informe["tolerancia"]
             print(f"\n    {t['correctos']}/{t['total']} respondieron como debian "
                   f"· {t['errores_500']} errores 500")
 
         # ---------------- 7. Integridad ----------------
-        _titulo("7. Integridad de los datos despues de la paliza")
+        _titulo("8. Integridad de los datos despues de la paliza")
         marca("integridad")
-        informe["integridad"] = orq.integridad(esc.CONTACTOS)
+        informe["integridad"] = orq.integridad(esc.CONTACTOS, refs)
         for k, v in informe["integridad"].items():
             print(f"    {k:<22} {v}")
 
@@ -255,7 +268,7 @@ async def sesion(args) -> int:
               f"{r.get('rss_inicial_mb', 0):.0f} → {r.get('rss_final_mb', 0):.0f} MB "
               f"(deriva {r.get('deriva_memoria_mb', 0):+.1f} MB)")
     print(f"\n    Datos en crudo y resumen : {salida}")
-    print(f"    Graficas                 : {img}/carga-*.png")
+    print(f"    Graficas                 : {img / 'carga-*.png'}")
     print(f"    Duracion total           : {informe['duracion_total_s']:.0f} s")
 
     # copia estable de los registros y las medidas para la documentacion
@@ -301,6 +314,8 @@ def main() -> int:
                         help="ejecutar solo algunos escenarios")
     parser.add_argument("--sin-video", action="store_true",
                         help="omitir la prueba de video (es la mas lenta)")
+    parser.add_argument("--igual", action="store_true",
+                        help="medir aunque el directorio este vacio")
     parser.add_argument("--check", action="store_true", help="solo diagnostico")
     args = parser.parse_args()
 

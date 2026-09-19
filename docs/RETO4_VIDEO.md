@@ -395,7 +395,7 @@ proyectos-IA/
 ├── scripts/contactos_demo.py  Arma el directorio desde cero y mide el resultado
 ├── pruebas/                   Pruebas de trafico, carga y tolerancia a errores
 │   ├── carga.py               Motor: llegadas de Poisson, 1 o N procesos, percentiles
-│   ├── escenarios.py          La mezcla de trafico y los 22 casos borde
+│   ├── escenarios.py          La mezcla de trafico y los 26 casos borde
 │   ├── monitor.py             CPU, memoria, hilos y conexiones de cada servidor
 │   ├── orquesta.py            Ciclo de vida de los servidores y los 7 escenarios
 │   └── reporte.py             Graficas de latencia, caudal, errores y recursos

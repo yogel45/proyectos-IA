@@ -133,6 +133,50 @@ PRIMERAS_LLAMADAS = [
 ]
 
 
+def fijar_referencias() -> Dict[str, Any]:
+    """Averigua contra que datos se va a medir, en vez de suponerlos.
+
+    Devuelve una ficha y un expediente que existan de verdad. Si el sistema
+    esta vacio lo dice en voz alta: medir busquedas contra una base sin datos
+    no mide nada, y los 404 que salen no son fallos del sistema sino de la
+    prueba.
+    """
+    persona_id = caso_id = 0
+    total_personas = total_casos = 0
+    with httpx.Client(timeout=30) as c:
+        try:
+            m = c.get(f"{esc.CONTACTOS}/api/metricas").json().get("resumen", {})
+            total_personas = m.get("personas") or 0
+            total_casos = m.get("casos") or 0
+            # se elige la ficha con mas historia y el expediente con mas
+            # partes: medir contra un registro vacio no dice nada del coste
+            # real de abrir una ficha.
+            recientes = c.get(f"{esc.CONTACTOS}/api/recientes?limite=25").json()
+            if recientes:
+                persona_id = max(recientes, key=lambda f: f.get("hitos") or 0)["id"]
+            else:
+                fichas = c.get(f"{esc.CONTACTOS}/api/personas?limite=1").json()
+                persona_id = fichas[0]["id"] if fichas else 0
+            casos = c.get(f"{esc.CONTACTOS}/api/casos?limite=50").json()
+            if casos:
+                caso_id = max(casos, key=lambda x: x.get("partes") or 0)["id"]
+        except Exception as exc:
+            print(f"    [aviso] no se pudo consultar el directorio: {exc}")
+
+    listo = bool(persona_id and caso_id)
+    if listo:
+        print(f"    midiendo contra datos reales: {total_personas} fichas, "
+              f"{total_casos} expedientes")
+        print(f"    se usara la ficha con mas historia (#{persona_id}) y el "
+              f"expediente con mas partes (#{caso_id})")
+    else:
+        print("    [AVISO] el directorio esta vacio. Las busquedas no mediran nada util.")
+        print("            Para medir en condiciones, primero:  "
+              "python scripts/contactos_demo.py --limpio")
+    return {"persona_id": persona_id or 1, "caso_id": caso_id or 1,
+            "con_datos": listo, "personas": total_personas, "casos": total_casos}
+
+
 def arranque_en_frio() -> List[Dict[str, Any]]:
     """Lo que espera la primera persona del dia, pantalla por pantalla.
 
@@ -162,9 +206,11 @@ def arranque_en_frio() -> List[Dict[str, Any]]:
     return filas
 
 
-async def calentar(segundos: float = 5) -> None:
+async def calentar(segundos: float = 5, refs: Optional[Dict[str, Any]] = None) -> None:
     """Trafico suave antes de medir, para que la escalada mida regimen estable."""
-    gen = Generador("", esc.con_consultas(esc.mezcla_oficina()))
+    refs = refs or {"persona_id": 26, "caso_id": 1}
+    gen = Generador("", esc.con_consultas(
+        esc.mezcla_oficina(refs["persona_id"], refs["caso_id"])))
     await gen.correr(rps=10, segundos=segundos, escenario="calentamiento")
 
 
@@ -179,9 +225,12 @@ TECHO_UN_PROCESO = 150.0
 
 
 async def escalada(niveles: List[float], segundos: float,
-                   procesos: int = 4) -> List[Resultado]:
+                   procesos: int = 4,
+                   refs: Optional[Dict[str, Any]] = None) -> List[Resultado]:
     """La misma mezcla de oficina a caudales crecientes, hasta que se note."""
-    peticiones = esc.con_consultas(esc.mezcla_oficina())
+    refs = refs or {"persona_id": 26, "caso_id": 1}
+    peticiones = esc.con_consultas(
+        esc.mezcla_oficina(refs["persona_id"], refs["caso_id"]))
     gen = Generador("", peticiones)
     salida: List[Resultado] = []
     for factor in niveles:
@@ -223,9 +272,12 @@ async def rafagas(tamanos: List[int]) -> List[Resultado]:
     return salida
 
 
-async def resistencia(rps: float, segundos: float) -> Resultado:
+async def resistencia(rps: float, segundos: float,
+                      refs: Optional[Dict[str, Any]] = None) -> Resultado:
     """Caudal sostenido: busca degradacion y fugas de memoria."""
-    peticiones = esc.con_consultas(esc.mezcla_oficina())
+    refs = refs or {"persona_id": 26, "caso_id": 1}
+    peticiones = esc.con_consultas(
+        esc.mezcla_oficina(refs["persona_id"], refs["caso_id"]))
     gen = Generador("", peticiones)
     print(f"    {segundos:g}s seguidos a {rps:.0f} peticiones/s … ", end="", flush=True)
     r = await gen.correr(rps=rps, segundos=segundos, escenario="resistencia")
@@ -235,9 +287,11 @@ async def resistencia(rps: float, segundos: float) -> Resultado:
     return r
 
 
-async def escrituras(rps: float, segundos: float) -> Resultado:
+async def escrituras(rps: float, segundos: float,
+                     refs: Optional[Dict[str, Any]] = None) -> Resultado:
     """Varias personas escribiendo a la vez en la misma base."""
-    gen = Generador("", esc.mezcla_escrituras())
+    refs = refs or {"persona_id": 26}
+    gen = Generador("", esc.mezcla_escrituras(refs["persona_id"]))
     print(f"    {segundos:g}s de escrituras concurrentes a {rps:.0f}/s … ",
           end="", flush=True)
     r = await gen.correr(rps=rps, segundos=segundos, escenario="escrituras")
@@ -247,11 +301,12 @@ async def escrituras(rps: float, segundos: float) -> Resultado:
     return r
 
 
-def tolerancia_errores() -> Dict[str, Any]:
+def tolerancia_errores(refs: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """Peticiones mal formadas, inexistentes o maliciosas, una a una."""
+    refs = refs or {"persona_id": 26}
     filas: List[Dict[str, Any]] = []
     with httpx.Client(timeout=30, follow_redirects=True) as c:
-        for caso in esc.casos_borde():
+        for caso in esc.casos_borde(refs["persona_id"]):
             t0 = time.perf_counter()
             try:
                 kw: Dict[str, Any] = {}
@@ -286,17 +341,30 @@ def tolerancia_errores() -> Dict[str, Any]:
             "pct_correcto": round(100 * bien / max(1, len(filas)), 1)}
 
 
-def integridad(base: str) -> Dict[str, Any]:
-    """Comprueba que la base de datos sigue coherente despues de la paliza."""
+def integridad(base: str, refs: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Comprueba que la base de datos sigue coherente despues de la paliza.
+
+    Se compara contra lo que habia *antes* de empezar, no contra valores
+    escritos a mano: asi la comprobacion vale igual con datos reales que con
+    datos de ejemplo.
+    """
+    refs = refs or {}
     with httpx.Client(timeout=30) as c:
         m = c.get(f"{base}/api/metricas").json()["resumen"]
-        ficha = c.get(f"{base}/api/personas/26").json()
-        caso = c.get(f"{base}/api/casos/1").json()
+        ficha, caso = {}, {}
+        if refs.get("persona_id"):
+            r = c.get(f"{base}/api/personas/{refs['persona_id']}")
+            ficha = r.json() if r.status_code == 200 else {}
+        if refs.get("caso_id"):
+            r = c.get(f"{base}/api/casos/{refs['caso_id']}")
+            caso = r.json() if r.status_code == 200 else {}
     return {"personas": m.get("personas"), "casos": m.get("casos"),
             "hitos": m.get("hitos"),
-            "ficha_26_intacta": ficha.get("nombre") == "Dona M. Fry",
-            "caso_1_partes": len(caso.get("partes", [])),
-            "caso_1_expediente": caso.get("expediente")}
+            "medido_con_datos": bool(refs.get("con_datos")),
+            "ficha_de_referencia": ficha.get("nombre") or "(no habia datos)",
+            "ficha_sigue_ahi": bool(ficha.get("nombre")),
+            "expediente_de_referencia": caso.get("expediente") or "(no habia datos)",
+            "partes_del_expediente": len(caso.get("partes", []))}
 
 
 def limpiar_datos_de_prueba() -> Dict[str, int]:

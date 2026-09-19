@@ -63,15 +63,22 @@ RPS_NOMINAL = sum(_rps_nominal().values())
 # --------------------------------------------------------------------------
 # Mezcla de la oficina: lo que de verdad se pide en una hora pico
 # --------------------------------------------------------------------------
-def mezcla_oficina() -> List[Peticion]:
+def mezcla_oficina(persona_id: int = 26, caso_id: int = 1) -> List[Peticion]:
+    """Los identificadores se descubren en el sistema, no se dan por hechos.
+
+    En la primera ejecucion en la maquina del despacho, con la base vacia, el
+    escenario pedia la ficha 26 y el expediente 1 porque estaban escritos a
+    mano. Esas peticiones devolvian 404 y la prueba las contaba como fallos del
+    sistema: un 0,6 % de error que no era real. Ahora se consultan antes.
+    """
     partes = _rps_nominal()
     return [
         # --- Directorio vivo: el que recibe la llamada busca quien es -------
         Peticion("buscar contacto", "GET",
                  f"{CONTACTOS}/api/buscar?q={{}}", peso=partes["busquedas"] * 0.7),
-        Peticion("abrir ficha", "GET", f"{CONTACTOS}/api/personas/26",
+        Peticion("abrir ficha", "GET", f"{CONTACTOS}/api/personas/{persona_id}",
                  peso=partes["fichas"] * 0.6),
-        Peticion("quien es quien", "GET", f"{CONTACTOS}/api/casos/1",
+        Peticion("quien es quien", "GET", f"{CONTACTOS}/api/casos/{caso_id}",
                  peso=partes["fichas"] * 0.25),
         Peticion("contactos recientes", "GET", f"{CONTACTOS}/api/recientes",
                  peso=partes["busquedas"] * 0.3),
@@ -135,7 +142,7 @@ def mezcla_lectura_pesada() -> List[Peticion]:
 # --------------------------------------------------------------------------
 # Escrituras concurrentes: donde de verdad duele SQLite
 # --------------------------------------------------------------------------
-def mezcla_escrituras() -> List[Peticion]:
+def mezcla_escrituras(persona_id: int = 26) -> List[Peticion]:
     """Varias personas anotando y dando de alta a la vez.
 
     Es el escenario que pone a prueba la decision de arquitectura mas
@@ -163,7 +170,7 @@ def mezcla_escrituras() -> List[Peticion]:
 
     return [
         Peticion("anotar en una ficha", "POST",
-                 f"{CONTACTOS}/api/personas/26/nota", datos=nota, peso=3),
+                 f"{CONTACTOS}/api/personas/{persona_id}/nota", datos=nota, peso=3),
         Peticion("alta de contacto", "POST",
                  f"{CONTACTOS}/api/personas", datos=alta, peso=2),
         Peticion("leer una firma", "POST",
@@ -181,7 +188,7 @@ PDF_MINIMO = (b"%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n"
               b"trailer<</Root 1 0 R>>\n%%EOF\n")
 
 
-def casos_borde() -> List[Dict[str, Any]]:
+def casos_borde(ficha: int = 26) -> List[Dict[str, Any]]:
     """Cada caso dice que se espera, para poder juzgar si respondio bien.
 
     La regla: un error del cliente debe contestarse con 4xx y un mensaje, no
@@ -206,7 +213,7 @@ def casos_borde() -> List[Dict[str, Any]]:
         {"nombre": "cuerpo vacio donde se espera JSON", "metodo": "POST",
          "url": f"{CONTACTOS}/api/leer", "crudo": b"", "esperado": [400, 422]},
         {"nombre": "nota vacia", "metodo": "POST",
-         "url": f"{CONTACTOS}/api/personas/26/nota", "json": {"texto": "   "},
+         "url": f"{CONTACTOS}/api/personas/{ficha}/nota", "json": {"texto": "   "},
          "esperado": [400]},
         {"nombre": "consulta de 200 000 caracteres", "metodo": "POST",
          "url": f"{CONTACTOS}/api/leer", "json": {"texto": gigante},
@@ -214,12 +221,24 @@ def casos_borde() -> List[Dict[str, Any]]:
         {"nombre": "intento de inyeccion SQL", "metodo": "GET",
          "url": f"{CONTACTOS}/api/buscar?q=%27%3B+DROP+TABLE+personas%3B--",
          "esperado": [200]},
+        {"nombre": "anotar en una ficha que no existe", "metodo": "POST",
+         "url": f"{CONTACTOS}/api/personas/999999/nota", "json": {"texto": "prueba"},
+         "esperado": [404]},
+        {"nombre": "agregar un dato a una ficha que no existe", "metodo": "POST",
+         "url": f"{CONTACTOS}/api/personas/999999/identificadores",
+         "json": {"tipo": "telefono", "valor": "(999) 111-2222"}, "esperado": [404]},
+        {"nombre": "vincular a un expediente una ficha que no existe", "metodo": "POST",
+         "url": f"{CONTACTOS}/api/personas/999999/casos",
+         "json": {"expediente": "1:11-cv-11111"}, "esperado": [404]},
+        {"nombre": "editar una ficha que no existe", "metodo": "PATCH",
+         "url": f"{CONTACTOS}/api/personas/999999", "json": {"rol": "x"},
+         "esperado": [404]},
         {"nombre": "fusionar una ficha consigo misma", "metodo": "POST",
          "url": f"{CONTACTOS}/api/duplicados/fusionar",
-         "json": {"principal_id": 26, "absorbida_id": 26}, "esperado": [400]},
+         "json": {"principal_id": ficha, "absorbida_id": ficha}, "esperado": [400]},
         {"nombre": "fusionar con ficha inexistente", "metodo": "POST",
          "url": f"{CONTACTOS}/api/duplicados/fusionar",
-         "json": {"principal_id": 26, "absorbida_id": 999999}, "esperado": [400]},
+         "json": {"principal_id": ficha, "absorbida_id": 999999}, "esperado": [400]},
         {"nombre": "deshacer una fusion que no existe", "metodo": "POST",
          "url": f"{CONTACTOS}/api/fusiones/999999/deshacer", "esperado": [400]},
         {"nombre": "fuente desconocida", "metodo": "POST",
