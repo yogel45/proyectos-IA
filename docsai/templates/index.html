@@ -23,7 +23,7 @@
     <h3>Cargar documentos <small>pdf, docx, imagenes, correos, texto</small></h3>
     <div class="drop" id="drop">
       <strong>Arrastra los documentos aqui</strong><br>
-      <span class="small">o haz clic para elegirlos · se procesan en segundo plano</span>
+      <span class="small">o haz clic para elegirlos</span>
       <input type="file" id="file" multiple style="display:none"
              accept=".pdf,.docx,.txt,.csv,.md,.eml,.png,.jpg,.jpeg,.tif,.tiff,.html,.json">
     </div>
@@ -33,12 +33,6 @@
       <a class="btn ghost" href="/api/export.csv">Exportar CSV</a>
     </div>
     <div id="lote" style="margin-top:12px"></div>
-    <p class="small muted" style="margin-top:10px">
-      Flujo: huella SHA-256 (detecta duplicados) → extraccion de texto (OCR si el PDF
-      es un escaneo) → datos clave (expediente, fecha, partes, montos) → clasificacion
-      → nombre segun la convencion → archivado en carpetas. Lo que no alcanza la
-      confianza minima queda marcado para revision.
-    </p>
   </div>
 
 </div>
@@ -78,8 +72,7 @@
 
 <section class="card" style="margin-top:14px">
   <h3>Detalle <small id="det-titulo">selecciona un documento</small></h3>
-  <div id="detalle"><p class="muted small">Haz clic en una fila para ver que datos se extrajeron,
-    por que se clasifico asi y confirmar o corregir la categoria.</p></div>
+  <div id="detalle"><p class="muted small">Haz clic en una fila.</p></div>
 </section>
 {% endblock %}
 

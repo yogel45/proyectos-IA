@@ -23,6 +23,24 @@ log = logging.getLogger("docuflow")
 BASE = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(BASE / "templates"))
 
+def _version_estaticos() -> str:
+    """Marca que cambia cuando cambian el CSS o el JS.
+
+    Sin esto, tras actualizar el proyecto el navegador sigue sirviendo el CSS
+    que tenia en cache y la pantalla se ve rota o antigua. Con la marca en la
+    URL, un archivo nuevo es una URL nueva y se descarga solo.
+    """
+    marca = 0.0
+    for nombre in ("app.css", "app.js"):
+        ruta = BASE / "static" / nombre
+        if ruta.exists():
+            marca = max(marca, ruta.stat().st_mtime)
+    return str(int(marca))
+
+
+VERSION_ESTATICOS = _version_estaticos()
+
+
 app = FastAPI(title="DocuFlow AI",
               description="Clasificacion, nombrado y archivado automatico de documentos",
               version="1.0.0")
@@ -38,7 +56,7 @@ PAGES = [
 def _page(template: str, title: str):
     async def handler(request: Request) -> HTMLResponse:
         return templates.TemplateResponse(
-            request, template, {"title": title, "nav": PAGES})
+            request, template, {"title": title, "nav": PAGES, "v": VERSION_ESTATICOS})
     return handler
 
 

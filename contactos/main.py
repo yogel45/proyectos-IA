@@ -23,6 +23,24 @@ log = logging.getLogger("directorio")
 BASE = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(BASE / "templates"))
 
+def _version_estaticos() -> str:
+    """Marca que cambia cuando cambian el CSS o el JS.
+
+    Sin esto, tras actualizar el proyecto el navegador sigue sirviendo el CSS
+    que tenia en cache y la pantalla se ve rota o antigua. Con la marca en la
+    URL, un archivo nuevo es una URL nueva y se descarga solo.
+    """
+    marca = 0.0
+    for nombre in ("app.css", "app.js"):
+        ruta = BASE / "static" / nombre
+        if ruta.exists():
+            marca = max(marca, ruta.stat().st_mtime)
+    return str(int(marca))
+
+
+VERSION_ESTATICOS = _version_estaticos()
+
+
 app = FastAPI(title="Directorio vivo",
               description="Contactos que se arman solos con lo que ya pasa en el despacho",
               version="1.0.0")
@@ -50,7 +68,8 @@ def _page(template: str, title: str, path: str):
     async def handler(request: Request) -> HTMLResponse:
         return templates.TemplateResponse(
             request, template,
-            {"title": title, "nav": PAGES, "subtitulo": SUBTITULOS.get(path, "")})
+            {"title": title, "nav": PAGES, "v": VERSION_ESTATICOS,
+             "subtitulo": SUBTITULOS.get(path, "")})
     return handler
 
 
@@ -63,7 +82,7 @@ for path, template, title, _icono in PAGES:
 async def pagina_persona(request: Request, persona_id: int) -> HTMLResponse:
     return templates.TemplateResponse(
         request, "persona.html",
-        {"title": "Ficha", "nav": PAGES, "persona_id": persona_id,
+        {"title": "Ficha", "nav": PAGES, "v": VERSION_ESTATICOS, "persona_id": persona_id,
          "subtitulo": "Todo lo que el despacho sabe de esta persona"})
 
 
@@ -71,7 +90,7 @@ async def pagina_persona(request: Request, persona_id: int) -> HTMLResponse:
 async def pagina_caso(request: Request, caso_id: int) -> HTMLResponse:
     return templates.TemplateResponse(
         request, "caso.html",
-        {"title": "Expediente", "nav": PAGES, "caso_id": caso_id,
+        {"title": "Expediente", "nav": PAGES, "v": VERSION_ESTATICOS, "caso_id": caso_id,
          "subtitulo": "Quien es quien y que ha pasado"})
 
 
