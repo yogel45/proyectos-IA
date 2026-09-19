@@ -120,10 +120,10 @@ aside:hover,aside:focus-within{
 .brand span{font-size:11px;color:var(--txt-2);white-space:nowrap;display:block}
 
 /* lo que solo se lee con la barra abierta */
-.brand > div:last-child, nav a b, .version-ui{font-size:11px;font-family:ui-monospace,monospace}
-aside .nota{
+.brand > div:last-child, nav a b, aside .nota{
   white-space:nowrap;opacity:0;transition:opacity .1s ease .15s;
 }
+.version-ui{font-size:11px;font-family:ui-monospace,monospace}
 aside:hover .brand > div:last-child, aside:hover nav a b, aside:hover .nota,
 aside:focus-within .brand > div:last-child, aside:focus-within nav a b, aside:focus-within .nota,
 aside.abierta .brand > div:last-child, aside.abierta nav a b, aside.abierta .nota{
