@@ -13,6 +13,23 @@ from .config import CONFIG
 router = APIRouter(prefix="/api")
 
 
+async def _cuerpo(request: Request) -> Dict[str, Any]:
+    """Lee el JSON de la peticion. Si viene roto o vacio, es un 400, no un 500.
+
+    Lo encontro la prueba de carga del Reto 7: un cuerpo mal formado hacia
+    estallar el endpoint con un error interno, que es mentira — el servidor
+    esta bien, quien mando mal la peticion es el cliente.
+    """
+    try:
+        datos = await request.json()
+    except Exception:
+        raise HTTPException(400, "El cuerpo de la peticion no es JSON valido")
+    if not isinstance(datos, dict):
+        raise HTTPException(400, "Se esperaba un objeto JSON")
+    return datos
+
+
+
 # --------------------------------------------------------------------------
 # Estado general
 # --------------------------------------------------------------------------
@@ -78,7 +95,7 @@ def ver_persona(persona_id: int) -> Dict[str, Any]:
 
 @router.post("/personas")
 async def crear_persona(request: Request) -> Dict[str, Any]:
-    datos = await request.json()
+    datos = await _cuerpo(request)
     nombre = (datos.get("nombre") or "").strip()
     if not nombre:
         raise HTTPException(400, "Hace falta un nombre")
@@ -128,14 +145,14 @@ async def crear_persona(request: Request) -> Dict[str, Any]:
 
 @router.patch("/personas/{persona_id}")
 async def editar_persona(persona_id: int, request: Request) -> Dict[str, Any]:
-    datos = await request.json()
+    datos = await _cuerpo(request)
     modelo.actualizar_persona(persona_id, **datos)
     return modelo.ficha(persona_id) or {}
 
 
 @router.post("/personas/{persona_id}/identificadores")
 async def agregar_identificador(persona_id: int, request: Request) -> Dict[str, Any]:
-    datos = await request.json()
+    datos = await _cuerpo(request)
     valor = (datos.get("valor") or "").strip()
     if not valor:
         raise HTTPException(400, "Falta el dato")
@@ -153,7 +170,7 @@ async def quitar_identificador(persona_id: int, tipo: str, valor: str) -> Dict[s
 
 @router.post("/personas/{persona_id}/nota")
 async def agregar_nota(persona_id: int, request: Request) -> Dict[str, Any]:
-    datos = await request.json()
+    datos = await _cuerpo(request)
     texto = (datos.get("texto") or "").strip()
     if not texto:
         raise HTTPException(400, "La nota esta vacia")
@@ -168,7 +185,7 @@ async def agregar_nota(persona_id: int, request: Request) -> Dict[str, Any]:
 
 @router.post("/personas/{persona_id}/casos")
 async def vincular_caso(persona_id: int, request: Request) -> Dict[str, Any]:
-    datos = await request.json()
+    datos = await _cuerpo(request)
     expediente = (datos.get("expediente") or "").strip()
     if not expediente:
         raise HTTPException(400, "Falta el expediente")
@@ -219,7 +236,7 @@ def ver_caso(caso_id: int) -> Dict[str, Any]:
 # --------------------------------------------------------------------------
 @router.post("/leer")
 async def leer_texto(request: Request) -> Dict[str, Any]:
-    datos = await request.json()
+    datos = await _cuerpo(request)
     lectura = extraccion.leer(datos.get("texto") or "")
     campos = lectura["campos"]
     coincide = None
@@ -248,7 +265,7 @@ def ver_duplicados(limite: int = 50) -> List[Dict[str, Any]]:
 
 @router.post("/duplicados/fusionar")
 async def fusionar(request: Request) -> Dict[str, Any]:
-    datos = await request.json()
+    datos = await _cuerpo(request)
     try:
         return duplicados.fusionar(int(datos["principal_id"]), int(datos["absorbida_id"]),
                                    datos.get("motivos") or [],
@@ -259,7 +276,7 @@ async def fusionar(request: Request) -> Dict[str, Any]:
 
 @router.post("/duplicados/descartar")
 async def descartar(request: Request) -> Dict[str, Any]:
-    datos = await request.json()
+    datos = await _cuerpo(request)
     return duplicados.descartar(int(datos["a_id"]), int(datos["b_id"]))
 
 
@@ -335,4 +352,4 @@ def ver_config() -> Dict[str, Any]:
 
 @router.post("/config")
 async def poner_config(request: Request) -> Dict[str, Any]:
-    return CONFIG.update(await request.json())
+    return CONFIG.update(await _cuerpo(request))

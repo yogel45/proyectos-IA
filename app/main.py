@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import threading
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -92,4 +93,16 @@ def on_startup() -> None:
         db.close_session(row["id"], "canceled")
     if stale:
         log.info("Se cerraron %s sesiones que quedaron abiertas", len(stale))
+    # Sondear los detectores importa torch y tarda ~1,3 s la primera vez. Se
+    # hace en segundo plano al arrancar para que no lo pague quien abra la
+    # primera pantalla. Lo midio la prueba de carga del Reto 7.
+    def _calentar() -> None:
+        try:
+            from .vision.detector import available_backends
+            available_backends()
+            log.info("Detectores sondeados y en cache")
+        except Exception as exc:                      # pragma: no cover
+            log.warning("No se pudieron sondear los detectores: %s", exc)
+
+    threading.Thread(target=_calentar, name="calentar-detectores", daemon=True).start()
     log.info("OfficeVision AI listo - detector configurado: %s", CONFIG.get("detector"))

@@ -20,6 +20,8 @@ data/contactos/contactos.db-shm
 data/uploads/*
 data/outputs/*
 data/snapshots/*
+data/pruebas/*
+!data/pruebas/.gitkeep
 data/documentos/entrada/*
 data/documentos/organizados/*
 !data/uploads/.gitkeep

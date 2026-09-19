@@ -168,6 +168,9 @@ def init_db() -> None:
     conn = get_conn()
     with _LOCK:
         conn.executescript(SCHEMA)
+        # Las filas antiguas guardaban '' en vez de NULL y chocaban con el
+        # indice unico, impidiendo anotar dos veces en la misma ficha.
+        conn.execute("UPDATE interacciones SET referencia=NULL WHERE referencia=''")
         conn.commit()
 
 

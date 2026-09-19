@@ -88,6 +88,31 @@ y `python run_contactos.py` (puerto 8200).
 
 ---
 
+## Reto 7 — Pruebas de tráfico, carga y actividad automatizada
+
+Entregable: [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) y el paquete `pruebas/`
+(`python run_pruebas.py`).
+
+### Entregables
+
+| Entregable | Dónde está |
+|---|---|
+| Scripts y configuración de las pruebas, con instrucciones para reproducirlas | `pruebas/` (5 módulos) y `run_pruebas.py`; instrucciones en [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) §2 y §3. Un solo comando arranca, mide y limpia |
+| Instrucciones de instalación, configuración y ejecución de la solución | [`README.md`](../README.md) para las tres aplicaciones y [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) §3 para las pruebas. Sin herramientas externas |
+| Descripción del escenario de prueba diseñado y su justificación | [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) §1: la carga sale de medir la hora pico real del historial de llamadas (56 llamadas), no de una cifra inventada |
+| Resultados de las pruebas ejecutadas | §5 a §7: 8 tablas, 7 gráficas, CSV con **una fila por petición** en `data/pruebas/<fecha>/` y copia en [`docs/resultados/`](resultados/) |
+
+### Criterios de evaluación
+
+| Criterio | Cómo se atiende |
+|---|---|
+| **Diseño de las pruebas** | El caudal nominal (1,63 pet./s) se deriva de datos reales: 56 llamadas en la hora pico de 24 días, 25 empleados, 8 paneles refrescando cada 5 s. Siete escenarios que cubren carga sostenida, ráfaga, escritura concurrente, resistencia, trabajo pesado en paralelo, arranque en frío y 22 casos borde. Llegadas de Poisson en vez de bucle cerrado, y se mide la espera del usuario (no sólo la del servidor) para no caer en *coordinated omission*. |
+| **Implementación de las pruebas** | Un comando (`python run_pruebas.py`) hace todo: levanta lo que no esté corriendo, respeta lo que sí, mide, dibuja y **borra los datos que la propia prueba escribió**. Semilla fija para que sea repetible; `--rapido`, `--solo` y `--sin-video` para iterar. Sin dependencias nuevas más allá de `psutil` y `matplotlib`. |
+| **Monitoreo y análisis** | `psutil` muestrea cada segundo CPU, memoria, hilos y conexiones de cada servidor, con los procesos hijos incluidos. Eso permitió **atribuir la saturación**: un proceso al 100 % de un núcleo mientras los otros tres están ociosos, es decir un trabajador de uvicorn, y no falta de máquina. También permitió descubrir que el primer generador era el cuello de botella y descartar una fuga de memoria (0 MB de deriva en 120 s). |
+| **Documentación** | [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) explica el escenario y su porqué, los resultados con sus tablas y gráficas, **los cuatro fallos que las pruebas encontraron y cómo se arreglaron**, la decisión de no usar varios trabajadores de uvicorn y por qué, y siete limitaciones declaradas (§9), incluida la más incómoda: el primer intento de medición estaba mal y por qué. |
+
+---
+
 ## Nota sobre los datos de prueba
 
 No se recibieron las carpetas `Desktop/Hackathon/Reto 4/Recursos` ni

@@ -21,3 +21,8 @@ lap>=0.5
 # Requiere ademas el binario Tesseract instalado en el sistema.
 # pytesseract>=0.3.10
 # pillow>=10.0
+
+# --- Pruebas de carga (Reto 7) ---------------------------------------------
+# httpx ya viene con FastAPI; psutil y matplotlib son para medir y dibujar.
+psutil>=5.9
+matplotlib>=3.7

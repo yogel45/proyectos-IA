@@ -29,6 +29,23 @@ from .workers import JOBS, LIVE, SERVER_CAMERA
 log = logging.getLogger("officevision.api")
 router = APIRouter(prefix="/api")
 
+
+async def _cuerpo(request: Request) -> Dict[str, Any]:
+    """Lee el JSON de la peticion. Si viene roto o vacio, es un 400, no un 500.
+
+    Lo encontro la prueba de carga del Reto 7: un cuerpo mal formado hacia
+    estallar el endpoint con un error interno, que es mentira — el servidor
+    esta bien, quien mando mal la peticion es el cliente.
+    """
+    try:
+        datos = await request.json()
+    except Exception:
+        raise HTTPException(400, "El cuerpo de la peticion no es JSON valido")
+    if not isinstance(datos, dict):
+        raise HTTPException(400, "Se esperaba un objeto JSON")
+    return datos
+
+
 VIDEO_EXT = {".mp4", ".avi", ".mov", ".mkv", ".webm", ".m4v", ".mpg", ".mpeg", ".wmv"}
 
 
@@ -92,7 +109,7 @@ def get_config() -> Dict[str, Any]:
 
 @router.post("/config")
 async def set_config(request: Request) -> Dict[str, Any]:
-    payload = await request.json()
+    payload = await _cuerpo(request)
     if not isinstance(payload, dict):
         raise HTTPException(400, "Se espera un objeto JSON")
     return CONFIG.update(payload)
@@ -108,7 +125,7 @@ def get_zones() -> List[Dict[str, Any]]:
 
 @router.post("/zones")
 async def create_zone(request: Request) -> Dict[str, Any]:
-    data = await request.json()
+    data = await _cuerpo(request)
     name = (data.get("name") or "").strip()
     polygon = data.get("polygon") or []
     if not name:
@@ -187,7 +204,7 @@ def _muestrear_cuadros(path: Path, n: int = 6) -> List[np.ndarray]:
 
 @router.post("/zones/apply")
 async def apply_suggested_zones(request: Request) -> Dict[str, Any]:
-    data = await request.json()
+    data = await _cuerpo(request)
     zonas = data.get("zones") or []
     if not isinstance(zonas, list) or not zonas:
         raise HTTPException(400, "No se recibieron zonas para guardar")
@@ -198,7 +215,7 @@ async def apply_suggested_zones(request: Request) -> Dict[str, Any]:
 
 @router.put("/zones/{zone_id}")
 async def update_zone(zone_id: int, request: Request) -> Dict[str, Any]:
-    data = await request.json()
+    data = await _cuerpo(request)
     fields, values = [], []
     mapping = {"name": "name", "kind": "kind", "color": "color",
                "max_occupancy": "max_occupancy", "min_occupancy": "min_occupancy",
@@ -303,7 +320,7 @@ def _decode_jpeg(payload: bytes) -> Optional[np.ndarray]:
 async def camera_start(request: Request) -> Dict[str, Any]:
     data = {}
     try:
-        data = await request.json()
+        data = await _cuerpo(request)
     except Exception:
         pass
     SERVER_CAMERA.source = data.get("source", 0)
@@ -371,6 +388,10 @@ def get_job(job_id: str) -> Dict[str, Any]:
 
 @router.post("/jobs/{job_id}/cancel")
 def cancel_job(job_id: str) -> Dict[str, Any]:
+    # Antes devolvia 200 con ok=false para un trabajo inexistente, lo que
+    # hacia indistinguible "no existe" de "no se pudo cancelar".
+    if not JOBS.get(job_id):
+        raise HTTPException(404, "Trabajo no encontrado")
     return {"ok": JOBS.cancel(job_id)}
 
 

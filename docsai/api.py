@@ -20,6 +20,23 @@ from .extract import SOPORTADOS
 router = APIRouter(prefix="/api")
 
 
+async def _cuerpo(request: Request) -> Dict[str, Any]:
+    """Lee el JSON de la peticion. Si viene roto o vacio, es un 400, no un 500.
+
+    Lo encontro la prueba de carga del Reto 7: un cuerpo mal formado hacia
+    estallar el endpoint con un error interno, que es mentira — el servidor
+    esta bien, quien mando mal la peticion es el cliente.
+    """
+    try:
+        datos = await request.json()
+    except Exception:
+        raise HTTPException(400, "El cuerpo de la peticion no es JSON valido")
+    if not isinstance(datos, dict):
+        raise HTTPException(400, "Se esperaba un objeto JSON")
+    return datos
+
+
+
 def _fila(doc: Dict[str, Any], con_texto: bool = False) -> Dict[str, Any]:
     salida = dict(doc)
     for clave, destino in (("evidencia_json", "evidencia"), ("puntajes_json", "puntajes"),
@@ -46,7 +63,7 @@ def categorias() -> List[Dict[str, Any]]:
 @router.post("/categorias")
 async def crear_categoria(request: Request) -> Dict[str, Any]:
     """Crea (o actualiza) una categoria propia con sus palabras clave."""
-    datos = await request.json()
+    datos = await _cuerpo(request)
     codigo = re.sub(r"[^A-Z0-9-]", "-", (datos.get("codigo") or "").upper()).strip("-")
     nombre = (datos.get("nombre") or "").strip() or codigo.title()
     if not codigo:
@@ -90,7 +107,7 @@ async def reprocesar(request: Request) -> Dict[str, Any]:
     """Vuelve a clasificar lo ya guardado con las reglas y categorias actuales."""
     datos = {}
     try:
-        datos = await request.json()
+        datos = await _cuerpo(request)
     except Exception:
         pass
     return await run_in_threadpool(pipeline.reprocesar,
@@ -104,7 +121,7 @@ def convencion() -> Dict[str, Any]:
 
 @router.post("/convencion")
 async def guardar_convencion(request: Request) -> Dict[str, Any]:
-    datos = await request.json()
+    datos = await _cuerpo(request)
     permitidas = {"plantilla_nombre", "separador", "max_nombre", "esquema_carpetas",
                   "umbral_revision", "conservar_original", "guardar_texto",
                   "max_trabajos"}
@@ -251,7 +268,7 @@ def archivo(documento_id: int) -> FileResponse:
 
 @router.post("/documentos/{documento_id}/reclasificar")
 async def reclasificar(documento_id: int, request: Request) -> Dict[str, Any]:
-    datos = await request.json()
+    datos = await _cuerpo(request)
     categoria = (datos.get("categoria") or "").strip().upper()
     validas = {c["codigo"] for c in classify.catalogo()}
     if categoria not in validas:

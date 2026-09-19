@@ -16,6 +16,8 @@ pip install -r requirements.txt     # dependencias de las tres
 python run.py                       # aplicación de video      → http://127.0.0.1:8000
 python run_documentos.py            # aplicación de documentos → http://127.0.0.1:8100
 python run_contactos.py             # aplicación de contactos  → http://127.0.0.1:8200
+
+python run_pruebas.py               # pruebas de carga de las tres (~8 min)
 ```
 
 Capturas y resultados de una ejecución real: [`docs/DEMOSTRACION.md`](docs/DEMOSTRACION.md).
@@ -404,6 +406,12 @@ proyectos-IA/
 ├── scripts/video_demo.py      Generador de video sintético de prueba
 ├── scripts/documentos_demo.py Generador de documentos de ejemplo
 ├── scripts/contactos_demo.py  Arma el directorio desde cero y mide el resultado
+├── pruebas/                   Pruebas de trafico, carga y tolerancia a errores
+│   ├── carga.py               Motor: llegadas de Poisson, 1 o N procesos, percentiles
+│   ├── escenarios.py          La mezcla de trafico y los 22 casos borde
+│   ├── monitor.py             CPU, memoria, hilos y conexiones de cada servidor
+│   ├── orquesta.py            Ciclo de vida de los servidores y los 7 escenarios
+│   └── reporte.py             Graficas de latencia, caudal, errores y recursos
 ├── sample_data/               Biométrico y RingCentral de ejemplo
 ├── docs/                      Arquitectura y guía de uso
 └── data/                      Base de datos, subidas, salidas y capturas
@@ -492,12 +500,48 @@ Análisis crítico de las plataformas existentes, rediseño y capturas de la apl
 
 ---
 
+# Pruebas de carga y tolerancia a errores
+
+```bash
+python run_pruebas.py           # sesión completa (~8 min)
+python run_pruebas.py --rapido  # versión corta (~90 s)
+```
+
+Un solo comando: arranca las tres aplicaciones, les aplica siete escenarios, vigila CPU y
+memoria de cada servidor, dibuja las gráficas y **limpia lo que ensucia**. Sin
+herramientas externas: `httpx` (ya viene con FastAPI) y `psutil`.
+
+El tamaño de la carga no se inventó. En el historial real de RingCentral (4 000 llamadas,
+24 días) la **hora más cargada tuvo 56 llamadas**; de ahí sale la carga nominal de **1,63
+peticiones/s**, que luego se multiplica hasta ×300 para encontrar dónde se rompe.
+
+Resultados de la última ejecución, sobre 4 núcleos:
+
+| Medida | Resultado |
+|---|---|
+| Techo sin un solo fallo | **400 peticiones/s** = **245×** la hora pico real |
+| Espera a ese caudal | p50 8 ms · p95 75 ms |
+| Ráfaga de 500 clientes de golpe | 0 errores (encola, no se rompe) |
+| Escrituras concurrentes a 60/s | p95 31 ms · 0 errores |
+| Fuga de memoria en 120 s de carga | **0 MB** en las tres aplicaciones |
+| Panel mientras se analiza un video | p95 11 ms · 0 errores |
+| Casos borde y maliciosos | **22 de 22** correctos · **0 errores 500** |
+| Datos reales perdidos | **0** |
+
+Las pruebas encontraron **cuatro fallos reales** —entre ellos que sólo se podía escribir
+una nota por ficha— y **un fallo en sí mismas**: el primer intento habría publicado un
+techo 2,4 veces menor que el real, porque el cuello estaba en el generador y no en el
+sistema. Todo está contado en [`docs/RETO7_PRUEBAS.md`](docs/RETO7_PRUEBAS.md).
+
+---
+
 ## Documentación
 
 | Documento | Contenido |
 |---|---|
 | [`docs/DEMOSTRACION.md`](docs/DEMOSTRACION.md) | **Demostración funcional**: capturas y resultados de una ejecución real |
 | [`docs/RETO6_CONTACTOS.md`](docs/RETO6_CONTACTOS.md) | Análisis crítico de plataformas de contactos, rediseño y la aplicación construida, con resultados medidos |
+| [`docs/RETO7_PRUEBAS.md`](docs/RETO7_PRUEBAS.md) | **Pruebas de carga**: escenario, resultados, los cuatro fallos que encontraron y los límites del sistema |
 | [`docs/ENTREGABLES.md`](docs/ENTREGABLES.md) | Dónde está cubierto cada entregable y cada criterio de evaluación |
 | [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md) | Decisiones técnicas del módulo de video, esquema de datos y puntos de extensión |
 | [`docs/GUIA_USO.md`](docs/GUIA_USO.md) | Guía paso a paso y problemas frecuentes |

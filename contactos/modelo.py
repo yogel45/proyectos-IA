@@ -228,7 +228,11 @@ def registrar_interaccion(persona_id: Optional[int], tipo: str, ts: str, titulo:
         """INSERT INTO interacciones (persona_id, caso_id, tipo, ts, titulo, detalle,
                                       origen, referencia, meta_json, creado)
            VALUES (?,?,?,?,?,?,?,?,?,?)""",
-        (persona_id, caso_id, tipo, ts, titulo, detalle, origen, referencia,
+        # referencia vacia -> NULL: el indice unico que evita duplicados de una
+        # fuente externa no debe impedir escribir dos notas a mano en la misma
+        # ficha. SQLite permite varios NULL en un indice unico, pero no varias
+        # cadenas vacias. Lo encontro la prueba de escrituras concurrentes.
+        (persona_id, caso_id, tipo, ts, titulo, detalle, origen, referencia or None,
          json.dumps(meta or {}, ensure_ascii=False), db.now_iso()))
     return True
 
