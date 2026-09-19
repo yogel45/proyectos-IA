@@ -25,7 +25,7 @@ Aplicación: **OfficeVision AI** (`python run.py`).
 | Descripción del enfoque de visión por computadora | [`docs/RETO4_VIDEO.md`](RETO4_VIDEO.md) §Enfoque · [`docs/RETO4_ARQUITECTURA.md`](RETO4_ARQUITECTURA.md) §2 |
 | Modelos, librerías, herramientas empleadas | [`docs/RETO4_VIDEO.md`](RETO4_VIDEO.md) §Modelos, librerías y herramientas · [`docs/RETO4_ARQUITECTURA.md`](RETO4_ARQUITECTURA.md) §3 |
 | Descripción del flujo de procesamiento de video | [`docs/RETO4_VIDEO.md`](RETO4_VIDEO.md) §Flujo · [`docs/RETO4_ARQUITECTURA.md`](RETO4_ARQUITECTURA.md) §2 |
-| Demostración funcional, capturas o resultados procesados | [`docs/DEMO_VIDEO.md`](DEMO_VIDEO.md) · CSV en [`docs/resultados/`](resultados/) · video anotado descargable desde la app |
+| Demostración funcional, video demostrativo, capturas o resultados procesados | **[`docs/video-demostrativo.mp4`](video-demostrativo.mp4)** (66 s de análisis real) · [`docs/DEMO_VIDEO.md`](DEMO_VIDEO.md) con 7 capturas · CSV en [`docs/resultados/`](resultados/) |
 | Puntos críticos definidos y métricas generadas | [`docs/RETO4_VIDEO.md`](RETO4_VIDEO.md) §5 · [`docs/DEMO_VIDEO.md`](DEMO_VIDEO.md) §5 |
 
 ### Criterios de evaluación

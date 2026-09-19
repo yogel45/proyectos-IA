@@ -11,6 +11,11 @@ python run.py                         # http://127.0.0.1:8000
 #   se subio una grabacion de pasillo con personas en movimiento
 ```
 
+**Video demostrativo completo**: [`video-demostrativo.mp4`](video-demostrativo.mp4)
+(66 s, 393 cuadros analizados). Es la salida que produce la propia aplicación: cada
+persona con su identificador y su permanencia, las zonas detectadas, el marcador de
+estado arriba y **los rostros difuminados**.
+
 ---
 
 ## 1. Detección, seguimiento y zonas sobre el video

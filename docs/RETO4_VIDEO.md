@@ -10,7 +10,23 @@ python run.py            # http://127.0.0.1:8000
 python run.py --check    # comprobar el entorno sin arrancar nada
 ```
 
+**Video demostrativo**: [`docs/video-demostrativo.mp4`](video-demostrativo.mp4) — 66
+segundos de análisis real, con las personas seguidas, su permanencia, las zonas
+detectadas y los rostros difuminados.
+
 Capturas y resultados de una ejecución real: [`DEMO_VIDEO.md`](DEMO_VIDEO.md).
+
+## Dónde está cada entregable
+
+| Entregable pedido | Dónde está |
+|---|---|
+| Código fuente de la solución | GitHub: [`app/`](../app) y [`run.py`](../run.py) |
+| Instrucciones de instalación, configuración y ejecución | §1 de este documento, y [`RETO4_GUIA_USO.md`](RETO4_GUIA_USO.md) paso a paso |
+| Descripción del enfoque de visión por computadora | §3 |
+| Modelos, librerías, herramientas o servicios empleados | §3.1 y §3.2 |
+| Descripción del flujo de procesamiento de video | §4 |
+| Demostración funcional, video demostrativo, capturas o resultados | [`video-demostrativo.mp4`](video-demostrativo.mp4) · [`DEMO_VIDEO.md`](DEMO_VIDEO.md) con 7 capturas · CSV en [`resultados/`](resultados/) |
+| Puntos críticos definidos y métricas generadas | §5 |
 
 ---
 
