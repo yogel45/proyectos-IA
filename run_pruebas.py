@@ -94,7 +94,10 @@ async def sesion(args) -> int:
     sello = datetime.now().strftime("%Y%m%d_%H%M%S")
     salida = orq.SALIDA / sello
     salida.mkdir(parents=True, exist_ok=True)
-    img = RAIZ / "docs" / "img"
+    # una sesion parcial dibuja en su propia carpeta, no sobre las del repositorio
+    completa = not (args.rapido or args.solo or args.sin_video)
+    img = (RAIZ / "docs" / "img") if completa else (salida / "img")
+    img.mkdir(parents=True, exist_ok=True)
     marcas: List[Dict[str, Any]] = []
     informe: Dict[str, Any] = {"sello": sello, "maquina": _maquina(),
                                "rps_nominal": round(esc.RPS_NOMINAL, 3),
@@ -271,7 +274,14 @@ async def sesion(args) -> int:
     print(f"    Graficas                 : {img / 'carga-*.png'}")
     print(f"    Duracion total           : {informe['duracion_total_s']:.0f} s")
 
-    # copia estable de los registros y las medidas para la documentacion
+    # Copia estable para la documentacion. Solo una sesion COMPLETA la
+    # actualiza: una corrida corta o parcial dejaria las graficas y los
+    # registros del repositorio contando otra cosa distinta de las tablas.
+    if args.rapido or args.solo or args.sin_video:
+        print("\n  (sesion parcial: no se tocan las graficas ni los registros de docs/)")
+        registro.cerrar()
+        return 0
+
     destino = RAIZ / "docs" / "resultados"
     destino.mkdir(parents=True, exist_ok=True)
     copias = [(salida / "recursos.csv", "carga-recursos.csv"),
