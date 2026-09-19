@@ -221,6 +221,20 @@ async function verDetalle(id) {
         <div class="legend">${Object.entries(d.puntajes || {}).map(([k, v]) =>
           `<span>${esc(k)}: ${v}</span>`).join('')}</div>
 
+        ${(d.sugerencias || []).length ? `
+        <div class="sep"></div>
+        <h3>No encaja en ninguna categoria <small>crea una con sus propias palabras</small></h3>
+        <p class="small muted">Marca los terminos que identifican a este tipo de documento:</p>
+        <div class="chips" id="sug-chips">${d.sugerencias.map((x, i) => `
+          <span class="chip ${i < 3 ? 'on' : ''}" data-t="${esc(x.termino)}"
+                onclick="this.classList.toggle('on')">${esc(x.termino)}
+            <span class="muted">·${x.veces}</span></span>`).join('')}</div>
+        <div class="row tight" style="margin-top:10px">
+          <div><label>Codigo</label><input id="nc-codigo" placeholder="PERMISO"></div>
+          <div style="flex:1"><label>Nombre visible</label><input id="nc-nombre" placeholder="Permiso / licencia"></div>
+          <div style="align-self:end"><button onclick="crearCategoria(${d.id})">Crear y reprocesar</button></div>
+        </div>` : ''}
+
         <div class="sep"></div>
         <div class="row tight">
           <div style="flex:1;min-width:190px"><label>Categoria</label>
@@ -248,6 +262,23 @@ async function reclasificar(id) {
     cargarTodo(); verDetalle(id);
   } catch (e) { toast('Error: ' + e.message, 'critical'); }
 }
+async function crearCategoria(id) {
+  const terminos = $$('#sug-chips .chip.on').map(el => el.dataset.t);
+  const codigo = ($('#nc-codigo').value || '').trim();
+  if (!codigo) return toast('Ponle un codigo corto, por ejemplo PERMISO', 'warning');
+  if (!terminos.length) return toast('Marca al menos un termino', 'warning');
+  try {
+    const r = await API.send('/api/categorias', {
+      codigo, nombre: $('#nc-nombre').value, terminos,
+      descripcion: 'Categoria creada desde un documento sin clasificar',
+    });
+    toast(`Categoria ${esc(r.codigo)} creada · reprocesando…`, 'ok');
+    const rp = await API.send('/api/reprocesar', {solo_revision: true});
+    toast(`${rp.cambiados} de ${rp.revisados} documentos cambiaron de categoria`, 'ok', 5000);
+    cargarTodo(); verDetalle(id);
+  } catch (e) { toast('Error: ' + e.message, 'critical', 6000); }
+}
+
 async function aprobar(id) {
   await API.send(`/api/documentos/${id}/aprobar`);
   toast('Documento confirmado', 'ok');

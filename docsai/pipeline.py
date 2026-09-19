@@ -137,24 +137,10 @@ def reclasificar(documento_id: int, categoria: str,
     if not doc:
         raise ValueError("Documento no encontrado")
 
-    entidades = Entidades(**{
-        k: v for k, v in json.loads(doc["entidades_json"] or "{}").items()
-        if k in Entidades.__dataclass_fields__})
+    entidades = _entidades_desde(doc)
     nombre = naming.construir(entidades, categoria, doc["titulo"] or "",
                               doc["nombre_original"], (doc["hash_sha256"] or "")[:8])
-
-    destino_final = doc["ruta_archivada"]
-    if doc["ruta_archivada"]:
-        origen = Path(doc["ruta_archivada"])
-        destino_dir = ORGANIZADOS_DIR / nombre.carpeta if nombre.carpeta else ORGANIZADOS_DIR
-        destino_dir.mkdir(parents=True, exist_ok=True)
-        destino = naming.version_disponible(destino_dir, nombre)
-        try:
-            if origen.exists():
-                shutil.move(str(origen), destino)
-            destino_final = str(destino)
-        except OSError as exc:
-            log.warning("No se pudo mover %s: %s", origen, exc)
+    destino_final = _mover_archivado(doc, nombre)
 
     db.execute(
         """UPDATE documentos SET categoria=?, categoria_nombre=?, nombre_propuesto=?,
@@ -182,6 +168,73 @@ def aprobar(documento_id: int, aprender: bool = True) -> Dict[str, Any]:
     if aprender and doc["texto"] and doc["categoria"] != "SIN-CLASIFICAR":
         classify.registrar_correccion(doc["texto"], doc["categoria"], documento_id)
     return dict(db.query_one("SELECT * FROM documentos WHERE id=?", (documento_id,)))
+
+
+def reprocesar(solo_revision: bool = True) -> Dict[str, Any]:
+    """Vuelve a clasificar documentos ya guardados con las reglas actuales.
+
+    Sirve despues de crear una categoria nueva o de afinar sus terminos: no hace
+    falta volver a subir nada, se reaprovecha el texto ya extraido.
+    """
+    condicion = "WHERE estado IN ('revision','procesado')" if solo_revision else \
+                "WHERE estado <> 'duplicado'"
+    filas = db.query(f"SELECT id FROM documentos {condicion} ORDER BY id")
+    cambiados, revisados = 0, 0
+    for fila in filas:
+        doc = db.query_one("SELECT * FROM documentos WHERE id=?", (fila["id"],))
+        if not doc or not doc["texto"]:
+            continue
+        revisados += 1
+        anterior = doc["categoria"]
+        resultado = classify.clasificar(doc["texto"], doc["titulo"] or "",
+                                        doc["nombre_original"])
+        umbral = float(CONFIG.get("umbral_revision") or classify.UMBRAL_REVISION)
+        entidades = _entidades_desde(doc)
+        nombre = naming.construir(entidades, resultado.categoria, doc["titulo"] or "",
+                                  doc["nombre_original"], (doc["hash_sha256"] or "")[:8])
+        destino_final = _mover_archivado(doc, nombre)
+        db.execute(
+            """UPDATE documentos SET categoria=?, categoria_nombre=?, confianza=?,
+                   metodo=?, motivo=?, evidencia_json=?, puntajes_json=?,
+                   nombre_propuesto=?, nombre_final=?, carpeta=?, ruta_archivada=?,
+                   estado=?, actualizado=? WHERE id=?""",
+            (resultado.categoria, resultado.nombre, resultado.confianza,
+             resultado.metodo, resultado.motivo,
+             json.dumps(resultado.evidencia[:12], ensure_ascii=False),
+             json.dumps({k: round(v, 2) for k, v in resultado.puntajes.items()}),
+             nombre.nombre,
+             Path(destino_final).name if destino_final else nombre.nombre,
+             nombre.carpeta, destino_final,
+             "revision" if resultado.confianza < umbral else "procesado",
+             db.now_iso(), doc["id"]))
+        if resultado.categoria != anterior:
+            cambiados += 1
+    return {"revisados": revisados, "cambiados": cambiados, "total": len(filas)}
+
+
+def _entidades_desde(doc: Dict[str, Any]) -> Entidades:
+    datos = json.loads(doc["entidades_json"] or "{}")
+    return Entidades(**{k: v for k, v in datos.items()
+                        if k in Entidades.__dataclass_fields__})
+
+
+def _mover_archivado(doc: Dict[str, Any], nombre: naming.Nombre) -> Optional[str]:
+    """Mueve el archivo a la carpeta que le toca con su nombre nuevo."""
+    if not doc["ruta_archivada"]:
+        return doc["ruta_archivada"]
+    origen = Path(doc["ruta_archivada"])
+    destino_dir = ORGANIZADOS_DIR / nombre.carpeta if nombre.carpeta else ORGANIZADOS_DIR
+    destino_dir.mkdir(parents=True, exist_ok=True)
+    destino = naming.version_disponible(destino_dir, nombre)
+    if origen.resolve() == destino.resolve():
+        return str(origen)
+    try:
+        if origen.exists():
+            shutil.move(str(origen), destino)
+        return str(destino)
+    except OSError as exc:
+        log.warning("No se pudo mover %s: %s", origen, exc)
+        return str(origen)
 
 
 def renombrar_todos() -> Dict[str, int]:

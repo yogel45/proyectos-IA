@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import uuid
 from pathlib import Path
@@ -40,6 +41,60 @@ def _fila(doc: Dict[str, Any], con_texto: bool = False) -> Dict[str, Any]:
 @router.get("/categorias")
 def categorias() -> List[Dict[str, Any]]:
     return classify.catalogo()
+
+
+@router.post("/categorias")
+async def crear_categoria(request: Request) -> Dict[str, Any]:
+    """Crea (o actualiza) una categoria propia con sus palabras clave."""
+    datos = await request.json()
+    codigo = re.sub(r"[^A-Z0-9-]", "-", (datos.get("codigo") or "").upper()).strip("-")
+    nombre = (datos.get("nombre") or "").strip() or codigo.title()
+    if not codigo:
+        raise HTTPException(400, "La categoria necesita un codigo")
+    if codigo in {c for c, _, _, _ in classify.CATEGORIAS}:
+        raise HTTPException(400, f"'{codigo}' ya existe en el catalogo de fabrica")
+
+    crudos = datos.get("terminos") or []
+    if isinstance(crudos, str):
+        crudos = [t.strip() for t in re.split(r"[,;\n]", crudos)]
+    if isinstance(crudos, dict):
+        terminos = {str(k).lower().strip(): float(v) for k, v in crudos.items() if k}
+    else:
+        terminos = {str(t).lower().strip(): classify.PESO_FUERTE
+                    for t in crudos if str(t).strip()}
+    if not terminos:
+        raise HTTPException(400, "Indica al menos una palabra o frase que la identifique")
+
+    db.execute(
+        """INSERT INTO doc_categorias (codigo, nombre, descripcion, terminos_json, creado)
+           VALUES (?,?,?,?,?)
+           ON CONFLICT(codigo) DO UPDATE SET nombre=excluded.nombre,
+               descripcion=excluded.descripcion, terminos_json=excluded.terminos_json""",
+        (codigo, nombre, (datos.get("descripcion") or "").strip(),
+         json.dumps(terminos, ensure_ascii=False), db.now_iso()))
+    return {"ok": True, "codigo": codigo, "nombre": nombre,
+            "terminos": terminos, "total_categorias": len(classify.catalogo())}
+
+
+@router.delete("/categorias/{codigo}")
+def borrar_categoria(codigo: str) -> Dict[str, Any]:
+    fila = db.query_one("SELECT id FROM doc_categorias WHERE codigo=?", (codigo.upper(),))
+    if not fila:
+        raise HTTPException(404, "Esa categoria no es propia o no existe")
+    db.execute("DELETE FROM doc_categorias WHERE codigo=?", (codigo.upper(),))
+    return {"ok": True}
+
+
+@router.post("/reprocesar")
+async def reprocesar(request: Request) -> Dict[str, Any]:
+    """Vuelve a clasificar lo ya guardado con las reglas y categorias actuales."""
+    datos = {}
+    try:
+        datos = await request.json()
+    except Exception:
+        pass
+    return await run_in_threadpool(pipeline.reprocesar,
+                                   bool(datos.get("solo_revision", True)))
 
 
 @router.get("/convencion")
@@ -174,7 +229,15 @@ def detalle(documento_id: int) -> Dict[str, Any]:
     doc = db.query_one("SELECT * FROM documentos WHERE id=?", (documento_id,))
     if not doc:
         raise HTTPException(404, "Documento no encontrado")
-    return _fila(doc, con_texto=True)
+    texto = doc.get("texto") or ""
+    salida = _fila(doc, con_texto=True)
+    # Para lo que quedo en revision, se ofrecen los terminos que caracterizan al
+    # documento: son la materia prima para crear una categoria nueva.
+    if texto and (doc["estado"] == "revision" or doc["categoria"] == "SIN-CLASIFICAR"):
+        salida["sugerencias"] = classify.terminos_caracteristicos(texto)
+    else:
+        salida["sugerencias"] = []
+    return salida
 
 
 @router.get("/documentos/{documento_id}/archivo")

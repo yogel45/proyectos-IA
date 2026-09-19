@@ -50,9 +50,30 @@
 </div>
 
 <section class="card" style="margin-top:14px">
+  <h3>Anadir una categoria <small>para los tipos que el catalogo no cubre</small></h3>
+  <div class="row tight">
+    <div style="max-width:150px"><label>Codigo</label><input id="n-codigo" placeholder="PERMISO"></div>
+    <div style="flex:1;min-width:180px"><label>Nombre visible</label><input id="n-nombre" placeholder="Permiso / licencia municipal"></div>
+    <div style="flex:1;min-width:200px"><label>Descripcion</label><input id="n-desc" placeholder="Que agrupa"></div>
+  </div>
+  <div class="row tight" style="margin-top:10px">
+    <div style="flex:1"><label>Palabras o frases que la identifican (separadas por comas)</label>
+      <input id="n-terminos" placeholder="certificate of occupancy, permit number, zoning"></div>
+    <div style="align-self:end"><button id="btn-cat">Crear</button></div>
+    <div style="align-self:end"><button class="ghost" id="btn-reproc">Reprocesar los que estan en revision</button></div>
+  </div>
+  <p class="small muted" style="margin-top:10px">
+    Al crear una categoria no hace falta volver a subir nada: <em>Reprocesar</em> vuelve
+    a clasificar lo ya guardado con el texto que ya se extrajo, y renombra y mueve lo
+    que cambie de categoria.
+  </p>
+</section>
+
+<section class="card" style="margin-top:14px">
   <h3>Categorias <small id="cat-count"></small></h3>
   <div class="scroll" style="max-height:420px"><table>
-    <thead><tr><th>Codigo</th><th>Categoria</th><th>Que agrupa</th><th class="right">Terminos</th><th class="right">Documentos</th></tr></thead>
+    <thead><tr><th>Codigo</th><th>Categoria</th><th>Que agrupa</th><th class="right">Terminos</th>
+      <th class="right">Documentos</th><th></th></tr></thead>
     <tbody id="t-cats"><tr><td colspan="5" class="muted">Cargando…</td></tr></tbody>
   </table></div>
   <p class="small muted" style="margin-top:10px">
@@ -91,10 +112,14 @@ async function cargar() {
   const porCat = Object.fromEntries((metricas.por_categoria || []).map(x => [x.categoria, x.n]));
   $('#cat-count').textContent = `${cats.length} categorias`;
   $('#t-cats').innerHTML = cats.map(c2 => `<tr>
-    <td class="mono small">${esc(c2.codigo)}</td><td>${esc(c2.nombre)}</td>
+    <td class="mono small">${esc(c2.codigo)}</td>
+    <td>${esc(c2.nombre)} ${c2.propia ? '<span class="tag info">propia</span>' : ''}</td>
     <td class="small muted">${esc(c2.descripcion)}</td>
     <td class="right">${c2.terminos}</td>
-    <td class="right">${porCat[c2.codigo] || 0}</td></tr>`).join('');
+    <td class="right">${porCat[c2.codigo] || 0}</td>
+    <td class="right">${c2.propia
+      ? `<button class="danger" onclick="borrarCategoria('${esc(c2.codigo)}')">✕</button>` : ''}</td>
+    </tr>`).join('');
 
   $('#p-doc').innerHTML = docs.map(d =>
     `<option value="${d.id}">${esc(d.nombre_original)}</option>`).join('')
@@ -117,6 +142,30 @@ async function vistaPrevia() {
       <tr><td class="muted small">expediente</td><td class="small">${esc(e.expediente || 'sin-expediente')}</td></tr>
       <tr><td class="muted small">descriptor</td><td class="small">${esc((e.partes || []).join(' v ') || e.titulo || '')}</td></tr>
     </table>`;
+}
+
+$('#btn-cat').onclick = async () => {
+  try {
+    const r = await API.send('/api/categorias', {
+      codigo: $('#n-codigo').value, nombre: $('#n-nombre').value,
+      descripcion: $('#n-desc').value, terminos: $('#n-terminos').value,
+    });
+    toast(`Categoria ${esc(r.codigo)} creada (${Object.keys(r.terminos).length} terminos)`, 'ok');
+    $('#n-codigo').value = $('#n-nombre').value = $('#n-desc').value = $('#n-terminos').value = '';
+    cargar();
+  } catch (e) { toast('Error: ' + e.message, 'critical', 6000); }
+};
+$('#btn-reproc').onclick = async () => {
+  toast('Reprocesando…');
+  const r = await API.send('/api/reprocesar', {solo_revision: true});
+  toast(`${r.cambiados} de ${r.revisados} documentos cambiaron de categoria`, 'ok', 5000);
+  cargar();
+};
+async function borrarCategoria(codigo) {
+  if (!confirm(`¿Eliminar la categoria ${codigo}? Los documentos ya clasificados no se tocan.`)) return;
+  await API.del('/api/categorias/' + codigo);
+  toast('Categoria eliminada', 'warning');
+  cargar();
 }
 
 $('#p-doc').onchange = vistaPrevia;

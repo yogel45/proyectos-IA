@@ -153,7 +153,16 @@ documento en el expediente**, no por su formato.
 | `DECLARACION` | Declaración jurada | Affidavits, deposiciones, transcripciones |
 | `IDENTIFICACION` | Identificación | Licencias y credenciales |
 | `CORRESPONDENCIA` | Correspondencia | Cartas y correos |
+| `CONTESTACION` | Contestación / Answer | Respuesta del demandado, con sus defensas |
+| `DESCUBRIMIENTO` | Descubrimiento de prueba | Interrogatorios, requerimientos y admisiones |
+| `CARATULA` | Carátula del caso | Hoja de datos que abre el expediente (JS 44) |
+| `ACUSE` | Acuse de notificación | Constancia de que una parte fue notificada |
+| `ESCRITO` | Escrito / alegato | Memoriales y alegatos de derecho |
+| `TRANSCRIPCION` | Transcripción | Audiencias, deposiciones, llamadas |
+| `PRUEBA` | Prueba / anexo | Anexos que acompañan a otro escrito |
 | `SIN-CLASIFICAR` | Sin clasificar | No alcanzó la confianza mínima → revisión |
+
+Son **21 categorías de fábrica**, y se pueden añadir más sin tocar código (abajo).
 
 ### Los dos clasificadores
 
@@ -183,6 +192,33 @@ votar:
 Es un multinomial con suavizado de Laplace sobre los 400 términos más frecuentes
 del documento, implementado en el propio proyecto (sin dependencias de ML), y se
 reentrena solo al registrar cada corrección.
+
+### Qué pasa cuando un documento no encaja en ninguna
+
+Es el caso normal cuando llega un tipo de documento que el catálogo no previó. El
+sistema **no lo archiva mal ni lo descarta**: lo deja en `SIN-CLASIFICAR`, lo marca
+para revisión y, en el panel de detalle, ofrece los **términos característicos del
+documento** — las palabras y frases de dos palabras que más se repiten y que lo
+distinguen— para que la persona defina la categoría con ellas.
+
+![Documento sin clasificar con términos propuestos](img/docs-sin-clasificar.png)
+
+Desde ese mismo panel: se marcan los términos, se escribe un código y un nombre, y
+con un clic la categoría queda creada y **se reprocesa todo lo que estaba en
+revisión** reutilizando el texto ya extraído (no hay que volver a subir nada). Lo
+que cambie de categoría se renombra y se mueve a su carpeta.
+
+Ejemplo real de la prueba: un certificado de ocupación municipal, que ninguna de las
+21 categorías cubre.
+
+| Momento | Categoría | Confianza | Nombre |
+|---|---|---|---|
+| Al subirlo | `SIN-CLASIFICAR` (en revisión) | 0 % | `2024-06-12_SIN-CLASIFICAR_sin-expediente_Owner-Andelytica-Services.pdf` |
+| Tras crear `PERMISO` con los términos propuestos y reprocesar | `PERMISO` | **99 %** | `2024-06-12_PERMISO_sin-expediente_Owner-Andelytica-Services.pdf` en `PERMISO/2024/` |
+
+Las categorías propias se administran también desde *Reglas y nombres*, donde se
+pueden crear con sus palabras clave, ver cuántos documentos tiene cada una y
+borrarlas. Borrar una categoría propia no toca los documentos ya clasificados.
 
 ### Resultados medidos
 
@@ -314,6 +350,9 @@ scripts/documentos_demo.py Generador de documentos de ejemplo
 | `GET /api/documentos/{id}` | Detalle: datos extraídos, evidencia y texto |
 | `POST /api/documentos/{id}/reclasificar` | Corregir categoría (renombra, mueve y entrena) |
 | `POST /api/documentos/{id}/aprobar` | Confirmar la propuesta |
+| `POST /api/categorias` | Crear una categoría propia con sus términos |
+| `DELETE /api/categorias/{codigo}` | Eliminar una categoría propia |
+| `POST /api/reprocesar` | Reclasificar lo ya guardado con las reglas actuales |
 | `GET /api/documentos/{id}/archivo` | Descargar el archivo ya renombrado |
 | `GET/POST /api/convencion` | Leer o cambiar la convención de nombres |
 | `POST /api/renombrar-todos` | Re-aplicar la convención al histórico |
@@ -331,8 +370,9 @@ scripts/documentos_demo.py Generador de documentos de ejemplo
   conectar un escáner, una carpeta de red o una bandeja de correo sin tocar código.
 * **API REST completa**: cualquier sistema del despacho puede empujar documentos
   y leer resultados; el CSV alimenta dashboards externos.
-* **Nuevas categorías**: se añaden en `CATEGORIAS` (`docsai/classify.py`) con sus
-  términos y pesos; el resto del flujo no cambia.
+* **Nuevas categorías**: se crean **desde la interfaz**, con sus palabras clave, y
+  entran a competir con las de fábrica sin tocar código ni reiniciar. Para el
+  catálogo base se editan en `CATEGORIAS` (`docsai/classify.py`).
 * **Nuevos formatos**: se añade una función en `docsai/extract.py` que devuelva la misma
   estructura; clasificación, nombrado y archivado se reutilizan.
 * **Otro almacenamiento**: el archivado está aislado en `docsai/pipeline.py`;
@@ -365,7 +405,8 @@ scripts/documentos_demo.py Generador de documentos de ejemplo
 * Sin Tesseract instalado, los PDFs escaneados se clasifican con poco texto y
   caen en revisión (el sistema lo dice explícitamente).
 * Las reglas están afinadas para documentos legales en inglés y español; otro
-  dominio necesita su propio catálogo de términos.
+  dominio necesita su propio catálogo de términos, que ya puede crearse desde la
+  interfaz sin programar.
 * La detección de duplicados es exacta: dos escaneos distintos del mismo
   documento no se reconocen como el mismo.
 * El expediente se detecta bien en formato federal; otros formatos de numeración

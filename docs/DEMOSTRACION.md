@@ -178,7 +178,22 @@ a 24,2).
 Desde ese mismo panel se confirma o se corrige la categoría; cada corrección
 renombra y mueve el archivo, y **entrena el modelo** para los siguientes.
 
-## 2.3 Reglas y convención de nombres
+## 2.3 Un documento que no encaja en ninguna categoría
+
+![Documento sin clasificar con términos propuestos](img/docs-sin-clasificar.png)
+
+Un certificado de ocupación municipal: ninguna de las 21 categorías lo cubre. El
+sistema no lo archiva mal — lo deja en revisión y propone los términos que lo
+caracterizan (`certificate occupancy`, `zoning`, `building`…). Marcando esos
+términos y poniéndole un código, la categoría queda creada y todo lo que estaba en
+revisión se reprocesa:
+
+| Momento | Categoría | Confianza |
+|---|---|---|
+| Al subirlo | `SIN-CLASIFICAR`, en revisión | 0 % |
+| Tras crear `PERMISO` y reprocesar | `PERMISO` | **99 %**, renombrado y movido a `PERMISO/2024/` |
+
+## 2.4 Reglas y convención de nombres
 
 ![Configuración de la convención de nombres](img/docs-configuracion.png)
 

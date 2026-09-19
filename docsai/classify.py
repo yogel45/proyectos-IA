@@ -145,10 +145,75 @@ CATEGORIAS: List[Tuple[str, str, str, Dict[str, float]]] = [
       "atentamente": PESO_MEDIO, "re:": PESO_LEVE, "asunto:": PESO_LEVE,
       "enclosed please find": PESO_MEDIO, "adjunto encontrara": PESO_MEDIO,
       "from:": PESO_LEVE, "subject:": PESO_LEVE}),
+    ("CONTESTACION", "Contestacion / Answer",
+     "Respuesta de la parte demandada a la demanda, con sus defensas.",
+     {"answer to complaint": PESO_FUERTE, "answer and defenses": PESO_FUERTE,
+      "contestacion de demanda": PESO_FUERTE, "affirmative defenses": PESO_FUERTE,
+      "defendant admits": PESO_MEDIO, "defendant denies": PESO_MEDIO,
+      "denies each and every": PESO_MEDIO, "contesta la demanda": PESO_MEDIO}),
+
+    ("DESCUBRIMIENTO", "Descubrimiento de prueba",
+     "Interrogatorios, requerimientos de documentos y admisiones.",
+     {"interrogatories": PESO_FUERTE, "request for production": PESO_FUERTE,
+      "requests for admission": PESO_FUERTE, "first set of interrogatories": PESO_FUERTE,
+      "discovery responses": PESO_FUERTE, "interrogatorios": PESO_FUERTE,
+      "exhibicion de documentos": PESO_MEDIO, "responda bajo juramento": PESO_MEDIO,
+      "propounds": PESO_MEDIO}),
+
+    ("CARATULA", "Caratula del caso",
+     "Hoja de datos que abre el expediente (civil cover sheet, JS 44).",
+     {"civil cover sheet": PESO_FUERTE, "js 44": PESO_FUERTE,
+      "caratula": PESO_FUERTE, "nature of suit": PESO_MEDIO,
+      "basis of jurisdiction": PESO_MEDIO, "cause of action (cite the u.s.": PESO_MEDIO}),
+
+    ("ACUSE", "Acuse de notificacion",
+     "Constancia de que una parte fue notificada (return of service).",
+     {"return of service": PESO_FUERTE, "affidavit of service": PESO_FUERTE,
+      "acuse de recibo": PESO_FUERTE, "constancia de notificacion": PESO_FUERTE,
+      "i served the summons": PESO_MEDIO, "date of service": PESO_LEVE,
+      "server's signature": PESO_MEDIO}),
+
+    ("ESCRITO", "Escrito / alegato",
+     "Memoriales y alegatos de derecho presentados al tribunal.",
+     {"memorandum of law": PESO_FUERTE, "brief in support": PESO_FUERTE,
+      "reply brief": PESO_FUERTE, "alegato": PESO_FUERTE,
+      "statement of facts": PESO_MEDIO, "argument": PESO_LEVE,
+      "for the foregoing reasons": PESO_MEDIO}),
+
+    ("TRANSCRIPCION", "Transcripcion",
+     "Transcripciones de audiencias, deposiciones o llamadas.",
+     {"transcript of proceedings": PESO_FUERTE, "court reporter": PESO_FUERTE,
+      "transcripcion": PESO_FUERTE, "videotaped deposition": PESO_MEDIO,
+      "page/line": PESO_MEDIO, "q.": PESO_LEVE, "a.": PESO_LEVE}),
+
+    ("PRUEBA", "Prueba / anexo",
+     "Anexos y elementos de prueba que acompanan a otro escrito.",
+     {"exhibit a": PESO_FUERTE, "exhibit b": PESO_FUERTE,
+      "attached hereto as exhibit": PESO_FUERTE, "anexo": PESO_MEDIO,
+      "exhibit": PESO_MEDIO, "evidencia documental": PESO_MEDIO}),
 ]
 
 SIN_CLASIFICAR = ("SIN-CLASIFICAR", "Sin clasificar",
                   "No se alcanzo la confianza minima: requiere revision humana.")
+
+
+def terminos_caracteristicos(texto: str, cuantos: int = 12) -> List[Dict[str, Any]]:
+    """Palabras y frases que distinguen a este documento.
+
+    Se usa cuando ninguna regla dispara: en vez de dejar al usuario adivinando,
+    la interfaz le muestra de que habla el documento para que pueda crear la
+    categoria con esas mismas palabras.
+    """
+    plano = _normalizar(texto)
+    palabras = [p for p in PALABRA.findall(plano) if p not in VACIAS and len(p) > 3]
+    frecuencias = Counter(palabras)
+    # frases de dos palabras: suelen ser el nombre real del tipo de documento
+    bigramas = Counter(f"{a} {b}" for a, b in zip(palabras, palabras[1:]))
+    salida = [{"termino": t, "veces": n, "tipo": "frase"}
+              for t, n in bigramas.most_common(cuantos // 2) if n > 1]
+    salida += [{"termino": t, "veces": n, "tipo": "palabra"}
+               for t, n in frecuencias.most_common(cuantos) if n > 1]
+    return salida[:cuantos]
 
 
 @dataclass
@@ -163,6 +228,7 @@ class Resultado:
     metodo: str = "reglas"
     nb_categoria: str = ""
     nb_probabilidad: float = 0.0
+    sugerencias: List[Dict[str, Any]] = field(default_factory=list)
 
     def como_dict(self) -> Dict[str, Any]:
         return {
@@ -174,19 +240,46 @@ class Resultado:
                     self.puntajes.items(), key=lambda kv: -kv[1])[:6]},
             "metodo": self.metodo, "nb_categoria": self.nb_categoria,
             "nb_probabilidad": round(self.nb_probabilidad, 3),
+            "sugerencias": self.sugerencias,
         }
 
 
+def categorias_propias() -> List[Tuple[str, str, str, Dict[str, float]]]:
+    """Categorias creadas por el usuario, guardadas en la base de datos.
+
+    Son el remedio cuando aparece un tipo de documento que el catalogo de
+    fabrica no cubre: se define con sus palabras clave y entra a competir con
+    las demas sin tocar el codigo.
+    """
+    salida = []
+    for fila in db.query("SELECT * FROM doc_categorias ORDER BY codigo"):
+        try:
+            terminos = json.loads(fila["terminos_json"] or "{}")
+        except json.JSONDecodeError:
+            terminos = {}
+        salida.append((fila["codigo"], fila["nombre"], fila["descripcion"] or "",
+                       {str(k).lower(): float(v) for k, v in terminos.items()}))
+    return salida
+
+
+def todas_las_categorias() -> List[Tuple[str, str, str, Dict[str, float]]]:
+    propias = categorias_propias()
+    codigos = {c for c, _, _, _ in propias}
+    return [c for c in CATEGORIAS if c[0] not in codigos] + propias
+
+
 def catalogo() -> List[Dict[str, Any]]:
-    base = [{"codigo": c, "nombre": n, "descripcion": d, "terminos": len(t)}
-            for c, n, d, t in CATEGORIAS]
+    propias = {c for c, _, _, _ in categorias_propias()}
+    base = [{"codigo": c, "nombre": n, "descripcion": d, "terminos": len(t),
+             "propia": c in propias}
+            for c, n, d, t in todas_las_categorias()]
     base.append({"codigo": SIN_CLASIFICAR[0], "nombre": SIN_CLASIFICAR[1],
-                 "descripcion": SIN_CLASIFICAR[2], "terminos": 0})
+                 "descripcion": SIN_CLASIFICAR[2], "terminos": 0, "propia": False})
     return base
 
 
 def nombre_categoria(codigo: str) -> str:
-    for c, n, _, _ in CATEGORIAS:
+    for c, n, _, _ in todas_las_categorias():
         if c == codigo:
             return n
     return SIN_CLASIFICAR[1] if codigo == SIN_CLASIFICAR[0] else codigo
@@ -208,7 +301,7 @@ def clasificar_por_reglas(texto: str, titulo: str = "",
     puntajes: Dict[str, float] = {}
     evidencias: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
 
-    for codigo, _, _, terminos in CATEGORIAS:
+    for codigo, _, _, terminos in todas_las_categorias():
         total = 0.0
         for termino, peso in terminos.items():
             repeticiones = plano.count(termino)
@@ -227,8 +320,10 @@ def clasificar_por_reglas(texto: str, titulo: str = "",
             puntajes[codigo] = total
 
     if not puntajes:
-        return Resultado(motivo="Ningun termino conocido aparece en el documento.",
-                         puntajes={})
+        return Resultado(
+            motivo="Ningun termino conocido aparece en el documento. Revisa los "
+                   "terminos propuestos y crea una categoria si es un tipo nuevo.",
+            puntajes={}, sugerencias=terminos_caracteristicos(texto))
 
     orden = sorted(puntajes.items(), key=lambda kv: -kv[1])
     mejor, punta = orden[0]
@@ -239,13 +334,16 @@ def clasificar_por_reglas(texto: str, titulo: str = "",
     confianza = max(0.0, min(0.99, 0.45 * solidez + 0.55 * margen))
 
     evidencia = sorted(evidencias[mejor], key=lambda e: -e["aporte"])
+    sugerencias = (terminos_caracteristicos(texto)
+                   if confianza < UMBRAL_REVISION else [])
     motivo = "Terminos decisivos: " + ", ".join(
         f"'{e['termino']}' ({e['donde']})" for e in evidencia[:3])
     if len(orden) > 1:
         motivo += f". Segunda opcion: {orden[1][0]} ({orden[1][1]:.1f} vs {punta:.1f})."
     return Resultado(categoria=mejor, nombre=nombre_categoria(mejor),
                      confianza=confianza, requiere_revision=confianza < UMBRAL_REVISION,
-                     motivo=motivo, evidencia=evidencia, puntajes=puntajes)
+                     motivo=motivo, evidencia=evidencia, puntajes=puntajes,
+                     sugerencias=sugerencias)
 
 
 # --------------------------------------------------------------------------

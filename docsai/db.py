@@ -53,6 +53,15 @@ CREATE INDEX IF NOT EXISTS idx_doc_categoria ON documentos(categoria);
 CREATE INDEX IF NOT EXISTS idx_doc_expediente ON documentos(expediente);
 CREATE INDEX IF NOT EXISTS idx_doc_hash ON documentos(hash_sha256);
 
+CREATE TABLE IF NOT EXISTS doc_categorias (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    codigo        TEXT NOT NULL UNIQUE,
+    nombre        TEXT NOT NULL,
+    descripcion   TEXT,
+    terminos_json TEXT NOT NULL DEFAULT '{}',
+    creado        TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS doc_entrenamiento (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
     documento_id  INTEGER,
