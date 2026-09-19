@@ -95,7 +95,9 @@ function axes(ctx, box, max, labels, opts = {}) {
     ctx.fillText(((max * i) / steps).toFixed(max <= 5 ? 1 : 0), x0 - 6, y);
   }
   const n = labels.length;
-  const every = Math.max(1, Math.ceil(n / (opts.maxLabels || 8)));
+  // cuantas etiquetas caben sin encimarse, segun el ancho real del eje
+  const caben = Math.max(3, Math.floor((x1 - x0) / 78));
+  const every = Math.max(1, Math.ceil(n / Math.min(opts.maxLabels || 8, caben)));
   ctx.textAlign = 'center'; ctx.textBaseline = 'top';
   labels.forEach((lab, i) => {
     if (i % every && i !== n - 1) return;

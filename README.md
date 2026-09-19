@@ -1,4 +1,13 @@
-# OfficeVision AI — Análisis de video con IA para entornos de oficina
+# OfficeVision AI — Visión por computadora y documentos para la oficina
+
+Plataforma con dos módulos que comparten aplicación, base de datos e interfaz:
+
+* **Video** — análisis de la cámara y de grabaciones: personas, objetos, zonas críticas y alertas.
+* **Documentos** — clasificación, nombramiento y archivado automático de documentos.
+
+---
+
+## Módulo de video
 
 Aplicación web lista para ejecutar que analiza **la cámara de tu PC** y **videos que subas**,
 **reconoce personas y objetos** (cada uno con su propio identificador de seguimiento),
@@ -61,6 +70,7 @@ en `models/`.
 | **Puntos críticos** | **Detección automática de zonas** (por escena o por actividad) + editor manual sobre un fondo tomado de la cámara o de una imagen; aforo, permanencia, tipo de zona, clases a reconocer y reglas globales |
 | **Operación** | Cruce de la cámara con el biométrico y las llamadas: demanda vs. personal por hora, hallazgos automáticos, asistencia del día y retrasos |
 | **Reportes** | Todos los eventos filtrables (rango, severidad, tipo, sesión, texto), personas seguidas, evidencia visual y exportación CSV |
+| **Documentos** | Clasificación, nombramiento y archivado automático de documentos (PDF, DOCX, imágenes, correos) con revisión humana y aprendizaje por corrección |
 
 ---
 
@@ -347,6 +357,13 @@ proyectos-IA/
 │   ├── pipeline.py            Analyzer: cuadro → eventos → base de datos
 │   ├── workers.py             Cámara en vivo, cámara IP y trabajos de video
 │   ├── business.py            Biométrico + RingCentral y análisis cruzado
+│   ├── documents/             Modulo de documentos (Reto 5)
+│   │   ├── extract.py         Texto de PDF, DOCX, imagenes, correos (+OCR)
+│   │   ├── entities.py        Expediente, fechas, partes, montos, emisor
+│   │   ├── classify.py        Reglas ponderadas + Naive Bayes entrenable
+│   │   ├── naming.py          Convencion de nombres y carpetas
+│   │   ├── pipeline.py        Flujo completo y cola de trabajo
+│   │   └── api.py             Endpoints /api/docs/*
 │   ├── db.py                  Esquema y acceso a SQLite
 │   ├── config.py              Configuración persistente
 │   ├── vision/
@@ -363,5 +380,50 @@ proyectos-IA/
 └── data/                      Base de datos, subidas, salidas y capturas
 ```
 
+---
+
+## Módulo de documentos
+
+Recibe documentos de cualquier origen, entiende qué son, extrae los datos que los
+identifican, les pone un nombre consistente y los archiva en carpetas predecibles.
+
+```
+Archivo → huella SHA-256 → extracción de texto (OCR si es escaneo) → datos clave
+       → clasificación → nombre → archivado → registro y revisión
+```
+
+* **Análisis**: PyMuPDF para PDF, python-docx para Word, OCR con Tesseract para
+  escaneos e imágenes, biblioteca estándar para correos. Extrae expediente,
+  fecha, partes, tribunal, emisor, montos y números de reclamo o póliza.
+* **Clasificación**: 14 categorías propias del despacho (demanda, citación,
+  moción, orden, reclamación, reporte policial, expediente médico, factura,
+  póliza, contrato, declaración, correspondencia…). Reglas ponderadas que
+  **explican su decisión** más un Naive Bayes que **aprende de cada corrección**.
+* **Nombramiento**:
+  `2024-09-18_DEMANDA_3-24-cv-05148-MGL_Dona-M-Fry-v-United-State-America.pdf`
+  — fecha ISO para que el orden alfabético sea cronológico, categoría en
+  mayúsculas, expediente para enlazar con el caso y descriptor legible.
+  Plantilla, separador, largo y estructura de carpetas configurables.
+* **Automatización**: subida web o carpeta vigilada (`data/documentos/entrada`),
+  procesamiento en segundo plano, duplicados detectados por hash y revisión
+  humana sólo para lo que no alcanza la confianza mínima.
+
+Medido sobre 13 documentos de prueba (12 representativos + una demanda federal
+real): **13/13 categorías correctas, 13/13 fechas correctas, 89,5 % de confianza
+media y 100 % archivado sin intervención**.
+
+Para probarlo sin documentos propios:
+
+```bash
+python scripts/documentos_demo.py     # crea ejemplos en data/documentos/entrada
+```
+
+y en la pestaña **Documentos** pulsa *Procesar carpeta de entrada*.
+
+Detalle completo del enfoque, las categorías, la convención y las métricas:
+[`docs/DOCUMENTOS.md`](docs/DOCUMENTOS.md).
+
+---
+
 Documentación adicional: [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md) ·
-[`docs/GUIA_USO.md`](docs/GUIA_USO.md)
+[`docs/GUIA_USO.md`](docs/GUIA_USO.md) · [`docs/DOCUMENTOS.md`](docs/DOCUMENTOS.md)

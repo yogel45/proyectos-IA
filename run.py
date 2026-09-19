@@ -17,7 +17,8 @@ import webbrowser
 
 REQUIRED = [("cv2", "opencv-python-headless"), ("fastapi", "fastapi"),
             ("uvicorn", "uvicorn"), ("numpy", "numpy"), ("openpyxl", "openpyxl"),
-            ("jinja2", "jinja2"), ("multipart", "python-multipart")]
+            ("jinja2", "jinja2"), ("multipart", "python-multipart"),
+            ("pymupdf", "pymupdf"), ("docx", "python-docx")]
 
 
 def check_env() -> bool:
@@ -40,6 +41,19 @@ def check_env() -> bool:
         print(f"  Detector activo: {det.name} - {det.description}")
     except Exception as exc:
         print(f"  [aviso] no se pudo inicializar el detector: {exc}")
+
+    print("\n== Modulo de documentos ==")
+    try:
+        import shutil
+        from app.documents.extract import _tesseract_disponible
+        print("  [ok]     lectura de PDF, DOCX, EML y texto")
+        if _tesseract_disponible():
+            print("  [ok]     OCR disponible (Tesseract)")
+        else:
+            print("  [no]     OCR no disponible: los PDF escaneados iran a revision")
+            print("           (opcional: instala Tesseract y 'pip install pytesseract pillow')")
+    except Exception as exc:
+        print(f"  [aviso] modulo de documentos no disponible: {exc}")
     return ok
 
 

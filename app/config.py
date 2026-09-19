@@ -14,6 +14,9 @@ from typing import Any, Dict
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
 UPLOAD_DIR = DATA_DIR / "uploads"
+DOCS_DIR = DATA_DIR / "documentos"
+DOCS_ENTRADA = DOCS_DIR / "entrada"
+DOCS_ORGANIZADOS = DOCS_DIR / "organizados"
 OUTPUT_DIR = DATA_DIR / "outputs"
 SNAPSHOT_DIR = DATA_DIR / "snapshots"
 MODELS_DIR = BASE_DIR / "models"
@@ -21,7 +24,8 @@ SAMPLE_DIR = BASE_DIR / "sample_data"
 DB_PATH = DATA_DIR / "officevision.db"
 CONFIG_PATH = BASE_DIR / "config.json"
 
-for _d in (DATA_DIR, UPLOAD_DIR, OUTPUT_DIR, SNAPSHOT_DIR, MODELS_DIR):
+for _d in (DATA_DIR, UPLOAD_DIR, OUTPUT_DIR, SNAPSHOT_DIR, MODELS_DIR,
+           DOCS_DIR, DOCS_ENTRADA, DOCS_ORGANIZADOS):
     _d.mkdir(parents=True, exist_ok=True)
 
 DEFAULTS: Dict[str, Any] = {
@@ -74,6 +78,16 @@ DEFAULTS: Dict[str, Any] = {
     "store_snapshots": True,         # guarda JPG solo en eventos criticos
     "snapshot_retention_days": 15,
     "anonymous_ids": True,           # nunca se guarda identidad biometrica
+
+    # ---------------- Documentos (Reto 5) ----------------
+    "doc_plantilla_nombre": "{fecha}_{categoria}_{expediente}_{descriptor}",
+    "doc_separador": "_",
+    "doc_max_nombre": 120,
+    "doc_esquema_carpetas": "categoria_anio",  # categoria_anio | expediente | anio_mes | categoria | plano
+    "doc_umbral_revision": 0.55,   # confianza minima para archivar sin revisar
+    "doc_conservar_original": True,  # copiar en vez de mover
+    "doc_max_trabajos": 3,
+    "doc_guardar_texto": True,     # guardar el texto extraido para busquedas
 
     # ---------------- Salidas ----------------
     "render_annotated_video": True,

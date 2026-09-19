@@ -7,8 +7,17 @@ opencv-python-headless>=4.8
 numpy>=1.24
 openpyxl>=3.1
 
+# --- Documentos (clasificacion y nombrado) ---------------------------------
+pymupdf>=1.24
+python-docx>=1.1
+
 # --- Modelo de deteccion (recomendado) -------------------------------------
 # YOLO11/YOLOv8. Si no se instala, la app sigue funcionando en modo
 # "motion" (sustraccion de fondo) o con un modelo .onnx propio en models/.
 ultralytics>=8.3
 lap>=0.5
+
+# --- OCR opcional (solo para PDFs escaneados e imagenes) -------------------
+# Requiere ademas el binario Tesseract instalado en el sistema.
+# pytesseract>=0.3.10
+# pillow>=10.0
