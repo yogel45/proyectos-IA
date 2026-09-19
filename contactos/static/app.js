@@ -55,10 +55,10 @@ function esc(text) {
 /* ------------------------------------------------------------------ */
 /* Graficas                                                            */
 /* ------------------------------------------------------------------ */
-const PALETTE = ['#7d97b8', '#8a8698', '#839a8c', '#a89578', '#a87b77', '#7d9495', '#9a8b96'];
+const PALETTE = ['#1a73e8', '#e37400', '#188038', '#c5221f', '#9334e6', '#12b5cb', '#e8710a'];
 
 /* Tema claro / oscuro, recordado en el navegador. */
-function themeGet() { try { return localStorage.getItem('ov-theme') || 'dark'; } catch (e) { return 'dark'; } }
+function themeGet() { try { return localStorage.getItem('ov-theme') || 'light'; } catch (e) { return 'light'; } }
 function themeApply(t) {
   document.documentElement.setAttribute('data-theme', t);
   try { localStorage.setItem('ov-theme', t); } catch (e) {}
