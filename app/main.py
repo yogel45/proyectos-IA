@@ -13,7 +13,6 @@ from fastapi.templating import Jinja2Templates
 
 from . import business, db
 from .api import live_socket, router
-from .documents.api import router as docs_router
 from .config import CONFIG, DATA_DIR, SNAPSHOT_DIR
 
 logging.basicConfig(
@@ -30,7 +29,6 @@ app = FastAPI(title="OfficeVision AI",
               description="Analisis de video con IA para entornos de oficina",
               version="1.0.0")
 app.include_router(router)
-app.include_router(docs_router)
 app.mount("/static", StaticFiles(directory=str(BASE / "static")), name="static")
 app.mount("/media", StaticFiles(directory=str(DATA_DIR)), name="media")
 
@@ -41,7 +39,6 @@ PAGES = [
     ("/zonas", "zonas.html", "Puntos criticos", "\u25ce"),
     ("/operacion", "operacion.html", "Operacion", "\u260e"),
     ("/reportes", "reportes.html", "Reportes", "\u25a4"),
-    ("/documentos", "documentos.html", "Documentos", "\u25a7"),
 ]
 
 

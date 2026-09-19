@@ -151,54 +151,6 @@ CREATE TABLE IF NOT EXISTS calls (
 CREATE INDEX IF NOT EXISTS idx_calls_date ON calls(date);
 CREATE INDEX IF NOT EXISTS idx_calls_hour ON calls(hour);
 
--- ---------------------------------------------------------------- documentos
-CREATE TABLE IF NOT EXISTS documentos (
-    id                INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre_original   TEXT NOT NULL,
-    nombre_propuesto  TEXT NOT NULL,
-    nombre_final      TEXT,
-    ruta_origen       TEXT NOT NULL,
-    ruta_archivada    TEXT,
-    carpeta           TEXT,
-    extension         TEXT,
-    bytes             INTEGER DEFAULT 0,
-    hash_sha256       TEXT,
-    duplicado_de      INTEGER,
-    categoria         TEXT NOT NULL,
-    categoria_nombre  TEXT,
-    confianza         REAL DEFAULT 0,
-    metodo            TEXT,
-    motivo            TEXT,
-    evidencia_json    TEXT DEFAULT '[]',
-    puntajes_json     TEXT DEFAULT '{}',
-    entidades_json    TEXT DEFAULT '{}',
-    expediente        TEXT,
-    fecha_doc         TEXT,
-    titulo            TEXT,
-    paginas           INTEGER DEFAULT 0,
-    caracteres        INTEGER DEFAULT 0,
-    idioma            TEXT,
-    metodo_extraccion TEXT,
-    requiere_ocr      INTEGER DEFAULT 0,
-    texto             TEXT,
-    estado            TEXT NOT NULL DEFAULT 'procesado', -- procesado | revision | aprobado | duplicado | error
-    corregido         INTEGER DEFAULT 0,
-    error             TEXT,
-    creado            TEXT NOT NULL,
-    actualizado       TEXT
-);
-CREATE INDEX IF NOT EXISTS idx_doc_estado ON documentos(estado);
-CREATE INDEX IF NOT EXISTS idx_doc_categoria ON documentos(categoria);
-CREATE INDEX IF NOT EXISTS idx_doc_expediente ON documentos(expediente);
-CREATE INDEX IF NOT EXISTS idx_doc_hash ON documentos(hash_sha256);
-
-CREATE TABLE IF NOT EXISTS doc_entrenamiento (
-    id            INTEGER PRIMARY KEY AUTOINCREMENT,
-    documento_id  INTEGER,
-    categoria     TEXT NOT NULL,
-    texto         TEXT NOT NULL,
-    creado        TEXT NOT NULL
-);
 """
 
 

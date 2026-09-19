@@ -25,12 +25,12 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
-from .. import db
+from . import db
 
 PESO_FUERTE, PESO_MEDIO, PESO_LEVE = 3.0, 1.5, 0.7
 ENCABEZADO = 1500          # caracteres iniciales que cuentan como "titulo"
 FACTOR_ENCABEZADO = 1.7
-UMBRAL_REVISION = 0.55     # confianza minima para archivar sin revisar
+UMBRAL_REVISION = 0.55     # confianza minima por defecto (la ajusta la configuracion)
 MIN_EJEMPLOS_NB = 6        # ejemplos necesarios para que el modelo entrenado vote
 
 

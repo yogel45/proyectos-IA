@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block heading %}Documentos{% endblock %}
+{% block heading %}Bandeja de documentos{% endblock %}
 {% block subtitle %}Analiza, clasifica, nombra y archiva documentos automaticamente{% endblock %}
 
 {% block content %}
@@ -18,7 +18,7 @@
     <div class="sub">casos distintos detectados</div></div>
 </section>
 
-<div class="split" style="margin-top:14px">
+<div style="margin-top:14px">
   <div class="card">
     <h3>Cargar documentos <small>pdf, docx, imagenes, correos, texto</small></h3>
     <div class="drop" id="drop">
@@ -30,7 +30,7 @@
     <div class="row tight" style="margin-top:12px">
       <button class="ghost" id="btn-entrada">Procesar carpeta de entrada</button>
       <button class="ghost" onclick="cargarTodo()">Actualizar</button>
-      <a class="btn ghost" href="/api/docs/export.csv">Exportar CSV</a>
+      <a class="btn ghost" href="/api/export.csv">Exportar CSV</a>
     </div>
     <div id="lote" style="margin-top:12px"></div>
     <p class="small muted" style="margin-top:10px">
@@ -41,24 +41,6 @@
     </p>
   </div>
 
-  <div class="card">
-    <h3>Convencion de nombres <small id="conv-ejemplo"></small></h3>
-    <div class="row tight">
-      <div style="flex:1;min-width:220px"><label>Plantilla</label>
-        <input id="c-plantilla" placeholder="{fecha}_{categoria}_{expediente}_{descriptor}"></div>
-      <div style="max-width:90px"><label>Separador</label><input id="c-sep" maxlength="1"></div>
-    </div>
-    <div class="row tight" style="margin-top:10px">
-      <div><label>Carpetas</label><select id="c-esquema"></select></div>
-      <div><label>Largo maximo</label><input id="c-max" type="number" min="40" max="200"></div>
-      <div><label>Umbral de revision</label><input id="c-umbral" type="number" min="0" max="1" step="0.05"></div>
-    </div>
-    <div class="row tight" style="margin-top:12px">
-      <button id="btn-conv">Guardar convencion</button>
-      <button class="ghost" id="btn-reorg">Reorganizar lo ya archivado</button>
-    </div>
-    <p class="small muted" style="margin-top:10px" id="conv-campos"></p>
-  </div>
 </div>
 
 <section class="grid g2" style="margin-top:14px">
@@ -123,7 +105,7 @@ async function subir(archivos) {
   for (const f of archivos) fd.append('files', f);
   toast(`Subiendo ${archivos.length} documento(s)…`);
   try {
-    const r = await fetch('/api/docs/upload', {method: 'POST', body: fd});
+    const r = await fetch('/api/upload', {method: 'POST', body: fd});
     if (!r.ok) throw new Error(await r.text());
     const data = await r.json();
     LOTE = data.lote.id;
@@ -135,14 +117,14 @@ async function subir(archivos) {
 }
 
 $('#btn-entrada').onclick = async () => {
-  const r = await API.send('/api/docs/procesar-entrada');
+  const r = await API.send('/api/procesar-entrada');
   if (!r.lote) return toast(r.mensaje, 'warning');
   LOTE = r.lote.id; toast(r.mensaje, 'ok'); seguirLote();
 };
 
 async function seguirLote() {
   if (!LOTE) return;
-  const l = await API.get('/api/docs/lotes/' + LOTE);
+  const l = await API.get('/api/lotes/' + LOTE);
   $('#lote').innerHTML = `
     <div class="small muted" style="display:flex;justify-content:space-between">
       <span>Lote ${esc(l.id)} · ${l.procesados}/${l.total}</span><span>${esc(l.estado)}</span></div>
@@ -153,39 +135,6 @@ async function seguirLote() {
   if (l.estado !== 'terminado') return setTimeout(seguirLote, 1200);
   toast('Lote terminado', 'ok'); cargarTodo();
 }
-
-/* ---------------- convencion ---------------- */
-async function cargarConvencion() {
-  const c = await API.get('/api/docs/convencion');
-  $('#c-plantilla').value = c.plantilla;
-  $('#c-sep').value = c.separador;
-  $('#c-max').value = c.max_nombre;
-  $('#c-esquema').innerHTML = Object.entries(c.esquemas).map(([k, v]) =>
-    `<option value="${k}" ${k === c.esquema_carpetas ? 'selected' : ''}>${esc(v)}</option>`).join('');
-  $('#conv-ejemplo').textContent = c.ejemplo;
-  $('#conv-campos').innerHTML = 'Campos disponibles: ' +
-    c.campos.map(x => `<span class="mono">{${x}}</span>`).join(' · ');
-  const cfg = await API.get('/api/config');
-  $('#c-umbral').value = cfg.doc_umbral_revision;
-}
-$('#btn-conv').onclick = async () => {
-  await API.send('/api/docs/convencion', {
-    doc_plantilla_nombre: $('#c-plantilla').value,
-    doc_separador: $('#c-sep').value || '_',
-    doc_max_nombre: parseInt($('#c-max').value, 10),
-    doc_esquema_carpetas: $('#c-esquema').value,
-    doc_umbral_revision: parseFloat($('#c-umbral').value),
-  });
-  toast('Convencion guardada · se aplica a los documentos nuevos', 'ok');
-  cargarConvencion();
-};
-$('#btn-reorg').onclick = async () => {
-  if (!confirm('¿Renombrar y mover todo lo ya archivado con la convencion actual?')) return;
-  toast('Reorganizando…');
-  const r = await API.send('/api/docs/renombrar-todos');
-  toast(`${r.renombrados} de ${r.total} documentos reorganizados`, 'ok');
-  cargarTodo();
-};
 
 /* ---------------- metricas y lista ---------------- */
 function pintarCategorias() {
@@ -198,7 +147,7 @@ function pintarCategorias() {
 }
 
 async function cargarMetricas() {
-  METRICAS = await API.get('/api/docs/metricas');
+  METRICAS = await API.get('/api/metricas');
   const r = METRICAS.resumen || {};
   $('#k-total').textContent = r.total || 0;
   $('#k-paginas').textContent = `${r.paginas || 0} paginas · ${((r.bytes || 0) / 1048576).toFixed(1)} MB`;
@@ -223,7 +172,7 @@ async function cargarMetricas() {
 async function cargarLista() {
   const p = new URLSearchParams({estado: $('#f-estado').value, categoria: $('#f-cat').value,
                                 q: $('#f-q').value, limite: 300});
-  const docs = await API.get('/api/docs?' + p);
+  const docs = await API.get('/api/documentos?' + p);
   $('#doc-count').textContent = `${docs.length} documentos`;
   $('#t-docs').innerHTML = docs.map(d => {
     const tono = {revision: 'warning', aprobado: 'ok', duplicado: 'muted',
@@ -241,7 +190,7 @@ async function cargarLista() {
 }
 
 async function verDetalle(id) {
-  const d = await API.get('/api/docs/' + id);
+  const d = await API.get('/api/documentos/' + id);
   const e = d.entidades || {};
   $('#det-titulo').textContent = d.nombre_final || d.nombre_propuesto;
   const campo = (k, v) => `<tr><td class="muted small">${esc(k)}</td><td class="small">${esc(v ?? '—')}</td></tr>`;
@@ -280,7 +229,7 @@ async function verDetalle(id) {
           <div style="align-self:end"><button onclick="reclasificar(${d.id})">Guardar categoria</button></div>
           <div style="align-self:end"><button class="ghost" onclick="aprobar(${d.id})">Confirmar tal cual</button></div>
           ${d.ruta_archivada ? `<div style="align-self:end">
-            <a class="btn ghost" href="/api/docs/${d.id}/archivo">Descargar</a></div>` : ''}
+            <a class="btn ghost" href="/api/documentos/${d.id}/archivo">Descargar</a></div>` : ''}
         </div>
       </div>
     </div>
@@ -294,13 +243,13 @@ async function verDetalle(id) {
 async function reclasificar(id) {
   const categoria = $('#d-cat').value;
   try {
-    const d = await API.send(`/api/docs/${id}/reclasificar`, {categoria});
+    const d = await API.send(`/api/documentos/${id}/reclasificar`, {categoria});
     toast(`Guardado como ${esc(categoria)} · el modelo aprendio de la correccion`, 'ok');
     cargarTodo(); verDetalle(id);
   } catch (e) { toast('Error: ' + e.message, 'critical'); }
 }
 async function aprobar(id) {
-  await API.send(`/api/docs/${id}/aprobar`);
+  await API.send(`/api/documentos/${id}/aprobar`);
   toast('Documento confirmado', 'ok');
   cargarTodo(); verDetalle(id);
 }
@@ -308,10 +257,9 @@ async function aprobar(id) {
 async function cargarTodo() { await Promise.all([cargarMetricas(), cargarLista()]); }
 
 (async function inicio() {
-  CATS = await API.get('/api/docs/categorias');
+  CATS = await API.get('/api/categorias');
   $('#f-cat').innerHTML = '<option value="">Todas</option>' +
     CATS.map(c => `<option value="${c.codigo}">${esc(c.nombre)}</option>`).join('');
-  await cargarConvencion();
   await cargarTodo();
   registerChart(pintarCategorias);
 })();

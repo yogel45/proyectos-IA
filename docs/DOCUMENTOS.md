@@ -1,9 +1,36 @@
 # Clasificación, organización y nombramiento automático de documentos
 
-Módulo que recibe documentos de cualquier origen, entiende qué son, extrae los
-datos que los identifican, les pone un nombre consistente y los archiva en una
-estructura de carpetas predecible. Está integrado en la misma aplicación
-(pestaña **Documentos**) y comparte base de datos con el resto.
+**DocuFlow AI** es una aplicación independiente que recibe documentos de cualquier
+origen, entiende qué son, extrae los datos que los identifican, les pone un nombre
+consistente y los archiva en una estructura de carpetas predecible.
+
+Vive en el mismo repositorio que el módulo de video pero **no comparte nada con él**:
+su propio servidor, su propia base de datos (`data/documentos/documentos.db`), su
+propia configuración (`config_documentos.json`) y su propia interfaz. Las dos
+aplicaciones pueden correr a la vez, en puertos distintos.
+
+## Puesta en marcha
+
+```bash
+pip install -r requirements.txt
+python run_documentos.py --check     # diagnostico (opcional)
+python run_documentos.py             # http://127.0.0.1:8100
+```
+
+Se abre solo en <http://127.0.0.1:8100>. Para probarlo sin documentos propios:
+
+```bash
+python scripts/documentos_demo.py    # genera ejemplos en data/documentos/entrada
+```
+
+y en la **Bandeja** pulsa *Procesar carpeta de entrada*.
+
+| Comando | Para qué |
+|---|---|
+| `python run_documentos.py` | Arranca la app y abre el navegador |
+| `python run_documentos.py --port 9100` | Otro puerto |
+| `python run_documentos.py --host 0.0.0.0` | Accesible desde la red local |
+| `python run_documentos.py --check` | Diagnóstico de dependencias, OCR y configuración |
 
 Probado sobre documentos reales de un despacho: demandas federales (FTCA),
 citaciones, mociones, órdenes, reclamaciones Standard Form 95, reportes de
@@ -242,7 +269,7 @@ para lo que ya se resuelve con un patrón.
 
 ## 6. Métricas y reportes
 
-La pestaña **Documentos** muestra:
+La **Bandeja** muestra:
 
 * total procesado, páginas y tamaño;
 * **tasa de archivado automático** (% que no necesitó intervención);
@@ -253,56 +280,77 @@ La pestaña **Documentos** muestra:
 * por cada documento: nombre generado, categoría, confianza, expediente, fecha,
   estado y el original del que viene.
 
-Exportable a CSV (`/api/docs/export.csv`) para un dashboard externo.
+Exportable a CSV (`/api/export.csv`) para un dashboard externo.
 
 ---
 
-## 7. API
+## 7. Estructura del proyecto
+
+```
+docsai/                    Aplicacion completa
+├── main.py                Servidor FastAPI y paginas
+├── api.py                 Endpoints /api/*
+├── config.py              Configuracion propia (config_documentos.json)
+├── db.py                  SQLite propio (data/documentos/documentos.db)
+├── extract.py             Texto de PDF, DOCX, imagenes, correos (+OCR)
+├── entities.py            Expediente, fechas, partes, montos, emisor
+├── classify.py            Reglas ponderadas + Naive Bayes entrenable
+├── naming.py              Convencion de nombres y carpetas
+├── pipeline.py            Flujo completo, correcciones y cola de trabajo
+├── templates/             Bandeja y configuracion
+└── static/                CSS y JS
+run_documentos.py          Arranque y diagnostico
+scripts/documentos_demo.py Generador de documentos de ejemplo
+```
+
+## 8. API
 
 | Endpoint | Para qué |
 |---|---|
-| `POST /api/docs/upload` | Subir uno o varios documentos |
-| `POST /api/docs/procesar-entrada` | Procesar lo que haya en `data/documentos/entrada` |
-| `GET /api/docs/lotes/{id}` | Progreso del lote |
-| `GET /api/docs?estado=&categoria=&q=` | Listado con filtros (busca también en el texto) |
-| `GET /api/docs/{id}` | Detalle: datos extraídos, evidencia y texto |
-| `POST /api/docs/{id}/reclasificar` | Corregir categoría (renombra, mueve y entrena) |
-| `POST /api/docs/{id}/aprobar` | Confirmar la propuesta |
-| `GET /api/docs/{id}/archivo` | Descargar el archivo ya renombrado |
-| `GET/POST /api/docs/convencion` | Leer o cambiar la convención de nombres |
-| `POST /api/docs/renombrar-todos` | Re-aplicar la convención al histórico |
-| `GET /api/docs/metricas` | Métricas del módulo |
-| `GET /api/docs/export.csv` | Exportación tabular |
+| `POST /api/upload` | Subir uno o varios documentos |
+| `POST /api/procesar-entrada` | Procesar lo que haya en `data/documentos/entrada` |
+| `GET /api/lotes/{id}` | Progreso del lote |
+| `GET /api/documentos?estado=&categoria=&q=` | Listado con filtros (busca también en el texto) |
+| `GET /api/documentos/{id}` | Detalle: datos extraídos, evidencia y texto |
+| `POST /api/documentos/{id}/reclasificar` | Corregir categoría (renombra, mueve y entrena) |
+| `POST /api/documentos/{id}/aprobar` | Confirmar la propuesta |
+| `GET /api/documentos/{id}/archivo` | Descargar el archivo ya renombrado |
+| `GET/POST /api/convencion` | Leer o cambiar la convención de nombres |
+| `POST /api/renombrar-todos` | Re-aplicar la convención al histórico |
+| `GET /api/metricas` | Métricas del módulo |
+| `GET /api/export.csv` | Exportación tabular |
 
 ---
 
-## 8. Integración y escalabilidad
+## 9. Integración y escalabilidad
 
+* **Aplicación independiente**: se despliega, se versiona y se escala por su cuenta;
+  no arrastra las dependencias de visión por computadora del otro módulo.
 * **Carpeta vigilada**: dejar archivos en `data/documentos/entrada` y pulsar
   *Procesar carpeta de entrada* (o llamar al endpoint desde un cron) permite
   conectar un escáner, una carpeta de red o una bandeja de correo sin tocar código.
 * **API REST completa**: cualquier sistema del despacho puede empujar documentos
   y leer resultados; el CSV alimenta dashboards externos.
-* **Nuevas categorías**: se añaden en `CATEGORIAS` (`classify.py`) con sus
+* **Nuevas categorías**: se añaden en `CATEGORIAS` (`docsai/classify.py`) con sus
   términos y pesos; el resto del flujo no cambia.
-* **Nuevos formatos**: se añade una función en `extract.py` que devuelva la misma
+* **Nuevos formatos**: se añade una función en `docsai/extract.py` que devuelva la misma
   estructura; clasificación, nombrado y archivado se reutilizan.
-* **Otro almacenamiento**: el archivado está aislado en `pipeline.procesar`;
+* **Otro almacenamiento**: el archivado está aislado en `docsai/pipeline.py`;
   cambiar la carpeta local por S3, SharePoint o un gestor documental es sustituir
   esa llamada.
 * **Volumen**: el procesamiento corre en un pool de hilos configurable
-  (`doc_max_trabajos`). Un PDF de 4 páginas con texto nativo tarda decenas de
+  (`max_trabajos`). Un PDF de 4 páginas con texto nativo tarda decenas de
   milisegundos; el OCR es el único paso realmente costoso y sólo se activa cuando
   el documento lo necesita.
 
 ---
 
-## 9. Privacidad y seguridad
+## 10. Privacidad y seguridad
 
 * Todo el procesamiento es **local**: ningún documento sale del equipo.
 * El texto extraído se guarda en la base local sólo para búsqueda, y puede
-  desactivarse (`doc_guardar_texto`).
-* Por defecto los originales **se conservan** (`doc_conservar_original`): el
+  desactivarse (`guardar_texto`).
+* Por defecto los originales **se conservan** (`conservar_original`): el
   sistema copia, no mueve, hasta que se confíe en el flujo.
 * Nunca se sobrescribe un archivo: colisión de nombre → sufijo de versión.
 * Los duplicados se detectan por hash, así que un mismo documento no se
@@ -310,7 +358,7 @@ Exportable a CSV (`/api/docs/export.csv`) para un dashboard externo.
 
 ---
 
-## 10. Limitaciones y mejoras futuras
+## 11. Limitaciones y mejoras futuras
 
 **Limitaciones**
 

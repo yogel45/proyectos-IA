@@ -22,8 +22,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from .. import db
-from ..config import CONFIG, DOCS_ENTRADA, DOCS_ORGANIZADOS
+from . import db
+from .config import CONFIG, ENTRADA_DIR, ORGANIZADOS_DIR
 from . import classify, naming
 from .entities import Entidades, extraer_entidades
 from .extract import SOPORTADOS, extraer
@@ -83,7 +83,7 @@ def procesar(ruta: Path, nombre_original: Optional[str] = None) -> Dict[str, Any
         respaldo_fecha=datetime.fromtimestamp(ruta.stat().st_mtime))
     resultado = classify.clasificar(ext.texto, entidades.titulo, nombre_original)
 
-    umbral = float(CONFIG.get("doc_umbral_revision") or classify.UMBRAL_REVISION)
+    umbral = float(CONFIG.get("umbral_revision") or classify.UMBRAL_REVISION)
     requiere_revision = resultado.confianza < umbral
     if ext.requiere_ocr and not ext.ocr_disponible:
         requiere_revision = True
@@ -93,11 +93,11 @@ def procesar(ruta: Path, nombre_original: Optional[str] = None) -> Dict[str, Any
     # --- nombre y archivado ----------------------------------------------
     nombre = naming.construir(entidades, resultado.categoria, entidades.titulo,
                               nombre_original, sha[:8])
-    destino_dir = DOCS_ORGANIZADOS / nombre.carpeta if nombre.carpeta else DOCS_ORGANIZADOS
+    destino_dir = ORGANIZADOS_DIR / nombre.carpeta if nombre.carpeta else ORGANIZADOS_DIR
     destino_dir.mkdir(parents=True, exist_ok=True)
     destino = naming.version_disponible(destino_dir, nombre)
     try:
-        if CONFIG.get("doc_conservar_original"):
+        if CONFIG.get("conservar_original"):
             shutil.copy2(ruta, destino)
         else:
             shutil.move(str(ruta), destino)
@@ -122,7 +122,7 @@ def procesar(ruta: Path, nombre_original: Optional[str] = None) -> Dict[str, Any
          json.dumps(entidades.como_dict(), ensure_ascii=False),
          entidades.expediente, entidades.fecha, entidades.titulo, ext.paginas,
          ext.caracteres, ext.idioma_probable, ext.metodo, 1 if ext.requiere_ocr else 0,
-         (ext.texto[:60000] if CONFIG.get("doc_guardar_texto") else ""),
+         (ext.texto[:60000] if CONFIG.get("guardar_texto") else ""),
          "revision" if requiere_revision else "procesado", ahora, ahora))
     return dict(db.query_one("SELECT * FROM documentos WHERE id=?", (doc_id,)))
 
@@ -146,7 +146,7 @@ def reclasificar(documento_id: int, categoria: str,
     destino_final = doc["ruta_archivada"]
     if doc["ruta_archivada"]:
         origen = Path(doc["ruta_archivada"])
-        destino_dir = DOCS_ORGANIZADOS / nombre.carpeta if nombre.carpeta else DOCS_ORGANIZADOS
+        destino_dir = ORGANIZADOS_DIR / nombre.carpeta if nombre.carpeta else ORGANIZADOS_DIR
         destino_dir.mkdir(parents=True, exist_ok=True)
         destino = naming.version_disponible(destino_dir, nombre)
         try:
@@ -226,7 +226,7 @@ class Lote:
 class Cola:
     def __init__(self) -> None:
         self.pool = ThreadPoolExecutor(
-            max_workers=max(1, int(CONFIG.get("doc_max_trabajos") or 3)),
+            max_workers=max(1, int(CONFIG.get("max_trabajos") or 3)),
             thread_name_prefix="docjob")
         self.lotes: Dict[str, Lote] = {}
         self._lock = threading.Lock()

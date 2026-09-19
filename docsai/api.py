@@ -11,12 +11,12 @@ from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 from starlette.concurrency import run_in_threadpool
 from starlette.responses import FileResponse
 
-from .. import db
-from ..config import CONFIG, DOCS_ENTRADA
+from . import db
+from .config import CONFIG, ENTRADA_DIR
 from . import classify, naming, pipeline
 from .extract import SOPORTADOS
 
-router = APIRouter(prefix="/api/docs")
+router = APIRouter(prefix="/api")
 
 
 def _fila(doc: Dict[str, Any], con_texto: bool = False) -> Dict[str, Any]:
@@ -50,9 +50,9 @@ def convencion() -> Dict[str, Any]:
 @router.post("/convencion")
 async def guardar_convencion(request: Request) -> Dict[str, Any]:
     datos = await request.json()
-    permitidas = {"doc_plantilla_nombre", "doc_separador", "doc_max_nombre",
-                  "doc_esquema_carpetas", "doc_umbral_revision",
-                  "doc_conservar_original"}
+    permitidas = {"plantilla_nombre", "separador", "max_nombre", "esquema_carpetas",
+                  "umbral_revision", "conservar_original", "guardar_texto",
+                  "max_trabajos"}
     CONFIG.update({k: v for k, v in datos.items() if k in permitidas})
     return naming.describir_convencion()
 
@@ -79,7 +79,7 @@ async def subir(files: List[UploadFile] = File(...)) -> Dict[str, Any]:
         if extension not in SOPORTADOS:
             rechazados.append({"archivo": nombre, "motivo": f"formato {extension} no soportado"})
             continue
-        destino = DOCS_ENTRADA / f"{uuid.uuid4().hex[:8]}_{Path(nombre).name}"
+        destino = ENTRADA_DIR / f"{uuid.uuid4().hex[:8]}_{Path(nombre).name}"
         with destino.open("wb") as fh:
             shutil.copyfileobj(archivo.file, fh)
         rutas.append(destino)
@@ -93,7 +93,7 @@ async def subir(files: List[UploadFile] = File(...)) -> Dict[str, Any]:
 @router.post("/procesar-entrada")
 async def procesar_entrada() -> Dict[str, Any]:
     """Procesa lo que ya este en data/documentos/entrada (carpeta vigilada)."""
-    pendientes = [p for p in sorted(DOCS_ENTRADA.glob("*"))
+    pendientes = [p for p in sorted(ENTRADA_DIR.glob("*"))
                   if p.is_file() and p.suffix.lower() in SOPORTADOS]
     if not pendientes:
         return {"ok": True, "mensaje": "La carpeta de entrada esta vacia.", "lote": None}
@@ -119,7 +119,7 @@ def lote(lote_id: str) -> Dict[str, Any]:
 # --------------------------------------------------------------------------
 # Consulta y revision
 # --------------------------------------------------------------------------
-@router.get("")
+@router.get("/documentos")
 def listar(estado: str = "", categoria: str = "", expediente: str = "",
            q: str = "", limite: int = 200) -> List[Dict[str, Any]]:
     sql = """SELECT id, nombre_original, nombre_propuesto, nombre_final, carpeta,
@@ -169,7 +169,7 @@ def exportar() -> Any:
         headers={"Content-Disposition": 'attachment; filename="documentos.csv"'})
 
 
-@router.get("/{documento_id}")
+@router.get("/documentos/{documento_id}")
 def detalle(documento_id: int) -> Dict[str, Any]:
     doc = db.query_one("SELECT * FROM documentos WHERE id=?", (documento_id,))
     if not doc:
@@ -177,7 +177,7 @@ def detalle(documento_id: int) -> Dict[str, Any]:
     return _fila(doc, con_texto=True)
 
 
-@router.get("/{documento_id}/archivo")
+@router.get("/documentos/{documento_id}/archivo")
 def archivo(documento_id: int) -> FileResponse:
     doc = db.query_one("SELECT ruta_archivada, nombre_final FROM documentos WHERE id=?",
                        (documento_id,))
@@ -186,7 +186,7 @@ def archivo(documento_id: int) -> FileResponse:
     return FileResponse(doc["ruta_archivada"], filename=doc["nombre_final"])
 
 
-@router.post("/{documento_id}/reclasificar")
+@router.post("/documentos/{documento_id}/reclasificar")
 async def reclasificar(documento_id: int, request: Request) -> Dict[str, Any]:
     datos = await request.json()
     categoria = (datos.get("categoria") or "").strip().upper()
@@ -198,13 +198,13 @@ async def reclasificar(documento_id: int, request: Request) -> Dict[str, Any]:
     return _fila(doc)
 
 
-@router.post("/{documento_id}/aprobar")
+@router.post("/documentos/{documento_id}/aprobar")
 async def aprobar(documento_id: int) -> Dict[str, Any]:
     doc = await run_in_threadpool(pipeline.aprobar, documento_id)
     return _fila(doc)
 
 
-@router.delete("/{documento_id}")
+@router.delete("/documentos/{documento_id}")
 def eliminar(documento_id: int) -> Dict[str, Any]:
     doc = db.query_one("SELECT ruta_archivada FROM documentos WHERE id=?", (documento_id,))
     if not doc:

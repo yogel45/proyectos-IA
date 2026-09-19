@@ -1,13 +1,24 @@
-# OfficeVision AI — Visión por computadora y documentos para la oficina
+# Dos aplicaciones de IA para la oficina
 
-Plataforma con dos módulos que comparten aplicación, base de datos e interfaz:
+Este repositorio contiene **dos aplicaciones independientes**, cada una con su propio
+servidor, su propia base de datos y su propia interfaz. Se instalan juntas y se
+ejecutan por separado (pueden correr a la vez).
 
-* **Video** — análisis de la cámara y de grabaciones: personas, objetos, zonas críticas y alertas.
-* **Documentos** — clasificación, nombramiento y archivado automático de documentos.
+| Aplicación | Qué hace | Cómo se arranca | Puerto |
+|---|---|---|---|
+| **OfficeVision AI** | Análisis de video con IA: cámara de la PC, videos y cámaras IP; personas, objetos, zonas críticas y alertas | `python run.py` | 8000 |
+| **DocuFlow AI** | Clasificación, nombramiento y archivado automático de documentos | `python run_documentos.py` | 8100 |
+
+```bash
+pip install -r requirements.txt     # dependencias de las dos
+
+python run.py                       # aplicación de video      → http://127.0.0.1:8000
+python run_documentos.py            # aplicación de documentos → http://127.0.0.1:8100
+```
 
 ---
 
-## Módulo de video
+# OfficeVision AI — Análisis de video con IA
 
 Aplicación web lista para ejecutar que analiza **la cámara de tu PC** y **videos que subas**,
 **reconoce personas y objetos** (cada uno con su propio identificador de seguimiento),
@@ -70,7 +81,6 @@ en `models/`.
 | **Puntos críticos** | **Detección automática de zonas** (por escena o por actividad) + editor manual sobre un fondo tomado de la cámara o de una imagen; aforo, permanencia, tipo de zona, clases a reconocer y reglas globales |
 | **Operación** | Cruce de la cámara con el biométrico y las llamadas: demanda vs. personal por hora, hallazgos automáticos, asistencia del día y retrasos |
 | **Reportes** | Todos los eventos filtrables (rango, severidad, tipo, sesión, texto), personas seguidas, evidencia visual y exportación CSV |
-| **Documentos** | Clasificación, nombramiento y archivado automático de documentos (PDF, DOCX, imágenes, correos) con revisión humana y aprendizaje por corrección |
 
 ---
 
@@ -348,7 +358,8 @@ extremo en vivo (captura → análisis → dibujo) se mantiene por debajo de 100
 
 ```
 proyectos-IA/
-├── run.py                     Arranque y diagnóstico
+├── run.py                     OfficeVision AI (video): arranque y diagnóstico
+├── run_documentos.py          DocuFlow AI (documentos): arranque y diagnóstico
 ├── requirements.txt           Dependencias (lite en requirements-lite.txt)
 ├── config.json                Configuración (se crea sola, editable en caliente)
 ├── app/
@@ -357,13 +368,6 @@ proyectos-IA/
 │   ├── pipeline.py            Analyzer: cuadro → eventos → base de datos
 │   ├── workers.py             Cámara en vivo, cámara IP y trabajos de video
 │   ├── business.py            Biométrico + RingCentral y análisis cruzado
-│   ├── documents/             Modulo de documentos (Reto 5)
-│   │   ├── extract.py         Texto de PDF, DOCX, imagenes, correos (+OCR)
-│   │   ├── entities.py        Expediente, fechas, partes, montos, emisor
-│   │   ├── classify.py        Reglas ponderadas + Naive Bayes entrenable
-│   │   ├── naming.py          Convencion de nombres y carpetas
-│   │   ├── pipeline.py        Flujo completo y cola de trabajo
-│   │   └── api.py             Endpoints /api/docs/*
 │   ├── db.py                  Esquema y acceso a SQLite
 │   ├── config.py              Configuración persistente
 │   ├── vision/
@@ -374,7 +378,17 @@ proyectos-IA/
 │   │   └── zones.py           Polígonos, aforo y permanencia
 │   ├── templates/             6 páginas (Jinja2)
 │   └── static/                CSS y JS (gráficas propias en canvas)
+├── docsai/                    DocuFlow AI: aplicación de documentos completa
+│   ├── main.py · api.py       Servidor, páginas y endpoints propios
+│   ├── config.py · db.py      Configuración y base de datos propias
+│   ├── extract.py             Texto de PDF, DOCX, imágenes, correos (+OCR)
+│   ├── entities.py            Expediente, fechas, partes, montos, emisor
+│   ├── classify.py            Reglas ponderadas + Naive Bayes entrenable
+│   ├── naming.py              Convención de nombres y carpetas
+│   ├── pipeline.py            Flujo completo y cola de trabajo
+│   └── templates/ · static/   Interfaz propia
 ├── scripts/video_demo.py      Generador de video sintético de prueba
+├── scripts/documentos_demo.py Generador de documentos de ejemplo
 ├── sample_data/               Biométrico y RingCentral de ejemplo
 ├── docs/                      Arquitectura y guía de uso
 └── data/                      Base de datos, subidas, salidas y capturas
@@ -382,8 +396,9 @@ proyectos-IA/
 
 ---
 
-## Módulo de documentos
+# DocuFlow AI — Clasificación automática de documentos
 
+Aplicación independiente (`python run_documentos.py`, <http://127.0.0.1:8100>).
 Recibe documentos de cualquier origen, entiende qué son, extrae los datos que los
 identifican, les pone un nombre consistente y los archiva en carpetas predecibles.
 
@@ -415,10 +430,11 @@ media y 100 % archivado sin intervención**.
 Para probarlo sin documentos propios:
 
 ```bash
+python run_documentos.py              # arranca la app
 python scripts/documentos_demo.py     # crea ejemplos en data/documentos/entrada
 ```
 
-y en la pestaña **Documentos** pulsa *Procesar carpeta de entrada*.
+y en la **Bandeja** pulsa *Procesar carpeta de entrada*.
 
 Detalle completo del enfoque, las categorías, la convención y las métricas:
 [`docs/DOCUMENTOS.md`](docs/DOCUMENTOS.md).

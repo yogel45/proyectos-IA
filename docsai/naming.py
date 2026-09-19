@@ -26,7 +26,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from ..config import CONFIG
+from .config import CONFIG
 from .entities import Entidades, slug
 
 PLANTILLA_POR_DEFECTO = "{fecha}_{categoria}_{expediente}_{descriptor}"
@@ -93,23 +93,23 @@ def construir(entidades: Entidades, categoria: str, titulo: str = "",
         "hash": hash_corto[:8],
     }
 
-    plantilla = str(CONFIG.get("doc_plantilla_nombre") or PLANTILLA_POR_DEFECTO)
+    plantilla = str(CONFIG.get("plantilla_nombre") or PLANTILLA_POR_DEFECTO)
     try:
         base = plantilla.format(**campos)
     except (KeyError, IndexError):
         base = PLANTILLA_POR_DEFECTO.format(**campos)
 
-    separador = str(CONFIG.get("doc_separador") or "_")
+    separador = str(CONFIG.get("separador") or "_")
     base = base.replace("_", separador) if separador != "_" else base
     base = re.sub(rf"{re.escape(separador)}{{2,}}", separador, base).strip(separador + "-")
-    base = base[:int(CONFIG.get("doc_max_nombre") or 120)].strip(separador + "-")
+    base = base[:int(CONFIG.get("max_nombre") or 120)].strip(separador + "-")
 
     return Nombre(nombre=base + extension, base=base, extension=extension,
                   carpeta=carpeta_para(campos), campos=campos, faltantes=faltantes)
 
 
 def carpeta_para(campos: Dict[str, str]) -> str:
-    esquema = str(CONFIG.get("doc_esquema_carpetas") or "categoria_anio")
+    esquema = str(CONFIG.get("esquema_carpetas") or "categoria_anio")
     categoria = campos.get("categoria", "SIN-CLASIFICAR")
     expediente = campos.get("expediente", "sin-expediente")
     anio, mes = campos.get("anio", "sin-anio"), campos.get("mes", "00")
@@ -129,7 +129,7 @@ def version_disponible(destino: Path, nombre: Nombre) -> Path:
     ruta = destino / nombre.nombre
     if not ruta.exists():
         return ruta
-    separador = str(CONFIG.get("doc_separador") or "_")
+    separador = str(CONFIG.get("separador") or "_")
     for version in range(2, 100):
         candidato = destino / f"{nombre.base}{separador}v{version:02d}{nombre.extension}"
         if not candidato.exists():
@@ -139,10 +139,14 @@ def version_disponible(destino: Path, nombre: Nombre) -> Path:
 
 def describir_convencion() -> Dict[str, Any]:
     return {
-        "plantilla": CONFIG.get("doc_plantilla_nombre") or PLANTILLA_POR_DEFECTO,
-        "separador": CONFIG.get("doc_separador") or "_",
-        "max_nombre": CONFIG.get("doc_max_nombre") or 120,
-        "esquema_carpetas": CONFIG.get("doc_esquema_carpetas") or "categoria_anio",
+        "plantilla": CONFIG.get("plantilla_nombre") or PLANTILLA_POR_DEFECTO,
+        "separador": CONFIG.get("separador") or "_",
+        "max_nombre": CONFIG.get("max_nombre") or 120,
+        "esquema_carpetas": CONFIG.get("esquema_carpetas") or "categoria_anio",
+        "umbral_revision": CONFIG.get("umbral_revision"),
+        "conservar_original": CONFIG.get("conservar_original"),
+        "max_trabajos": CONFIG.get("max_trabajos"),
+        "guardar_texto": CONFIG.get("guardar_texto"),
         "esquemas": ESQUEMAS,
         "campos": ["fecha", "anio", "mes", "categoria", "expediente", "descriptor",
                    "emisor", "monto", "original", "hash"],
