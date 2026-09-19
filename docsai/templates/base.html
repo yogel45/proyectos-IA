@@ -10,6 +10,9 @@
   {% block head %}{% endblock %}
 </head>
 <body>
+<button class="menu-btn" onclick="menuAbrir()" aria-label="Menu"
+        aria-expanded="false">≡</button>
+<div class="velo" onclick="menuAbrir(false)"></div>
 <div class="layout">
   <aside>
     <div class="brand">
@@ -19,12 +22,12 @@
     <nav>
       {% for path, tpl, label, icono in nav %}
       <a href="{{ path }}" class="{{ 'active' if request.url.path == path else '' }}">
-        <span>{{ icono }}</span>{{ label }}
+        <span>{{ icono }}</span><b>{{ label }}</b>
       </a>
       {% endfor %}
-      <a href="/docs" target="_blank"><span>⌁</span>API</a>
+      <a href="/docs" target="_blank"><span>⌁</span><b>API</b></a>
     </nav>
-    <div style="margin-top:22px" class="small muted">
+    <div class="nota">
       <p style="line-height:1.5">Los documentos se archivan en
         <span class="mono">data/documentos/organizados</span> y el registro vive en
         <span class="mono">documentos.db</span>. Todo el procesamiento es local.</p>
@@ -47,6 +50,17 @@
 </div>
 
 <script>
+/* Barra lateral en telefono: el boton la despliega, el velo o Escape la cierran. */
+function menuAbrir(forzar) {
+  const aside = document.querySelector('aside');
+  const abrir = forzar === undefined ? !aside.classList.contains('abierta') : forzar;
+  aside.classList.toggle('abierta', abrir);
+  document.body.classList.toggle('menu-abierto', abrir);
+  const b = document.querySelector('.menu-btn');
+  if (b) b.setAttribute('aria-expanded', String(abrir));
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') menuAbrir(false); });
+
 async function refreshSystem() {
   try {
     const m = await API.get('/api/metricas');

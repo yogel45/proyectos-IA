@@ -29,15 +29,6 @@
       <button id="btn-conv">Guardar</button>
       <button class="ghost" id="btn-reorg">Reorganizar lo ya archivado</button>
     </div>
-    <p class="small muted" style="margin-top:10px" id="conv-campos"></p>
-    <div class="sep"></div>
-    <p class="small muted">
-      La fecha va primero en formato ISO para que el orden alfabetico sea el
-      cronologico. Si un dato no se detecta se escribe un marcador explicito
-      (<span class="mono">sin-fecha</span>, <span class="mono">sin-expediente</span>)
-      en lugar de dejar el nombre incompleto. Si el nombre ya existe se agrega
-      <span class="mono">_v02</span>: nunca se sobrescribe un archivo.
-    </p>
   </div>
 
   <div class="card">
@@ -45,28 +36,23 @@
     <div class="row tight">
       <div style="flex:1"><label>Documento</label><select id="p-doc"></select></div>
     </div>
-    <div id="p-vista" style="margin-top:12px"><p class="muted small">Elige un documento para ver como quedaria su nombre.</p></div>
+    <div id="p-vista" style="margin-top:12px"></div>
   </div>
 </div>
 
 <section class="card" style="margin-top:14px">
-  <h3>Anadir una categoria <small>para los tipos que el catalogo no cubre</small></h3>
+  <h3>Anadir una categoria</h3>
   <div class="row tight">
     <div style="max-width:150px"><label>Codigo</label><input id="n-codigo" placeholder="PERMISO"></div>
     <div style="flex:1;min-width:180px"><label>Nombre visible</label><input id="n-nombre" placeholder="Permiso / licencia municipal"></div>
     <div style="flex:1;min-width:200px"><label>Descripcion</label><input id="n-desc" placeholder="Que agrupa"></div>
   </div>
   <div class="row tight" style="margin-top:10px">
-    <div style="flex:1"><label>Palabras o frases que la identifican (separadas por comas)</label>
+    <div style="flex:1"><label>Palabras que la identifican</label>
       <input id="n-terminos" placeholder="certificate of occupancy, permit number, zoning"></div>
     <div style="align-self:end"><button id="btn-cat">Crear</button></div>
     <div style="align-self:end"><button class="ghost" id="btn-reproc">Reprocesar los que estan en revision</button></div>
   </div>
-  <p class="small muted" style="margin-top:10px">
-    Al crear una categoria no hace falta volver a subir nada: <em>Reprocesar</em> vuelve
-    a clasificar lo ya guardado con el texto que ya se extrajo, y renombra y mueve lo
-    que cambie de categoria.
-  </p>
 </section>
 
 <section class="card" style="margin-top:14px">
@@ -76,12 +62,6 @@
       <th class="right">Documentos</th><th></th></tr></thead>
     <tbody id="t-cats"><tr><td colspan="5" class="muted">Cargando…</td></tr></tbody>
   </table></div>
-  <p class="small muted" style="margin-top:10px">
-    Cada categoria se decide con terminos ponderados (lo que aparece en el encabezado
-    pesa mas) y, cuando hay suficientes correcciones humanas, tambien vota un modelo
-    entrenado con ellas. Para anadir o afinar categorias se edita
-    <span class="mono">docsai/classify.py</span>.
-  </p>
 </section>
 {% endblock %}
 
@@ -106,8 +86,6 @@ async function cargar() {
   $('#c-esquema').innerHTML = Object.entries(c.esquemas).map(([k, v]) =>
     `<option value="${k}" ${k === c.esquema_carpetas ? 'selected' : ''}>${esc(v)}</option>`).join('');
   $('#conv-ejemplo').textContent = c.ejemplo;
-  $('#conv-campos').innerHTML = 'Campos disponibles: ' +
-    c.campos.map(x => `<span class="mono">{${x}}</span>`).join(' · ');
 
   const porCat = Object.fromEntries((metricas.por_categoria || []).map(x => [x.categoria, x.n]));
   $('#cat-count').textContent = `${cats.length} categorias`;

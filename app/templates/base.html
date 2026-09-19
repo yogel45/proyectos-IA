@@ -10,6 +10,9 @@
   {% block head %}{% endblock %}
 </head>
 <body>
+<button class="menu-btn" onclick="menuAbrir()" aria-label="Menu"
+        aria-expanded="false">≡</button>
+<div class="velo" onclick="menuAbrir(false)"></div>
 <div class="layout">
   <aside>
     <div class="brand">
@@ -19,11 +22,11 @@
     <nav>
       {% for path, tpl, label, icon in nav %}
       <a href="{{ path }}" class="{{ 'active' if request.url.path == path else '' }}">
-        <span>{{ icon }}</span>{{ label }}
+        <span>{{ icon }}</span><b>{{ label }}</b>
       </a>
       {% endfor %}
     </nav>
-    <div style="margin-top:22px" class="small muted">
+    <div class="nota">
       <div class="pill" style="width:100%;justify-content:flex-start">
         <span class="dot" id="nav-dot"></span><span id="nav-detector">detector…</span>
       </div>
@@ -50,6 +53,17 @@
 </div>
 
 <script>
+/* Barra lateral en telefono: el boton la despliega, el velo o Escape la cierran. */
+function menuAbrir(forzar) {
+  const aside = document.querySelector('aside');
+  const abrir = forzar === undefined ? !aside.classList.contains('abierta') : forzar;
+  aside.classList.toggle('abierta', abrir);
+  document.body.classList.toggle('menu-abierto', abrir);
+  const b = document.querySelector('.menu-btn');
+  if (b) b.setAttribute('aria-expanded', String(abrir));
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') menuAbrir(false); });
+
 async function refreshSystem() {
   try {
     const s = await API.get('/api/system');
