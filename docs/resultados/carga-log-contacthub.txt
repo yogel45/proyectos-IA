@@ -1,12 +1,12 @@
 Registro de ContactHub durante las pruebas del reto 7
 ======================================================================
 
-Extracto. El registro completo de la sesion tiene 56 011 lineas; aqui va
+Extracto. El registro completo de la sesion tiene 104 745 lineas; aqui va
 lo que sostiene los apartados 5 y 8.8 del informe.
 
 1. RECUENTO DE ERRORES DEL SERVIDOR
 ----------------------------------------------------------------------
-     400  sqlalchemy.exc.TimeoutError: QueuePool limit of size 5 overflow 10 reached, connection timed out, timeout 30.
+     801  sqlalchemy.exc.TimeoutError: QueuePool limit of size 5 overflow 10 reached, connection timed out, timeout 30.
 
   Causas:
 
@@ -150,15 +150,15 @@ sqlalchemy.exc.TimeoutError: QueuePool limit of size 5 overflow 10 reached, conn
 
 4. PETICIONES ATENDIDAS CORRECTAMENTE (muestra)
 ----------------------------------------------------------------------
-  2026-09-20 03:26:04,862 INFO contacthub GET /health -> 200 45ms rid=3bf8afa57d93416ca81fcc9a3aafe3f6
-  2026-09-20 03:26:05,095 INFO contacthub POST /api/v1/auth/login -> 200 83ms rid=74d9f29c8ffb461b87a9c759b07ba327
-  2026-09-20 03:26:05,101 INFO contacthub GET /api/v1/auth/me -> 200 5ms rid=9c03131bc4324db8b55e99042d9edbf1
-  2026-09-20 03:26:05,222 INFO contacthub GET /api/v1/stats -> 200 66ms rid=20f5f82e28e449ef8591d325dd8d6269
-  2026-09-20 03:26:05,344 INFO contacthub GET /api/v1/stats -> 200 56ms rid=d934a06b244645658fd66d0429167957
-  2026-09-20 03:26:05,374 INFO contacthub GET /api/v1/contacts -> 200 28ms rid=c863678fc93c449c8bf87dd86b3fb4c7
-  2026-09-20 03:26:05,388 INFO contacthub GET /api/v1/contacts -> 200 12ms rid=266169cc2bd84095b63dcd1f4951f29c
-  2026-09-20 03:26:05,402 INFO contacthub GET /api/v1/contacts -> 200 12ms rid=703a1ed858d24d2891b99cb8e3bcfad6
-  2026-09-20 03:26:05,417 INFO contacthub GET /api/v1/contacts -> 200 14ms rid=d3960b5cdc8b4804858d261da02fd7ec
-  2026-09-20 03:26:05,432 INFO contacthub GET /api/v1/contacts -> 200 13ms rid=fcae9dfaaa7a4c758fa5681002fafa6b
+  2026-09-20 05:15:31,401 INFO contacthub GET /health -> 200 49ms rid=f20f1a4925014ed98f7e257365257992
+  2026-09-20 05:15:31,720 INFO contacthub POST /api/v1/auth/login -> 200 113ms rid=babcca6f3ba549ad88a45fe16865369b
+  2026-09-20 05:15:31,726 INFO contacthub GET /api/v1/auth/me -> 200 4ms rid=7c6618fb880642ff9f61a441bb9b809a
+  2026-09-20 05:15:33,038 INFO contacthub GET /api/v1/stats -> 200 1260ms rid=124aaca44c884818b2a98097f7debf05
+  2026-09-20 05:15:33,148 INFO contacthub GET /api/v1/stats -> 200 54ms rid=b023fe3bae804acd8060a3dcde4a9338
+  2026-09-20 05:15:33,177 INFO contacthub GET /api/v1/contacts -> 200 28ms rid=aa5742676c8c4d41a453f6a010efe7b9
+  2026-09-20 05:15:33,190 INFO contacthub GET /api/v1/contacts -> 200 12ms rid=8ef528e60b53487ba8d07602ea19d231
+  2026-09-20 05:15:33,203 INFO contacthub GET /api/v1/contacts -> 200 12ms rid=4940cdeb1f6541dd9a399add305cde33
+  2026-09-20 05:15:33,218 INFO contacthub GET /api/v1/contacts -> 200 13ms rid=25cf2b7c745e46afba85c23f8700d8ba
+  2026-09-20 05:15:33,232 INFO contacthub GET /api/v1/contacts -> 200 13ms rid=e6595bf26b81475394cb1ad6dd42578c
 
-  Total de respuestas 2xx en el registro: 6 958
+  Total de respuestas 2xx en el registro: 7 771

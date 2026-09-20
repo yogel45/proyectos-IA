@@ -1,11 +1,11 @@
-Sesion de pruebas 20260920_032603 — sistema probado: ContactHub (http://127.0.0.1:8765)
+Sesion de pruebas 20260920_051526 — sistema probado: ContactHub (http://127.0.0.1:8765)
 Maquina: {'sistema': 'Linux 6.18.44-fc-v37', 'python': '3.11.15', 'nucleos': 4, 'ram_gb': 16.9}
-Carga nominal derivada de los datos reales de la oficina: 0.090 peticiones/s (325 peticiones en la hora punta)
+Carga nominal derivada de los datos reales de la oficina: 0.089 peticiones/s (321 peticiones en la hora punta)
 
 Arrancando ContactHub
 ─────────────────────
   ContactHub en http://127.0.0.1:8765: arrancado desde /tmp/claude-0/-home-user-proyectos-IA/db83a872-979f-5963-951c-46be038c9803/scratchpad/nuevo/ch/ContactHub
-  tardo 1.0s en contestar · pid 13804
+  tardo 5.3s en contestar · pid 524
 
 Abriendo sesion
 ───────────────
@@ -13,50 +13,51 @@ Abriendo sesion
 
 Sembrando la libreta
 ────────────────────
-  la libreta ya tenia 5144 contactos
-  se medira contra 5144 contactos · 144 fichas y 22 apellidos distintos para repartir las consultas
+  la libreta ya tenia 5000 contactos
+  se medira contra 5000 contactos · 144 fichas y 24 apellidos distintos para repartir las consultas
 
 1. Arranque en frio: lo que espera la primera persona del dia
 ─────────────────────────────────────────────────────────────
     estado del servicio                     3 ms   (repetida: 2 ms)
-    quien soy                               3 ms   (repetida: 3 ms)
-    resumen de la libreta                  54 ms   (repetida: 53 ms)
-    primera pantalla de contactos          23 ms   (repetida: 22 ms)
-    etiquetas del menu                     16 ms   (repetida: 14 ms)
-    buscar un apellido                     35 ms   (repetida: 31 ms)
-    posibles duplicados                  2206 ms   (repetida: 2178 ms)
-    mi perfil                              11 ms   (repetida: 4 ms)
+    quien soy                               3 ms   (repetida: 2 ms)
+    resumen de la libreta                  56 ms   (repetida: 54 ms)
+    primera pantalla de contactos          22 ms   (repetida: 21 ms)
+    etiquetas del menu                     14 ms   (repetida: 13 ms)
+    buscar un apellido                     33 ms   (repetida: 30 ms)
+    posibles duplicados                  2620 ms   (repetida: 1984 ms)
+    mi perfil                              10 ms   (repetida: 3 ms)
 
     calentando antes de medir en regimen estable …
 
 2. Rafaga: todas a la vez desde reposo
 ──────────────────────────────────────
-    rafaga de   10 simultaneas … p95     579 ms · max     579 ms · errores  0.00 %
-    rafaga de   20 simultaneas … p95    1359 ms · max    1367 ms · errores  0.00 %
-    rafaga de   30 simultaneas … p95    2210 ms · max    2215 ms · errores  0.00 %
-    rafaga de   40 simultaneas … p95    2737 ms · max    2748 ms · errores  0.00 %
-    rafaga de   50 simultaneas … p95    3177 ms · max    3183 ms · errores  0.00 %
-    rafaga de   60 simultaneas … p95   31713 ms · max   31734 ms · errores 66.67 %
+    rafaga de   10 simultaneas … p95     462 ms · max     462 ms · errores  0.00 %
+    rafaga de   20 simultaneas … p95    1190 ms · max    1196 ms · errores  0.00 %
+    rafaga de   30 simultaneas … p95    1833 ms · max    1835 ms · errores  0.00 %
+    rafaga de   40 simultaneas … p95    2383 ms · max    2396 ms · errores  0.00 %
+    rafaga de   50 simultaneas … p95    2615 ms · max    2627 ms · errores  0.00 %
+    rafaga de   60 simultaneas … p95   31493 ms · max   31512 ms · errores 66.67 %
 
     Con 60 simultaneas ya falla mas de la mitad. No se sube mas (quedaban 80).
     esperando a que el servicio se recupere … listo en 1s
 
 3. Escrituras concurrentes sobre la misma libreta
 ─────────────────────────────────────────────────
-    25s de escrituras concurrentes a 8/s … p95 139 ms · errores 0.00 %
+    25s de escrituras concurrentes a 8/s … p95 130 ms · errores 0.00 %
 
 4. Solo las consultas caras
 ───────────────────────────
-    25s de consultas caras a 4/s … p95 95864 ms · errores 65.77 %
+    25s de consultas caras a 4/s … p95 120004 ms · errores 64.86 %
 
 5. Resistencia: caudal sostenido
 ────────────────────────────────
-    120s seguidos a 6 peticiones/s … p95 152 ms · errores 0.00 %
+    [resistencia] el servicio viene tocado del escenario anterior; esperando a que vuelva …     esperando a que el servicio se recupere … listo en 2s
+    120s seguidos a 6 peticiones/s … p95 163 ms · errores 0.00 %
 
 6. Importacion grande mientras la oficina sigue buscando
 ────────────────────────────────────────────────────────
-    importacion de 3000 contactos en marcha (#d4178c59); midiendo la libreta mientras tanto … p95 277 ms · errores 0.00 %
-    trabajo: {'status': 'completed', 'total': 3000, 'created': 0, 'updated': 0, 'unchanged': 3000, 'deleted': 0, 'error_message': None}
+    importacion de 3000 contactos en marcha (#9c44a53f); midiendo la libreta mientras tanto … p95 523 ms · errores 0.00 %
+    trabajo: {'status': 'completed', 'total': 3000, 'created': 2979, 'updated': 0, 'unchanged': 0, 'deleted': 0, 'error_message': None}
 
 7. Tolerancia a errores: peticiones mal formadas o sin permiso
 ──────────────────────────────────────────────────────────────
@@ -111,11 +112,11 @@ Sembrando la libreta
 
 8. Integridad de la libreta despues de la paliza
 ────────────────────────────────────────────────
-    contactos_antes                  5144
-    contactos_ahora                  5216
-    en_la_papelera                   202
-    con_correo                       5216
-    con_telefono                     5216
+    contactos_antes                  5000
+    contactos_ahora                  8051
+    en_la_papelera                   418
+    con_correo                       8051
+    con_telefono                     8051
     fichas_de_referencia_vivas       25/25
     ficha_de_referencia              Renata Aguilar Aguilar
     servicio_responde                True
@@ -125,27 +126,42 @@ Sembrando la libreta
     La escalada mide tramos de 20 s y eso sobreestima. Aqui
     cada nivel dura 120 s, que es cuando la cola se acumula.
 
-        5 peticiones/s  (x   55 la hora punta) durante 120s … p95     137 ms · errores  0.00 % · 5.1 rps reales
-       10 peticiones/s  (x  111 la hora punta) durante 120s … p95     295 ms · errores  0.00 % · 9.8 rps reales
-       15 peticiones/s  (x  166 la hora punta) durante 120s … p95     379 ms · errores  0.00 % · 14.7 rps reales
-       20 peticiones/s  (x  222 la hora punta) durante 120s … p95  101900 ms · errores 75.99 % · 14.4 rps reales
+        5 peticiones/s  (x   56 la hora punta) durante 120s … p95     314 ms · errores  0.00 % · 5.1 rps reales
+       10 peticiones/s  (x  112 la hora punta) durante 120s … p95     354 ms · errores  0.00 % · 9.8 rps reales
+       15 peticiones/s  (x  168 la hora punta) durante 120s … p95     887 ms · errores  0.00 % · 14.5 rps reales
+       20 peticiones/s  (x  224 la hora punta) durante 120s … p95  100522 ms · errores 65.40 % · 10.6 rps reales
 
     A 20 peticiones/s sostenidas ya falla mas del 5 %. Ese es el techo.
     Niveles no ejecutados: 25
 
-    Caudal sostenible: 15 peticiones/s = 166 veces la hora punta real
+    Caudal sostenible: 15 peticiones/s = 168 veces la hora punta real
 
 10. Escalada: la hora punta real, multiplicada, hasta que se cae
 ────────────────────────────────────────────────────────────────
-    la hora punta real de esta oficina son 325 peticiones en 60 minutos = 0.090 peticiones/s
+    la hora punta real de esta oficina son 321 peticiones en 60 minutos = 0.089 peticiones/s
 
-       1.0 peticiones/s  (x   11 la hora punta) durante 20s … p95      64 ms · errores  0.00 % · 1.4 rps reales
-       5.0 peticiones/s  (x   55 la hora punta) durante 20s … p95     116 ms · errores  0.00 % · 5.7 rps reales
-      10.0 peticiones/s  (x  111 la hora punta) durante 20s … p95     238 ms · errores  0.00 % · 10.3 rps reales
-      20.0 peticiones/s  (x  222 la hora punta) durante 20s … p95     466 ms · errores  0.00 % · 17.7 rps reales
-      25.0 peticiones/s  (x  277 la hora punta) durante 20s … p95   52200 ms · errores 54.27 % · 5.0 rps reales
+    [escalada] el servicio viene tocado del escenario anterior; esperando a que vuelva …     esperando a que el servicio se recupere … listo en 183s
+       1.0 peticiones/s  (x   11 la hora punta) durante 20s … p95     109 ms · errores  0.00 % · 1.4 rps reales
+       5.0 peticiones/s  (x   56 la hora punta) durante 20s … p95     407 ms · errores  0.00 % · 5.7 rps reales
+      10.0 peticiones/s  (x  112 la hora punta) durante 20s … p95     362 ms · errores  0.00 % · 10.3 rps reales
+      20.0 peticiones/s  (x  224 la hora punta) durante 20s … p95     550 ms · errores  0.00 % · 17.0 rps reales
+      25.0 peticiones/s  (x  280 la hora punta) durante 20s … p95    1633 ms · errores  0.00 % · 13.7 rps reales
+      30.0 peticiones/s  (x  336 la hora punta) durante 20s … p95   54226 ms · errores 59.70 % · 5.9 rps reales
 
-    El sistema se cayo a 25 peticiones/s (54.3 % de errores, p95 de 52 s). No se sube mas: por encima
+    El sistema se cayo a 30 peticiones/s (59.7 % de errores, p95 de 54 s). No se sube mas: por encima
     de la rodilla cada nivel tarda minutos en drenar y no anade nada.
-    Niveles no ejecutados: 30, 33, 36, 40, 50, 65
-    esperando a que el servicio se recupere … 
+    Niveles no ejecutados: 33, 36, 40, 50, 65
+    esperando a que el servicio se recupere … listo en 179s
+
+  Limpieza: 72 contactos creados por la prueba retirados
+
+  Informe HTML: /home/user/proyectos-IA/data/pruebas/20260920_051526/informe.html
+
+Resultado
+─────────
+    contacthub   CPU media  56.2 % · pico  225.0 % · memoria 149 → 846 MB (deriva +697.4 MB)
+
+    Datos en crudo y resumen : /home/user/proyectos-IA/data/pruebas/20260920_051526
+    Graficas                 : /home/user/proyectos-IA/docs/img/carga-*.png
+    Informe para leer        : /home/user/proyectos-IA/data/pruebas/20260920_051526/informe.html
+    Duracion total           : 1611 s
