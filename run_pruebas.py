@@ -204,45 +204,10 @@ async def sesion(args) -> int:
         print("\n    calentando antes de medir en regimen estable …")
         await orq.calentar(acceso, inv, 3 if args.rapido else 6)
 
-        if not solo or "escalada" in solo:
-            _titulo("2. Escalada: la hora punta real, multiplicada")
-            print(f"    la hora punta real de esta oficina son "
-                  f"{sum(esc.HORA_PUNTA.values())} peticiones en 60 minutos "
-                  f"= {esc.RPS_NOMINAL:.3f} peticiones/s\n")
-            marca("escalada")
-            niveles = ([1, 20, 60] if args.rapido else
-                       [1, 5, 10, 20, 30, 40, 50, 65, 80, 100, 150])
-            segundos = 6 if args.rapido else 20
-            resultados = await orq.escalada(niveles, segundos, acceso, inv)
-            resumenes = []
-            for r in resultados:
-                guardar_muestras(r, salida / f"muestras_{r.escenario.replace(' ', '_')}.csv")
-                resumenes.append({**r.resumen(), "factor": r.notas["factor"],
-                                  "rps_objetivo": r.notas["rps_objetivo"],
-                                  "recuperacion_s": r.notas.get("recuperacion_s")})
-            informe["escalada"] = resumenes
-            # Si el servicio no volvio en pie, lo que se mida despues no es
-            # suyo: seria la cola de la caida anterior. Se dice y se salta al
-            # final, que no necesita el sistema descargado.
-            derrumbe = resumenes[-1].get("recuperacion_s")
-            if derrumbe is not None and derrumbe < 0:
-                print("\n    [AVISO] el servicio no ha vuelto a responder. Los escenarios")
-                print("    de carga que quedan se omiten: medirian la cola de la caida,")
-                print("    no el sistema. Se pasa a la bateria de errores y a la integridad.")
-                informe["escenarios_omitidos"] = "el servicio no se recupero de la caida"
-                solo = {"errores"}
-            rep.grafica_escalada(resumenes, img / "carga-escalada.png", esc.RPS_NOMINAL)
-            rep.grafica_errores(resumenes, img / "carga-errores.png")
-            rep.grafica_caudal(resumenes, img / "carga-caudal.png")
-            peor = resultados[-1]
-            rep.grafica_operaciones(peor.por_operacion(), img / "carga-operaciones.png",
-                                    f"Coste de cada operacion bajo {peor.escenario}")
-            informe["por_operacion_maxima"] = peor.por_operacion()
-
         if not solo or "rafaga" in solo:
-            _titulo("3. Rafaga: todas a la vez desde reposo")
+            _titulo("2. Rafaga: todas a la vez desde reposo")
             marca("rafagas")
-            tam = [20, 60] if args.rapido else [10, 25, 40, 60, 100, 200]
+            tam = [20, 50] if args.rapido else [10, 20, 30, 40, 50, 60, 80]
             resultados = await orq.rafagas(tam, acceso, inv)
             informe["rafagas"] = [{**r.resumen(), "concurrencia": r.notas["concurrencia"]}
                                   for r in resultados]
@@ -250,7 +215,7 @@ async def sesion(args) -> int:
                 guardar_muestras(r, salida / f"muestras_{r.escenario.replace(' ', '_')}.csv")
 
         if not solo or "escrituras" in solo:
-            _titulo("4. Escrituras concurrentes sobre la misma libreta")
+            _titulo("3. Escrituras concurrentes sobre la misma libreta")
             marca("escrituras")
             r = await orq.escrituras(rps=10 if args.rapido else 25,
                                      segundos=8 if args.rapido else 25,
@@ -262,7 +227,7 @@ async def sesion(args) -> int:
                                     "Coste de cada escritura con 25 peticiones/s")
 
         if not solo or "dura" in solo:
-            _titulo("5. Solo las consultas caras")
+            _titulo("4. Solo las consultas caras")
             marca("busqueda dura")
             r = await orq.busqueda_dura(rps=5 if args.rapido else 12,
                                         segundos=8 if args.rapido else 25,
@@ -274,7 +239,7 @@ async def sesion(args) -> int:
                                     "Coste de cada consulta cara con 12 peticiones/s")
 
         if not solo or "resistencia" in solo:
-            _titulo("6. Resistencia: caudal sostenido")
+            _titulo("5. Resistencia: caudal sostenido")
             marca("resistencia")
             r = await orq.resistencia(rps=20, segundos=20 if args.rapido else 120,
                                       sesion=acceso, inv=inv)
@@ -284,7 +249,7 @@ async def sesion(args) -> int:
                                     img / "carga-resistencia.png")
 
         if (not solo or "importacion" in solo) and not args.sin_importacion:
-            _titulo("7. Importacion grande mientras la oficina sigue buscando")
+            _titulo("6. Importacion grande mientras la oficina sigue buscando")
             marca("importacion")
             resultado = await orq.importacion_en_curso(
                 acceso, inv, cuantos=800 if args.rapido else 3000,
@@ -300,7 +265,7 @@ async def sesion(args) -> int:
                 print(f"    [omitido] {resultado.get('motivo')}")
 
         if not solo or "errores" in solo:
-            _titulo("8. Tolerancia a errores: peticiones mal formadas o sin permiso")
+            _titulo("7. Tolerancia a errores: peticiones mal formadas o sin permiso")
             marca("errores")
             informe["tolerancia"] = orq.tolerancia_errores(inv, acceso)
             t = informe["tolerancia"]
@@ -309,11 +274,43 @@ async def sesion(args) -> int:
             print("\n    Cerrojo de la puerta (intentos fallidos seguidos):")
             informe["cerrojo"] = orq.cerrojo()
 
-        _titulo("9. Integridad de la libreta despues de la paliza")
+        _titulo("8. Integridad de la libreta despues de la paliza")
         marca("integridad")
         informe["integridad"] = orq.integridad(acceso, inv)
         for k, v in informe["integridad"].items():
             print(f"    {k:<32} {v}")
+
+        # La escalada va la ULTIMA a proposito. Tumba el servicio, y despues
+        # de tumbarlo tarda minutos en volver: medir cualquier otra cosa
+        # encima de esa cola no mediria el sistema, mediria la caida
+        # anterior. Se comprobo por las malas — en una corrida previa las
+        # rafagas salieron con un 100 % de errores que no eran suyos.
+        if not solo or "escalada" in solo:
+            _titulo("9. Escalada: la hora punta real, multiplicada, hasta que se cae")
+            print(f"    la hora punta real de esta oficina son "
+                  f"{sum(esc.HORA_PUNTA.values())} peticiones en 60 minutos "
+                  f"= {esc.RPS_NOMINAL:.3f} peticiones/s\n")
+            marca("escalada")
+            niveles = ([1, 20, 60] if args.rapido else
+                       [1, 5, 10, 20, 25, 30, 33, 36, 40, 50, 65])
+            segundos = 6 if args.rapido else 20
+            resultados = await orq.escalada(niveles, segundos, acceso, inv)
+            resumenes = []
+            for r in resultados:
+                guardar_muestras(r, salida / f"muestras_{r.escenario.replace(' ', '_')}.csv")
+                resumenes.append({**r.resumen(), "factor": r.notas["factor"],
+                                  "rps_objetivo": r.notas["rps_objetivo"],
+                                  "recuperacion_s": r.notas.get("recuperacion_s")})
+            informe["escalada"] = resumenes
+            informe["recuperacion_s"] = resumenes[-1].get("recuperacion_s")
+            rep.grafica_escalada(resumenes, img / "carga-escalada.png", esc.RPS_NOMINAL)
+            rep.grafica_errores(resumenes, img / "carga-errores.png")
+            rep.grafica_caudal(resumenes, img / "carga-caudal.png")
+            peor = resultados[-1]
+            rep.grafica_operaciones(peor.por_operacion(), img / "carga-operaciones.png",
+                                    f"Coste de cada operacion bajo {peor.escenario}")
+            informe["por_operacion_maxima"] = peor.por_operacion()
+
 
     finally:
         recursos = monitor.detener()
