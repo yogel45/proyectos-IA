@@ -191,16 +191,46 @@ async def en_pie(etiqueta: str = "", segundos: float = 420) -> float:
     consultas caras saturan ya a 12 peticiones/s, y la prueba de resistencia
     que venia detras habria medido su resaca, no la resistencia.
 
-    Si el servicio responde, esto no cuesta nada: una peticion a /health.
+    **Que /health conteste no significa que el servicio este recuperado.**
+    /health solo necesita una conexion libre de las 15; con 14 todavia
+    ocupadas por la cola de la caida anterior, contesta igual y rapido. Se
+    comprobo por las malas: un caudal que en un servidor descansado da cero
+    errores dio un 67 % medido justo despues de que /health volviera.
+
+    Por eso aqui no basta una respuesta: se exigen SONDEOS_SEGUIDOS
+    respuestas consecutivas y rapidas. Si alguna tarda, el contador se
+    reinicia.
     """
-    try:
-        if httpx.get(f"{ch.BASE}/health", timeout=3).status_code == 200:
-            return 0.0
-    except Exception:
-        pass
+    if _descansado():
+        return 0.0
     print(f"    [{etiqueta}] el servicio viene tocado del escenario anterior; "
           f"esperando a que vuelva … ", end="", flush=True)
     return await esperar_a_que_se_recupere(segundos)
+
+
+# Cuantas respuestas rapidas seguidas hacen falta para dar el servicio por
+# recuperado, y a partir de cuanto una respuesta ya no se considera rapida.
+SONDEOS_SEGUIDOS = 4
+SONDEO_RAPIDO_MS = 400.0
+
+
+def _descansado() -> bool:
+    """Varias respuestas seguidas y rapidas, no solo una."""
+    seguidas = 0
+    for _ in range(SONDEOS_SEGUIDOS * 2):
+        t0 = time.perf_counter()
+        try:
+            r = httpx.get(f"{ch.BASE}/health", timeout=3)
+        except Exception:
+            return False
+        ms = (time.perf_counter() - t0) * 1000
+        if r.status_code != 200 or ms > SONDEO_RAPIDO_MS:
+            return False
+        seguidas += 1
+        if seguidas >= SONDEOS_SEGUIDOS:
+            return True
+        time.sleep(0.4)
+    return False
 
 
 async def esperar_a_que_se_recupere(segundos: float = 420) -> float:
@@ -218,14 +248,10 @@ async def esperar_a_que_se_recupere(segundos: float = 420) -> float:
     t0 = time.perf_counter()
     limite = t0 + segundos
     while time.perf_counter() < limite:
-        try:
-            r = httpx.get(f"{ch.BASE}/health", timeout=3)
-            if r.status_code == 200:
-                tardo = time.perf_counter() - t0
-                print(f"listo en {tardo:.0f}s")
-                return round(tardo, 1)
-        except Exception:
-            pass
+        if _descansado():
+            tardo = time.perf_counter() - t0
+            print(f"listo en {tardo:.0f}s")
+            return round(tardo, 1)
         await asyncio.sleep(2)
     print("sigue sin contestar")
     return -1.0
