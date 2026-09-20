@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="grid g3" id="fuentes" style="margin-bottom:16px"></div>
+
+<div class="split">
+  <div class="card"><h3>Importaciones <small>que entro y cuando</small></h3>
+    <div class="feed" id="historial"></div></div>
+
+  <div class="card"><h3>Cuando abrir ficha desde una llamada</h3>
+    <p class="small muted" style="margin-top:-4px;line-height:1.55">Un numero entra al
+      directorio cuando hay trato sostenido. Lo demas queda como historial buscable por
+      numero, para no llenar la agenda de gente que llamo una vez.</p>
+    <div class="row" style="margin-top:12px">
+      <div><label>Llamadas minimas</label><input id="c-veces" type="number" min="1"></div>
+      <div><label>O conversacion acumulada (min)</label><input id="c-min" type="number" min="0"></div>
+    </div>
+    <div class="row" style="margin-top:9px">
+      <div><label>Confianza minima para proponer fusion</label>
+        <input id="c-dup" type="number" step="0.05" min="0.5" max="1"></div>
+      <div><label>Hitos por ficha</label><input id="c-hitos" type="number" min="5"></div>
+    </div>
+    <div class="row tight" style="margin-top:12px"><button onclick="guardarConfig()">Guardar</button></div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+async function cargar() {
+  const f = await API.get('/api/fuentes');
+  $('#fuentes').innerHTML = f.disponibles.map(d => `<div class="card">
+    <div class="row tight" style="justify-content:space-between;align-items:flex-start">
+      <div><div style="font-size:15px">${esc(d.nombre)}</div>
+        <div class="small muted" style="margin-top:3px">${esc(d.detalle)}</div></div>
+      <span class="tag ${d.listo ? 'ok' : 'muted'}">${d.listo ? 'lista' : 'no encontrada'}</span>
+    </div>
+    <div class="small mono muted" style="margin-top:10px;word-break:break-all">${esc(d.ruta)}</div>
+    <button style="margin-top:12px" ${d.listo ? '' : 'disabled'}
+      onclick="importar('${d.clave}', this)">Importar</button>
+  </div>`).join('') + `<div class="card" style="display:flex;flex-direction:column;justify-content:center">
+    <div style="font-size:15px">Todas las fuentes</div>
+    <div class="small muted" style="margin-top:3px">Importa lo que este disponible, en orden</div>
+    <button style="margin-top:12px" onclick="importar('todo', this)">Importar todo</button></div>`;
+
+  $('#historial').innerHTML = f.historial.map(h => `<div class="item">
+      <div class="meta">${fmtFecha(h.ts)} · <span class="tag muted">${esc(h.fuente)}</span></div>
+      <div>${h.creados} fichas nuevas · ${h.actualizados} completadas ·
+        ${h.interacciones} hitos
+        <div class="small muted">${esc(h.detalle || '')}</div></div>
+    </div>`).join('') || '<div class="muted small">Todavia no se ha importado nada.</div>';
+
+  const c = await API.get('/api/config');
+  $('#c-veces').value = c.llamadas_min_veces;
+  $('#c-min').value = Math.round((c.llamadas_min_segundos_total || 0) / 60);
+  $('#c-dup').value = c.umbral_duplicado;
+  $('#c-hitos').value = c.hitos_por_ficha;
+}
+
+async function importar(clave, boton) {
+  boton.disabled = true; boton.textContent = 'importando…';
+  try {
+    const r = await API.send('/api/importar/' + clave);
+    const t = r.resultados.map(x =>
+      `${x.fuente}: ${x.creados} nuevas, ${x.actualizados} completadas, ${x.interacciones} hitos`).join(' · ');
+    toast(t || 'sin cambios', 'ok', 7000);
+  } catch (e) { toast(String(e.message || e), 'critical', 7000); }
+  cargar();
+}
+
+async function guardarConfig() {
+  await API.send('/api/config', {
+    llamadas_min_veces: Number($('#c-veces').value),
+    llamadas_min_segundos_total: Number($('#c-min').value) * 60,
+    umbral_duplicado: Number($('#c-dup').value),
+    hitos_por_ficha: Number($('#c-hitos').value)});
+  toast('Guardado', 'ok');
+}
+cargar();
+</script>
+{% endblock %}

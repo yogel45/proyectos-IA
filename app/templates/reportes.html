@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block heading %}Reportes y evidencia{% endblock %}
+{% block subtitle %}Todo lo registrado por el sistema, filtrable y exportable{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h3>Filtros</h3>
+  <div class="row tight">
+    <div style="min-width:150px"><label>Rango</label>
+      <select id="f-horas"><option value="1">1 hora</option><option value="24" selected>24 horas</option>
+        <option value="168">7 dias</option><option value="720">30 dias</option>
+        <option value="8760">Todo</option></select></div>
+    <div style="min-width:150px"><label>Severidad</label>
+      <select id="f-sev"><option value="">Todas</option><option value="info">info</option>
+        <option value="warning">warning</option><option value="critical">critical</option></select></div>
+    <div style="min-width:180px"><label>Tipo de evento</label>
+      <select id="f-tipo"><option value="">Todos</option></select></div>
+    <div style="min-width:160px"><label>Sesion</label>
+      <select id="f-ses"><option value="0">Todas</option></select></div>
+    <div style="flex:1;min-width:160px"><label>Buscar</label><input id="f-q" placeholder="zona, mensaje, ID…"></div>
+    <div style="align-self:end"><button onclick="cargar()">Filtrar</button></div>
+  </div>
+  <div class="row tight" style="margin-top:12px">
+    <a class="btn ghost" href="/api/export/events.csv">⤓ Eventos CSV</a>
+    <a class="btn ghost" href="/api/export/snapshots.csv">⤓ Ocupacion CSV</a>
+    <a class="btn ghost" href="/api/export/tracks.csv">⤓ Personas CSV</a>
+    <a class="btn ghost" href="/docs" target="_blank">API (OpenAPI)</a>
+  </div>
+</div>
+
+<section class="grid g2" style="margin-top:14px">
+  <div class="card">
+    <h3>Eventos <small id="ev-count"></small></h3>
+    <div class="scroll" style="max-height:520px"><table>
+      <thead><tr><th>Fecha</th><th>Sev.</th><th>Tipo</th><th>Zona</th><th>ID</th><th>Mensaje</th><th>Evidencia</th></tr></thead>
+      <tbody id="t-ev"><tr><td colspan="7" class="muted">Cargando…</td></tr></tbody>
+    </table></div>
+  </div>
+  <div>
+    <div class="card">
+      <h3>Sesiones</h3>
+      <div class="scroll" style="max-height:230px"><table>
+        <thead><tr><th>#</th><th>Fuente</th><th>Estado</th><th class="right">Personas</th><th class="right">Eventos</th></tr></thead>
+        <tbody id="t-ses"></tbody></table></div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h3>Personas seguidas <small>permanencia por zona</small></h3>
+      <div class="scroll" style="max-height:260px"><table>
+        <thead><tr><th>ID</th><th class="right">Duracion</th><th>Zonas</th><th>Inicio</th></tr></thead>
+        <tbody id="t-tracks"></tbody></table></div>
+    </div>
+  </div>
+</section>
+
+<section class="card" style="margin-top:14px">
+  <h3>Evidencia visual <small>capturas de eventos criticos (rostros difuminados)</small></h3>
+  <div class="grid g4" id="g-snaps"><p class="muted small">Sin capturas.</p></div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function cargar() {
+  const params = new URLSearchParams({
+    limit: 500, since_hours: $('#f-horas').value, severity: $('#f-sev').value,
+    type: $('#f-tipo').value, session_id: $('#f-ses').value, q: $('#f-q').value,
+  });
+  const eventos = await API.get('/api/events?' + params);
+  $('#ev-count').textContent = `${eventos.length} registros`;
+  $('#t-ev').innerHTML = eventos.map(e => `<tr>
+    <td class="small mono">${fmtTime(e.ts)}${e.video_ts != null ? `<br><span class="muted">t=${fmtDur(e.video_ts)}</span>` : ''}</td>
+    <td>${severityTag(e.severity)}</td><td class="small mono">${esc(e.type)}</td>
+    <td class="small">${esc(e.zone || '—')}</td><td class="small mono">${esc(e.track_key || '—')}</td>
+    <td class="small">${esc(e.message)}</td>
+    <td>${e.snapshot ? `<a href="/media/${esc(e.snapshot)}" target="_blank">ver</a>` : '—'}</td></tr>`).join('')
+    || '<tr><td colspan="7" class="muted">Sin eventos con esos filtros</td></tr>';
+
+  const snaps = eventos.filter(e => e.snapshot).slice(0, 12);
+  $('#g-snaps').innerHTML = snaps.map(e => `
+    <a class="card" href="/media/${esc(e.snapshot)}" target="_blank" style="padding:8px">
+      <img src="/media/${esc(e.snapshot)}" style="width:100%;border-radius:8px" loading="lazy">
+      <div class="small muted" style="margin-top:6px">${fmtTime(e.ts)} · ${esc(e.type)}</div></a>`).join('')
+    || '<p class="muted small">Sin capturas para estos filtros.</p>';
+
+  const tracks = await API.get('/api/tracks?limit=200&session_id=' + $('#f-ses').value);
+  $('#t-tracks').innerHTML = tracks.map(t => {
+    const z = JSON.parse(t.zones_json || '{}');
+    const detalle = Object.entries(z).map(([k, v]) => `${k} ${fmtDur(v)}`).join(', ') || '—';
+    return `<tr><td class="mono small">${esc(t.track_key)}</td>
+      <td class="right">${fmtDur(t.duration_s)}</td><td class="small">${esc(detalle)}</td>
+      <td class="small">${fmtTime(t.first_ts)}</td></tr>`;
+  }).join('') || '<tr><td colspan="4" class="muted">Sin personas registradas</td></tr>';
+}
+
+async function inicial() {
+  const sesiones = await API.get('/api/sessions?limit=60');
+  $('#f-ses').innerHTML = '<option value="0">Todas</option>' + sesiones.map(s =>
+    `<option value="${s.id}">#${s.id} · ${esc(s.name)}</option>`).join('');
+  $('#t-ses').innerHTML = sesiones.slice(0, 30).map(s => `<tr>
+    <td class="mono">${s.id}</td><td class="small">${esc(s.name)}</td>
+    <td><span class="tag ${s.status === 'done' ? 'ok' : s.status === 'running' ? 'info' : 'muted'}">${esc(s.status)}</span></td>
+    <td class="right">${s.personas}</td><td class="right">${s.eventos}</td></tr>`).join('')
+    || '<tr><td colspan="5" class="muted">Sin sesiones</td></tr>';
+
+  const resumen = await API.get('/api/metrics/summary?hours=8760');
+  $('#f-tipo').innerHTML = '<option value="">Todos</option>' + (resumen.tipos || []).map(t =>
+    `<option value="${esc(t.type)}">${esc(t.type)} (${t.n})</option>`).join('');
+  cargar();
+}
+$('#f-q').addEventListener('keydown', e => { if (e.key === 'Enter') cargar(); });
+inicial();
+</script>
+{% endblock %}

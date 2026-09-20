@@ -1,0 +1,167 @@
+Sesion de pruebas 20260920_051526 — sistema probado: ContactHub (http://127.0.0.1:8765)
+Maquina: {'sistema': 'Linux 6.18.44-fc-v37', 'python': '3.11.15', 'nucleos': 4, 'ram_gb': 16.9}
+Carga nominal derivada de los datos reales de la oficina: 0.089 peticiones/s (321 peticiones en la hora punta)
+
+Arrancando ContactHub
+─────────────────────
+  ContactHub en http://127.0.0.1:8765: arrancado desde /tmp/claude-0/-home-user-proyectos-IA/db83a872-979f-5963-951c-46be038c9803/scratchpad/nuevo/ch/ContactHub
+  tardo 5.3s en contestar · pid 524
+
+Abriendo sesion
+───────────────
+  cuenta pruebas.carga@grupoilalo.com (ya existia) · token valido 899s
+
+Sembrando la libreta
+────────────────────
+  la libreta ya tenia 5000 contactos
+  se medira contra 5000 contactos · 144 fichas y 24 apellidos distintos para repartir las consultas
+
+1. Arranque en frio: lo que espera la primera persona del dia
+─────────────────────────────────────────────────────────────
+    estado del servicio                     3 ms   (repetida: 2 ms)
+    quien soy                               3 ms   (repetida: 2 ms)
+    resumen de la libreta                  56 ms   (repetida: 54 ms)
+    primera pantalla de contactos          22 ms   (repetida: 21 ms)
+    etiquetas del menu                     14 ms   (repetida: 13 ms)
+    buscar un apellido                     33 ms   (repetida: 30 ms)
+    posibles duplicados                  2620 ms   (repetida: 1984 ms)
+    mi perfil                              10 ms   (repetida: 3 ms)
+
+    calentando antes de medir en regimen estable …
+
+2. Rafaga: todas a la vez desde reposo
+──────────────────────────────────────
+    rafaga de   10 simultaneas … p95     462 ms · max     462 ms · errores  0.00 %
+    rafaga de   20 simultaneas … p95    1190 ms · max    1196 ms · errores  0.00 %
+    rafaga de   30 simultaneas … p95    1833 ms · max    1835 ms · errores  0.00 %
+    rafaga de   40 simultaneas … p95    2383 ms · max    2396 ms · errores  0.00 %
+    rafaga de   50 simultaneas … p95    2615 ms · max    2627 ms · errores  0.00 %
+    rafaga de   60 simultaneas … p95   31493 ms · max   31512 ms · errores 66.67 %
+
+    Con 60 simultaneas ya falla mas de la mitad. No se sube mas (quedaban 80).
+    esperando a que el servicio se recupere … listo en 1s
+
+3. Escrituras concurrentes sobre la misma libreta
+─────────────────────────────────────────────────
+    25s de escrituras concurrentes a 8/s … p95 130 ms · errores 0.00 %
+
+4. Solo las consultas caras
+───────────────────────────
+    25s de consultas caras a 4/s … p95 120004 ms · errores 64.86 %
+
+5. Resistencia: caudal sostenido
+────────────────────────────────
+    [resistencia] el servicio viene tocado del escenario anterior; esperando a que vuelva …     esperando a que el servicio se recupere … listo en 2s
+    120s seguidos a 6 peticiones/s … p95 163 ms · errores 0.00 %
+
+6. Importacion grande mientras la oficina sigue buscando
+────────────────────────────────────────────────────────
+    importacion de 3000 contactos en marcha (#9c44a53f); midiendo la libreta mientras tanto … p95 523 ms · errores 0.00 %
+    trabajo: {'status': 'completed', 'total': 3000, 'created': 2979, 'updated': 0, 'unchanged': 0, 'deleted': 0, 'error_message': None}
+
+7. Tolerancia a errores: peticiones mal formadas o sin permiso
+──────────────────────────────────────────────────────────────
+    [ok ] sin token                                        -> 401
+    [ok ] token inventado                                  -> 401
+    [ok ] Bearer sin token                                 -> 401
+    [ok ] esquema equivocado                               -> 401
+    [ok ] token en la URL en vez de la cabecera            -> 401
+    [ok ] refresh con un token que no es de refresco       -> 401
+    [ok ] perfil de administrador siendo usuario normal    -> 403
+    [ok ] contacto que no existe                           -> 404
+    [ok ] id que no es un uuid                             -> 422
+    [ok ] id con inyeccion                                 -> 422
+    [ok ] historial de un contacto que no existe           -> 404
+    [ok ] importacion que no existe                        -> 404
+    [ok ] JSON malformado                                  -> 422
+    [ok ] cuerpo vacio donde se espera JSON                -> 422
+    [ok ] contacto sin nombre ni telefono ni correo        -> 422
+    [ok ] correo invalido                                  -> 422
+    [ok ] telefono invalido                                -> 422
+    [ok ] fecha de nacimiento imposible                    -> 422
+    [ok ] campo que no existe en el esquema                -> 422
+    [ok ] photo_url apuntando a un archivo local           -> 422
+    [ok ] nota de 200 000 caracteres                       -> 422
+    [ok ] 51 etiquetas en un contacto                      -> 422
+    [ok ] busqueda de 20 000 caracteres                    -> 422
+    [ok ] intento de inyeccion SQL en la busqueda          -> 200
+    [ok ] limite 0                                         -> 422
+    [ok ] limite 5000                                      -> 422
+    [ok ] desplazamiento negativo                          -> 422
+    [ok ] orden que no existe                              -> 422
+    [ok ] fecha con formato invalido                       -> 422
+    [ok ] fusionar un contacto consigo mismo               -> 400
+    [ok ] fusionar con un contacto inexistente             -> 404
+    [ok ] accion en bloque sin ids                         -> 422
+    [ok ] etiquetar en bloque sin decir que etiqueta       -> 422
+    [ok ] accion en bloque que no existe                   -> 422
+    [ok ] restaurar algo que no esta en la papelera        -> 200
+    [ok ] editar con una version vieja                     -> 409
+    [ok ] subir como foto algo que no es una imagen        -> 400
+    [ok ] importar un CSV que no es de Google Contacts     -> 400
+    [ok ] importar un .vcf vacio                           -> 400
+    [ok ] nombre de archivo con ../ (path traversal)       -> 202
+    [ok ] registrarse con un correo ya usado               -> 409
+    [ok ] contrasena demasiado corta                       -> 422
+    [ok ] contrasena de un solo caracter repetido          -> 422
+
+    43/43 respondieron como debian · 0 errores 500
+
+    Cerrojo de la puerta (intentos fallidos seguidos):
+    [ok ] la puerta se cierra al intento 6 (HTTP 429)
+
+8. Integridad de la libreta despues de la paliza
+────────────────────────────────────────────────
+    contactos_antes                  5000
+    contactos_ahora                  8051
+    en_la_papelera                   418
+    con_correo                       8051
+    con_telefono                     8051
+    fichas_de_referencia_vivas       25/25
+    ficha_de_referencia              Renata Aguilar Aguilar
+    servicio_responde                True
+
+9. Caudal sostenible: lo mismo, pero durante dos minutos
+────────────────────────────────────────────────────────
+    La escalada mide tramos de 20 s y eso sobreestima. Aqui
+    cada nivel dura 120 s, que es cuando la cola se acumula.
+
+        5 peticiones/s  (x   56 la hora punta) durante 120s … p95     314 ms · errores  0.00 % · 5.1 rps reales
+       10 peticiones/s  (x  112 la hora punta) durante 120s … p95     354 ms · errores  0.00 % · 9.8 rps reales
+       15 peticiones/s  (x  168 la hora punta) durante 120s … p95     887 ms · errores  0.00 % · 14.5 rps reales
+       20 peticiones/s  (x  224 la hora punta) durante 120s … p95  100522 ms · errores 65.40 % · 10.6 rps reales
+
+    A 20 peticiones/s sostenidas ya falla mas del 5 %. Ese es el techo.
+    Niveles no ejecutados: 25
+
+    Caudal sostenible: 15 peticiones/s = 168 veces la hora punta real
+
+10. Escalada: la hora punta real, multiplicada, hasta que se cae
+────────────────────────────────────────────────────────────────
+    la hora punta real de esta oficina son 321 peticiones en 60 minutos = 0.089 peticiones/s
+
+    [escalada] el servicio viene tocado del escenario anterior; esperando a que vuelva …     esperando a que el servicio se recupere … listo en 183s
+       1.0 peticiones/s  (x   11 la hora punta) durante 20s … p95     109 ms · errores  0.00 % · 1.4 rps reales
+       5.0 peticiones/s  (x   56 la hora punta) durante 20s … p95     407 ms · errores  0.00 % · 5.7 rps reales
+      10.0 peticiones/s  (x  112 la hora punta) durante 20s … p95     362 ms · errores  0.00 % · 10.3 rps reales
+      20.0 peticiones/s  (x  224 la hora punta) durante 20s … p95     550 ms · errores  0.00 % · 17.0 rps reales
+      25.0 peticiones/s  (x  280 la hora punta) durante 20s … p95    1633 ms · errores  0.00 % · 13.7 rps reales
+      30.0 peticiones/s  (x  336 la hora punta) durante 20s … p95   54226 ms · errores 59.70 % · 5.9 rps reales
+
+    El sistema se cayo a 30 peticiones/s (59.7 % de errores, p95 de 54 s). No se sube mas: por encima
+    de la rodilla cada nivel tarda minutos en drenar y no anade nada.
+    Niveles no ejecutados: 33, 36, 40, 50, 65
+    esperando a que el servicio se recupere … listo en 179s
+
+  Limpieza: 72 contactos creados por la prueba retirados
+
+  Informe HTML: /home/user/proyectos-IA/data/pruebas/20260920_051526/informe.html
+
+Resultado
+─────────
+    contacthub   CPU media  56.2 % · pico  225.0 % · memoria 149 → 846 MB (deriva +697.4 MB)
+
+    Datos en crudo y resumen : /home/user/proyectos-IA/data/pruebas/20260920_051526
+    Graficas                 : /home/user/proyectos-IA/docs/img/carga-*.png
+    Informe para leer        : /home/user/proyectos-IA/data/pruebas/20260920_051526/informe.html
+    Duracion total           : 1611 s

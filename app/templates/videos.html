@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% block heading %}Analisis de videos{% endblock %}
+{% block subtitle %}Sube grabaciones y el sistema las procesa por lotes, llenando la base de datos{% endblock %}
+
+{% block content %}
+<div class="split">
+  <div class="card">
+    <h3>Subir video <small>mp4, avi, mov, mkv, webm</small></h3>
+    <div class="drop" id="drop">
+      <strong>Arrastra uno o varios videos aqui</strong><br>
+      <span class="small">o haz clic para elegirlos · se procesan en segundo plano</span>
+      <input type="file" id="file" accept="video/*" multiple style="display:none">
+    </div>
+    <div class="row tight" style="margin-top:12px">
+      <div><label>FPS de analisis</label>
+        <select id="vfps"><option value="2">2</option><option value="4">4</option>
+          <option value="6" selected>6</option><option value="10">10</option>
+          <option value="15">15</option></select></div>
+      <div><label>Video anotado</label>
+        <select id="vrender"><option value="true" selected>Generar</option>
+          <option value="false">No generar (mas rapido)</option></select></div>
+      <div style="align-self:end"><button class="ghost" onclick="cargarJobs()">Actualizar</button></div>
+    </div>
+    <p class="small muted" style="margin-top:10px">
+      El muestreo de cuadros (1 de cada N) mantiene el procesamiento rapido en videos
+      largos sin perder eventos: la permanencia se mide en tiempo de video, no de reloj.
+      <br><strong>Nota:</strong> el video sintetico de <span class="mono">scripts/video_demo.py</span>
+      no contiene personas reales, asi que YOLO no detecta nada en el; para probarlo cambia
+      el detector a <span class="mono">motion</span> en <span class="mono">config.json</span>.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Trabajos <small id="jobs-info">—</small></h3>
+    <div class="scroll" id="jobs"><p class="muted small">Aun no hay videos procesados.</p></div>
+  </div>
+</div>
+
+<section class="card" style="margin-top:14px">
+  <h3>Resultado de la sesion <small id="det-info">selecciona un trabajo</small></h3>
+  <div id="detalle"><p class="muted small">Cuando termine un analisis, haz clic en el trabajo para ver metricas, zonas y eventos.</p></div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const drop = $('#drop'), fileInput = $('#file');
+drop.onclick = () => fileInput.click();
+['dragenter', 'dragover'].forEach(e => drop.addEventListener(e, ev => {
+  ev.preventDefault(); drop.classList.add('hover');
+}));
+['dragleave', 'drop'].forEach(e => drop.addEventListener(e, ev => {
+  ev.preventDefault(); drop.classList.remove('hover');
+}));
+drop.addEventListener('drop', ev => subir(ev.dataTransfer.files));
+fileInput.onchange = () => subir(fileInput.files);
+
+async function aplicarConfig() {
+  await API.send('/api/config', {
+    video_target_fps: parseFloat($('#vfps').value),
+    render_annotated_video: $('#vrender').value === 'true',
+  });
+}
+
+async function subir(files) {
+  if (!files || !files.length) return;
+  await aplicarConfig();
+  for (const f of files) {
+    const fd = new FormData();
+    fd.append('file', f);
+    toast('Subiendo ' + esc(f.name) + '…');
+    try {
+      const r = await fetch('/api/videos/upload', {method: 'POST', body: fd});
+      if (!r.ok) throw new Error(await r.text());
+      const data = await r.json();
+      toast('En proceso: ' + esc(data.job.name), 'ok');
+    } catch (e) { toast('Error con ' + esc(f.name) + ': ' + e.message, 'critical', 6000); }
+  }
+  cargarJobs();
+}
+
+function jobRow(j) {
+  const estado = {queued: 'muted', running: 'info', done: 'ok',
+                  error: 'critical', canceled: 'warning'}[j.status] || 'muted';
+  return `<div class="zone-item" style="flex-direction:column;align-items:stretch;gap:6px;cursor:pointer"
+               onclick="verSesion(${j.session_id})">
+    <div class="row tight" style="justify-content:space-between">
+      <strong>${esc(j.name)}</strong>
+      <span class="tag ${estado}">${esc(j.status)}</span>
+    </div>
+    <div class="bar"><span style="width:${j.progress || 0}%"></span></div>
+    <div class="row tight small muted" style="justify-content:space-between">
+      <span>${j.frames_analyzed} cuadros analizados · ${j.fps ? j.fps.toFixed(1) : '?'} fps origen</span>
+      <span>${esc(j.message || '')}</span>
+    </div>
+    <div class="row tight">
+      ${j.output ? `<a class="btn ghost small" href="/media/${esc(j.output)}" download onclick="event.stopPropagation()">⤓ Video anotado</a>` : ''}
+      ${j.status === 'running' ? `<button class="ghost" onclick="event.stopPropagation();cancelar('${j.id}')">Cancelar</button>` : ''}
+      ${j.session_id ? `<button class="ghost" onclick="event.stopPropagation();verSesion(${j.session_id})">Ver resultado</button>` : ''}
+    </div></div>`;
+}
+
+async function cargarJobs() {
+  try {
+    const jobs = await API.get('/api/jobs');
+    $('#jobs').innerHTML = jobs.length
+      ? `<div class="zone-list">${jobs.map(jobRow).join('')}</div>`
+      : '<p class="muted small">Aun no hay videos procesados.</p>';
+    const run = jobs.filter(j => j.status === 'running').length;
+    $('#jobs-info').textContent = `${jobs.length} trabajos · ${run} en proceso`;
+  } catch (e) { /* servidor ocupado */ }
+}
+
+async function cancelar(id) {
+  await API.send(`/api/jobs/${id}/cancel`);
+  toast('Cancelacion solicitada', 'warning');
+  cargarJobs();
+}
+
+async function verSesion(id) {
+  if (!id) return;
+  const s = await API.get('/api/sessions/' + id);
+  const m = s.meta?.metrics || {};
+  const zonas = m.zones || {};
+  const tl = s.timeline || [];
+  $('#det-info').textContent = `${s.name} · ${s.detector} · ${s.meta?.resolution || ''}`;
+  $('#detalle').innerHTML = `
+    <div class="grid g4">
+      <div class="card kpi acc"><div class="label">Personas unicas</div><div class="value">${m.unique_persons ?? 0}</div>
+        <div class="sub">tracks confirmados</div></div>
+      <div class="card kpi ok"><div class="label">Pico simultaneo</div><div class="value">${m.peak_persons ?? 0}</div>
+        <div class="sub">maximo en un cuadro</div></div>
+      <div class="card kpi"><div class="label">Permanencia prom.</div><div class="value">${fmtDur(m.avg_dwell_s)}</div>
+        <div class="sub">por persona</div></div>
+      <div class="card kpi crit"><div class="label">Alertas</div><div class="value">${m.total_alerts ?? 0}</div>
+        <div class="sub">${m.total_events ?? 0} eventos</div></div>
+      <div class="card kpi"><div class="label">Objetos reconocidos</div>
+        <div class="value">${m.objects_total ?? 0}</div>
+        <div class="sub">${esc(m.objects_resumen || 'sin objetos')}</div></div>
+    </div>
+    <div class="grid g2" style="margin-top:14px">
+      <div class="card"><h3>Ocupacion a lo largo del video</h3>
+        <canvas class="chart" id="c-det"></canvas></div>
+      <div class="card"><h3>Que reconocio el sistema <small>elementos distintos</small></h3>
+        <table><thead><tr><th>Elemento</th><th>Clase del modelo</th><th class="right">Distintos</th></tr></thead>
+          <tbody>${Object.entries(m.objects_unique || {}).sort((a,b)=>b[1]-a[1])
+            .map(([c, n]) => `<tr><td>${esc((m.objects_labels || {})[c] || c)}</td>
+              <td class="small muted mono">${esc(c)}</td><td class="right">${n}</td></tr>`).join('')
+            || '<tr><td colspan="3" class="muted">Sin objetos reconocidos</td></tr>'}</tbody></table>
+      </div>
+      <div class="card"><h3>Actividad por zona</h3>
+        <table><thead><tr><th>Zona</th><th class="right">Entradas</th><th class="right">Salidas</th>
+          <th class="right">Pico</th><th class="right">Permanencia</th></tr></thead>
+          <tbody>${Object.entries(zonas).map(([n, z]) => `<tr><td>${esc(n)}</td>
+            <td class="right">${z.entries}</td><td class="right">${z.exits}</td>
+            <td class="right">${z.peak}</td><td class="right">${fmtDur(z.dwell_total_s)}</td></tr>`).join('')
+            || '<tr><td colspan="5" class="muted">Sin zonas</td></tr>'}</tbody></table></div>
+    </div>
+    ${s.meta?.output ? `<div class="card" style="margin-top:14px"><h3>Video anotado</h3>
+      <video src="/media/${esc(s.meta.output)}" controls style="width:100%;border-radius:10px"></video>
+      <p class="small muted">Si tu navegador no reproduce el archivo, descargalo:
+        <a href="/media/${esc(s.meta.output)}" download>${esc(s.meta.output)}</a></p></div>` : ''}
+    <div class="grid g2" style="margin-top:14px">
+      <div class="card"><h3>Eventos <small>${s.events.length}</small></h3>
+        <div class="feed">${s.events.map(e => `<div class="item ${esc(e.severity)}">
+          <div class="meta">${severityTag(e.severity)}<span>${e.video_ts != null ? 't=' + fmtDur(e.video_ts) : fmtTime(e.ts)}</span>
+          <span class="mono">${esc(e.type)}</span></div><div>${esc(e.message)}</div></div>`).join('')
+          || '<p class="muted small">Sin eventos</p>'}</div></div>
+      <div class="card"><h3>Personas seguidas <small>${s.tracks.length}</small></h3>
+        <div class="scroll"><table><thead><tr><th>ID</th><th class="right">Duracion</th>
+          <th class="right">Cuadros</th><th>Zonas</th></tr></thead>
+          <tbody>${s.tracks.map(t => `<tr><td class="mono">${esc(t.track_key)}</td>
+            <td class="right">${fmtDur(t.duration_s)}</td><td class="right">${t.frames}</td>
+            <td class="small">${esc(Object.keys(JSON.parse(t.zones_json || '{}')).join(', ') || '—')}</td></tr>`).join('')
+            || '<tr><td colspan="4" class="muted">Sin personas registradas</td></tr>'}</tbody></table></div></div>
+    </div>`;
+  lineChart($('#c-det'), {
+    labels: tl.map(p => p.video_ts != null ? fmtDur(p.video_ts) : fmtClock(p.ts)),
+    series: [{name: 'Personas', data: tl.map(p => p.persons), color: '#1a73e8'},
+             {name: 'Movimiento', data: tl.map(p => (p.movement_index || 0) * 10), color: '#e37400'}],
+    empty: 'Sin muestras',
+  });
+}
+
+cargarJobs();
+setInterval(cargarJobs, 2500);
+</script>
+{% endblock %}

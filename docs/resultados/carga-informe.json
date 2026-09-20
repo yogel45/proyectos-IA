@@ -1,0 +1,1430 @@
+{
+  "sello": "20260920_051526",
+  "sistema_probado": "ContactHub",
+  "base": "http://127.0.0.1:8765",
+  "maquina": {
+    "sistema": "Linux 6.18.44-fc-v37",
+    "python": "3.11.15",
+    "nucleos": 4,
+    "ram_gb": 16.9
+  },
+  "rps_nominal": 0.0892,
+  "justificacion": {
+    "pico_llamadas_hora": 56,
+    "mediana_llamadas_hora": 16,
+    "empleados": 25,
+    "pantallas_abiertas": 6,
+    "hora_punta": {
+      "buscar por texto": 56,
+      "abrir ficha": 39,
+      "listar libreta": 75,
+      "resumen": 72,
+      "etiquetas": 25,
+      "filtrar": 20,
+      "historial de la ficha": 8,
+      "duplicados": 1,
+      "alta de contacto": 9,
+      "editar contacto": 12,
+      "accion en bloque": 4
+    },
+    "peticiones_hora_punta": 321
+  },
+  "servidor": {
+    "motivo": "arrancado desde /tmp/claude-0/-home-user-proyectos-IA/db83a872-979f-5963-951c-46be038c9803/scratchpad/nuevo/ch/ContactHub",
+    "listo": true,
+    "arranque_s": 5.31,
+    "nuestro": true
+  },
+  "acceso": {
+    "ok": true,
+    "cuenta_nueva": false,
+    "usuario": "pruebas.carga@grupoilalo.com",
+    "usuario_id": "b0af6f58-073f-460d-a2f1-d912d0af6920",
+    "vida_token_s": 899
+  },
+  "siembra": {
+    "sembrado": false,
+    "total": 5000,
+    "motivo": "la libreta ya tenia 5000 contactos"
+  },
+  "inventario": {
+    "total": 5000,
+    "textos": [
+      "Aguilar",
+      "Castro",
+      "Medina",
+      "Molina",
+      "Romero",
+      "Ríos",
+      "Cruz",
+      "Delgado",
+      "Morales",
+      "Navarro",
+      "Sabado",
+      "Silva",
+      "Flores",
+      "González",
+      "Ortiz",
+      "Paredes",
+      "Sánchez",
+      "Torres",
+      "Herrera",
+      "López",
+      "Pérez",
+      "Ramírez",
+      "Vargas",
+      "Vega"
+    ],
+    "empresas": [
+      "Atlantic Seafood Co",
+      "Grupo Ilalo",
+      "Palmetto Staffing",
+      "Carolina Landscaping",
+      "Blue Ridge Contractors",
+      "Southern Drywall Inc",
+      "Harbor Logistics",
+      "Oficina del Fiscal",
+      "Coastal Freight LLC",
+      "Lowcountry Roofing",
+      "Magnolia Hospitality",
+      "Tribunal Federal"
+    ],
+    "etiquetas": [
+      "Archivo",
+      "Centralita",
+      "Nomina",
+      "Seguimiento",
+      "Urgente",
+      "Revisado"
+    ],
+    "con_datos": true,
+    "fichas_de_referencia": 144
+  },
+  "arranque_frio": [
+    {
+      "pantalla": "estado del servicio",
+      "primera_ms": 3.0,
+      "segunda_ms": 1.7,
+      "estado": 200
+    },
+    {
+      "pantalla": "quien soy",
+      "primera_ms": 2.8,
+      "segunda_ms": 2.4,
+      "estado": 200
+    },
+    {
+      "pantalla": "resumen de la libreta",
+      "primera_ms": 56.2,
+      "segunda_ms": 54.3,
+      "estado": 200
+    },
+    {
+      "pantalla": "primera pantalla de contactos",
+      "primera_ms": 22.3,
+      "segunda_ms": 20.7,
+      "estado": 200
+    },
+    {
+      "pantalla": "etiquetas del menu",
+      "primera_ms": 13.5,
+      "segunda_ms": 12.7,
+      "estado": 200
+    },
+    {
+      "pantalla": "buscar un apellido",
+      "primera_ms": 32.8,
+      "segunda_ms": 29.6,
+      "estado": 200
+    },
+    {
+      "pantalla": "posibles duplicados",
+      "primera_ms": 2620.0,
+      "segunda_ms": 1983.6,
+      "estado": 200
+    },
+    {
+      "pantalla": "mi perfil",
+      "primera_ms": 9.5,
+      "segunda_ms": 3.2,
+      "estado": 200
+    }
+  ],
+  "esperas": {
+    "rafagas": 0.0,
+    "escrituras": 0.0,
+    "consultas caras": 0.0,
+    "resistencia": 1.8,
+    "importacion": 0.0,
+    "errores": 0.0,
+    "integridad": 0.0,
+    "escalada": 183.1
+  },
+  "rafagas": [
+    {
+      "escenario": "rafaga 10",
+      "n": 10,
+      "ok": 10,
+      "errores": 0,
+      "tasa_error_pct": 0.0,
+      "rps": 21.66,
+      "lat_p50_ms": 418.5,
+      "lat_p95_ms": 461.7,
+      "lat_p99_ms": 461.7,
+      "lat_max_ms": 461.7,
+      "srv_p50_ms": 410.8,
+      "srv_p95_ms": 461.5,
+      "media_ms": 385.2,
+      "detalle_errores": {},
+      "duracion_s": 0.51,
+      "concurrencia": 10
+    },
+    {
+      "escenario": "rafaga 20",
+      "n": 20,
+      "ok": 20,
+      "errores": 0,
+      "tasa_error_pct": 0.0,
+      "rps": 16.72,
+      "lat_p50_ms": 1045.6,
+      "lat_p95_ms": 1189.5,
+      "lat_p99_ms": 1196.2,
+      "lat_max_ms": 1196.2,
+      "srv_p50_ms": 1041.0,
+      "srv_p95_ms": 1182.3,
+      "media_ms": 963.3,
+      "detalle_errores": {},
+      "duracion_s": 1.25,
+      "concurrencia": 20
+    },
+    {
+      "escenario": "rafaga 30",
+      "n": 30,
+      "ok": 30,
+      "errores": 0,
+      "tasa_error_pct": 0.0,
+      "rps": 16.35,
+      "lat_p50_ms": 1226.1,
+      "lat_p95_ms": 1833.3,
+      "lat_p99_ms": 1834.9,
+      "lat_max_ms": 1834.9,
+      "srv_p50_ms": 1207.0,
+      "srv_p95_ms": 1825.0,
+      "media_ms": 1272.3,
+      "detalle_errores": {},
+      "duracion_s": 1.94,
+      "concurrencia": 30
+    },
+    {
+      "escenario": "rafaga 40",
+      "n": 40,
+      "ok": 40,
+      "errores": 0,
+      "tasa_error_pct": 0.0,
+      "rps": 16.7,
+      "lat_p50_ms": 1677.0,
+      "lat_p95_ms": 2383.2,
+      "lat_p99_ms": 2395.6,
+      "lat_max_ms": 2395.6,
+      "srv_p50_ms": 1664.0,
+      "srv_p95_ms": 2380.5,
+      "media_ms": 1592.4,
+      "detalle_errores": {},
+      "duracion_s": 2.45,
+      "concurrencia": 40
+    },
+    {
+      "escenario": "rafaga 50",
+      "n": 50,
+      "ok": 50,
+      "errores": 0,
+      "tasa_error_pct": 0.0,
+      "rps": 19.04,
+      "lat_p50_ms": 1454.1,
+      "lat_p95_ms": 2614.9,
+      "lat_p99_ms": 2626.6,
+      "lat_max_ms": 2626.6,
+      "srv_p50_ms": 1441.7,
+      "srv_p95_ms": 2598.7,
+      "media_ms": 1546.8,
+      "detalle_errores": {},
+      "duracion_s": 2.68,
+      "concurrencia": 50
+    },
+    {
+      "escenario": "rafaga 60",
+      "n": 60,
+      "ok": 20,
+      "errores": 40,
+      "tasa_error_pct": 66.67,
+      "rps": 1.9,
+      "lat_p50_ms": 30965.6,
+      "lat_p95_ms": 31492.6,
+      "lat_p99_ms": 31506.5,
+      "lat_max_ms": 31511.5,
+      "srv_p50_ms": 30943.3,
+      "srv_p95_ms": 31479.8,
+      "media_ms": 30954.4,
+      "detalle_errores": {
+        "HTTP 500": 40
+      },
+      "duracion_s": 31.56,
+      "concurrencia": 60
+    }
+  ],
+  "escrituras": {
+    "escenario": "escrituras",
+    "n": 205,
+    "ok": 205,
+    "errores": 0,
+    "tasa_error_pct": 0.0,
+    "rps": 8.25,
+    "lat_p50_ms": 15.0,
+    "lat_p95_ms": 129.5,
+    "lat_p99_ms": 174.4,
+    "lat_max_ms": 235.9,
+    "srv_p50_ms": 14.1,
+    "srv_p95_ms": 128.9,
+    "media_ms": 34.0,
+    "detalle_errores": {},
+    "duracion_s": 24.97,
+    "rps_objetivo": 8
+  },
+  "escrituras_por_operacion": [
+    {
+      "operacion": "accion en bloque",
+      "n": 30,
+      "ok": 30,
+      "errores": 0,
+      "tasa_error_pct": 0.0,
+      "rps": 1.44,
+      "lat_p50_ms": 121.9,
+      "lat_p95_ms": 209.8,
+      "lat_p99_ms": 235.9,
+      "lat_max_ms": 235.9,
+      "srv_p50_ms": 121.0,
+      "srv_p95_ms": 209.1,
+      "media_ms": 130.8,
+      "detalle_errores": {}
+    },
+    {
+      "operacion": "alta de contacto",
+      "n": 72,
+      "ok": 72,
+      "errores": 0,
+      "tasa_error_pct": 0.0,
+      "rps": 2.99,
+      "lat_p50_ms": 12.9,
+      "lat_p95_ms": 31.3,
+      "lat_p99_ms": 46.0,
+      "lat_max_ms": 48.9,
+      "srv_p50_ms": 11.7,
+      "srv_p95_ms": 30.2,
+      "media_ms": 16.2,
+      "detalle_errores": {}
+    },
+    {
+      "operacion": "editar contacto",
+      "n": 103,
+      "ok": 103,
+      "errores": 0,
+      "tasa_error_pct": 0.0,
+      "rps": 4.15,
+      "lat_p50_ms": 15.0,
+      "lat_p95_ms": 38.4,
+      "lat_p99_ms": 50.9,
+      "lat_max_ms": 53.4,
+      "srv_p50_ms": 14.2,
+      "srv_p95_ms": 37.5,
+      "media_ms": 18.3,
+      "detalle_errores": {}
+    }
+  ],
+  "busqueda_dura": {
+    "escenario": "busqueda dura",
+    "n": 111,
+    "ok": 39,
+    "errores": 72,
+    "tasa_error_pct": 64.86,
+    "rps": 0.78,
+    "lat_p50_ms": 30003.7,
+    "lat_p95_ms": 120004.2,
+    "lat_p99_ms": 120008.8,
+    "lat_max_ms": 120068.7,
+    "srv_p50_ms": 30002.9,
+    "srv_p95_ms": 120003.4,
+    "media_ms": 27439.6,
+    "detalle_errores": {
+      "HTTP 422": 11,
+      "timeout": 61
+    },
+    "duracion_s": 142.94,
+    "rps_objetivo": 4
+  },
+  "busqueda_dura_por_operacion": [
+    {
+      "operacion": "duplicados",
+      "n": 12,
+      "ok": 1,
+      "errores": 11,
+      "tasa_error_pct": 91.67,
+      "rps": 0.08,
+      "lat_p50_ms": 120004.3,
+      "lat_p95_ms": 120008.8,
+      "lat_p99_ms": 120068.7,
+      "lat_max_ms": 120068.7,
+      "srv_p50_ms": 120004.0,
+      "srv_p95_ms": 120008.1,
+      "media_ms": 113871.2,
+      "detalle_errores": {
+        "timeout": 11
+      }
+    },
+    {
+      "operacion": "orden por empresa",
+      "n": 22,
+      "ok": 11,
+      "errores": 11,
+      "tasa_error_pct": 50.0,
+      "rps": 0.41,
+      "lat_p50_ms": 13298.5,
+      "lat_p95_ms": 30005.3,
+      "lat_p99_ms": 30007.7,
+      "lat_max_ms": 30007.7,
+      "srv_p50_ms": 13297.8,
+      "srv_p95_ms": 30004.2,
+      "media_ms": 18034.1,
+      "detalle_errores": {
+        "timeout": 11
+      }
+    },
+    {
+      "operacion": "pagina honda",
+      "n": 21,
+      "ok": 0,
+      "errores": 21,
+      "tasa_error_pct": 100.0,
+      "rps": 0.4,
+      "lat_p50_ms": 5951.9,
+      "lat_p95_ms": 30005.8,
+      "lat_p99_ms": 30006.2,
+      "lat_max_ms": 30006.2,
+      "srv_p50_ms": 5950.6,
+      "srv_p95_ms": 30004.9,
+      "media_ms": 14935.1,
+      "detalle_errores": {
+        "HTTP 422": 11,
+        "timeout": 10
+      }
+    },
+    {
+      "operacion": "resumen",
+      "n": 20,
+      "ok": 10,
+      "errores": 10,
+      "tasa_error_pct": 50.0,
+      "rps": 0.39,
+      "lat_p50_ms": 30003.3,
+      "lat_p95_ms": 30005.5,
+      "lat_p99_ms": 30006.0,
+      "lat_max_ms": 30006.0,
+      "srv_p50_ms": 30002.5,
+      "srv_p95_ms": 30004.3,
+      "media_ms": 15996.4,
+      "detalle_errores": {
+        "timeout": 10
+      }
+    },
+    {
+      "operacion": "texto libre",
+      "n": 36,
+      "ok": 17,
+      "errores": 19,
+      "tasa_error_pct": 52.78,
+      "rps": 0.68,
+      "lat_p50_ms": 30003.7,
+      "lat_p95_ms": 30005.9,
+      "lat_p99_ms": 30017.6,
+      "lat_max_ms": 30017.6,
+      "srv_p50_ms": 30002.8,
+      "srv_p95_ms": 30004.7,
+      "media_ms": 18028.5,
+      "detalle_errores": {
+        "timeout": 19
+      }
+    }
+  ],
+  "resistencia": {
+    "escenario": "resistencia",
+    "n": 711,
+    "ok": 711,
+    "errores": 0,
+    "tasa_error_pct": 0.0,
+    "rps": 5.94,
+    "lat_p50_ms": 31.9,
+    "lat_p95_ms": 162.8,
+    "lat_p99_ms": 569.3,
+    "lat_max_ms": 2490.3,
+    "srv_p50_ms": 31.2,
+    "srv_p95_ms": 161.9,
+    "media_ms": 67.7,
+    "detalle_errores": {},
+    "duracion_s": 119.92,
+    "rps_objetivo": 6
+  },
+  "importacion": {
+    "ejecutado": true,
+    "job_id": "9c44a53f-2efb-4d2c-9a54-f46cd17ceb7d",
+    "contactos": 3000,
+    "carga": {
+      "escenario": "importacion en curso",
+      "n": 387,
+      "ok": 387,
+      "errores": 0,
+      "tasa_error_pct": 0.0,
+      "rps": 9.58,
+      "lat_p50_ms": 88.9,
+      "lat_p95_ms": 523.2,
+      "lat_p99_ms": 821.5,
+      "lat_max_ms": 7101.2,
+      "srv_p50_ms": 88.1,
+      "srv_p95_ms": 522.3,
+      "media_ms": 169.8,
+      "detalle_errores": {},
+      "duracion_s": 40.5
+    },
+    "trabajo": {
+      "status": "completed",
+      "total": 3000,
+      "created": 2979,
+      "updated": 0,
+      "unchanged": 0,
+      "deleted": 0,
+      "error_message": null
+    }
+  },
+  "tolerancia": {
+    "casos": [
+      {
+        "caso": "sin token",
+        "metodo": "GET",
+        "url": "/api/v1/contacts",
+        "esperado": "401/403",
+        "obtenido": 401,
+        "ms": 2.9,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":\"Falta el token de acceso\"}"
+      },
+      {
+        "caso": "token inventado",
+        "metodo": "GET",
+        "url": "/api/v1/contacts",
+        "esperado": "401",
+        "obtenido": 401,
+        "ms": 2.5,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":\"Token inválido o expirado\"}"
+      },
+      {
+        "caso": "Bearer sin token",
+        "metodo": "GET",
+        "url": "/api/v1/contacts",
+        "esperado": "401/403",
+        "obtenido": 401,
+        "ms": 2.4,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":\"Falta el token de acceso\"}"
+      },
+      {
+        "caso": "esquema equivocado",
+        "metodo": "GET",
+        "url": "/api/v1/contacts",
+        "esperado": "401/403",
+        "obtenido": 401,
+        "ms": 1.8,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":\"Falta el token de acceso\"}"
+      },
+      {
+        "caso": "token en la URL en vez de la cabecera",
+        "metodo": "GET",
+        "url": "/api/v1/contacts?access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjb250YWN0aHViIiwiYXVkIjoiY29udGFjdGh1Yi1hc",
+        "esperado": "401/403",
+        "obtenido": 401,
+        "ms": 1.9,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":\"Falta el token de acceso\"}"
+      },
+      {
+        "caso": "refresh con un token que no es de refresco",
+        "metodo": "POST",
+        "url": "/api/v1/auth/refresh",
+        "esperado": "401/422",
+        "obtenido": 401,
+        "ms": 2.9,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":\"Tipo de token incorrecto\"}"
+      },
+      {
+        "caso": "perfil de administrador siendo usuario normal",
+        "metodo": "GET",
+        "url": "/api/v1/admin/users",
+        "esperado": "403",
+        "obtenido": 403,
+        "ms": 3.9,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":\"Se requieren permisos de administrador\"}"
+      },
+      {
+        "caso": "contacto que no existe",
+        "metodo": "GET",
+        "url": "/api/v1/contacts/00000000-0000-4000-8000-000000000000",
+        "esperado": "404",
+        "obtenido": 404,
+        "ms": 3.9,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":\"Contacto no encontrado\"}"
+      },
+      {
+        "caso": "id que no es un uuid",
+        "metodo": "GET",
+        "url": "/api/v1/contacts/12345",
+        "esperado": "422",
+        "obtenido": 422,
+        "ms": 3.6,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":[{\"loc\":[\"path\",\"contact_id\"],\"msg\":\"Input should be a valid UUID, invalid length: expected length 32 for simple format, found 5\",\"type\":\"uuid_parsing"
+      },
+      {
+        "caso": "id con inyeccion",
+        "metodo": "GET",
+        "url": "/api/v1/contacts/1%20OR%201=1",
+        "esperado": "422",
+        "obtenido": 422,
+        "ms": 10.8,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":[{\"loc\":[\"path\",\"contact_id\"],\"msg\":\"Input should be a valid UUID, invalid character: found ` ` at 2\",\"type\":\"uuid_parsing\"}]}"
+      },
+      {
+        "caso": "historial de un contacto que no existe",
+        "metodo": "GET",
+        "url": "/api/v1/contacts/00000000-0000-4000-8000-000000000000/history",
+        "esperado": "404",
+        "obtenido": 404,
+        "ms": 4.6,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":\"Contacto no encontrado\"}"
+      },
+      {
+        "caso": "importacion que no existe",
+        "metodo": "GET",
+        "url": "/api/v1/imports/00000000-0000-4000-8000-000000000000",
+        "esperado": "404",
+        "obtenido": 404,
+        "ms": 3.3,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":\"Importación no encontrada\"}"
+      },
+      {
+        "caso": "JSON malformado",
+        "metodo": "POST",
+        "url": "/api/v1/contacts",
+        "esperado": "400/422",
+        "obtenido": 422,
+        "ms": 1.5,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":[{\"loc\":[\"body\",22],\"msg\":\"JSON decode error\",\"type\":\"json_invalid\"}]}"
+      },
+      {
+        "caso": "cuerpo vacio donde se espera JSON",
+        "metodo": "POST",
+        "url": "/api/v1/contacts",
+        "esperado": "400/422",
+        "obtenido": 422,
+        "ms": 3.5,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":[{\"loc\":[\"body\"],\"msg\":\"Field required\",\"type\":\"missing\"}]}"
+      },
+      {
+        "caso": "contacto sin nombre ni telefono ni correo",
+        "metodo": "POST",
+        "url": "/api/v1/contacts",
+        "esperado": "422",
+        "obtenido": 422,
+        "ms": 3.6,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":[{\"loc\":[\"body\"],\"msg\":\"Value error, el contacto necesita al menos un nombre, empresa, correo o teléfono\",\"type\":\"value_error\"}]}"
+      },
+      {
+        "caso": "correo invalido",
+        "metodo": "POST",
+        "url": "/api/v1/contacts",
+        "esperado": "422",
+        "obtenido": 422,
+        "ms": 3.4,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":[{\"loc\":[\"body\",\"emails\",0,\"value\"],\"msg\":\"Value error, correo inválido: An email address must have an @-sign.\",\"type\":\"value_error\"}]}"
+      },
+      {
+        "caso": "telefono invalido",
+        "metodo": "POST",
+        "url": "/api/v1/contacts",
+        "esperado": "422",
+        "obtenido": 422,
+        "ms": 3.2,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":[{\"loc\":[\"body\",\"phones\",0,\"value\"],\"msg\":\"Value error, teléfono inválido\",\"type\":\"value_error\"}]}"
+      },
+      {
+        "caso": "fecha de nacimiento imposible",
+        "metodo": "POST",
+        "url": "/api/v1/contacts",
+        "esperado": "422",
+        "obtenido": 422,
+        "ms": 3.8,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":[{\"loc\":[\"body\",\"birthday\"],\"msg\":\"Value error, fecha inválida; usa YYYY-MM-DD o --MM-DD\",\"type\":\"value_error\"}]}"
+      },
+      {
+        "caso": "campo que no existe en el esquema",
+        "metodo": "POST",
+        "url": "/api/v1/contacts",
+        "esperado": "422",
+        "obtenido": 422,
+        "ms": 3.4,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":[{\"loc\":[\"body\",\"es_administrador\"],\"msg\":\"Extra inputs are not permitted\",\"type\":\"extra_forbidden\"}]}"
+      },
+      {
+        "caso": "photo_url apuntando a un archivo local",
+        "metodo": "POST",
+        "url": "/api/v1/contacts",
+        "esperado": "422",
+        "obtenido": 422,
+        "ms": 3.4,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":[{\"loc\":[\"body\",\"photo_url\"],\"msg\":\"Value error, photo_url debe ser http(s)\",\"type\":\"value_error\"}]}"
+      },
+      {
+        "caso": "nota de 200 000 caracteres",
+        "metodo": "POST",
+        "url": "/api/v1/contacts",
+        "esperado": "422",
+        "obtenido": 422,
+        "ms": 5.1,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":[{\"loc\":[\"body\",\"notes\"],\"msg\":\"String should have at most 20000 characters\",\"type\":\"string_too_long\"}]}"
+      },
+      {
+        "caso": "51 etiquetas en un contacto",
+        "metodo": "POST",
+        "url": "/api/v1/contacts",
+        "esperado": "422",
+        "obtenido": 422,
+        "ms": 3.2,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":[{\"loc\":[\"body\",\"labels\"],\"msg\":\"List should have at most 50 items after validation, not 51\",\"type\":\"too_long\"}]}"
+      },
+      {
+        "caso": "busqueda de 20 000 caracteres",
+        "metodo": "GET",
+        "url": "/api/v1/contacts?q=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "esperado": "414/422",
+        "obtenido": 422,
+        "ms": 4.4,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":[{\"loc\":[\"query\",\"q\"],\"msg\":\"String should have at most 100 characters\",\"type\":\"string_too_long\"}]}"
+      },
+      {
+        "caso": "intento de inyeccion SQL en la busqueda",
+        "metodo": "GET",
+        "url": "/api/v1/contacts?q=%27%20OR%201%3D1%3B%20DROP%20TABLE%20contacts%3B--",
+        "esperado": "200",
+        "obtenido": 200,
+        "ms": 61.2,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"items\":[],\"total\":0,\"limit\":50,\"offset\":0}"
+      },
+      {
+        "caso": "limite 0",
+        "metodo": "GET",
+        "url": "/api/v1/contacts?limit=0",
+        "esperado": "422",
+        "obtenido": 422,
+        "ms": 4.0,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":[{\"loc\":[\"query\",\"limit\"],\"msg\":\"Input should be greater than or equal to 1\",\"type\":\"greater_than_equal\"}]}"
+      },
+      {
+        "caso": "limite 5000",
+        "metodo": "GET",
+        "url": "/api/v1/contacts?limit=5000",
+        "esperado": "422",
+        "obtenido": 422,
+        "ms": 3.2,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":[{\"loc\":[\"query\",\"limit\"],\"msg\":\"Input should be less than or equal to 200\",\"type\":\"less_than_equal\"}]}"
+      },
+      {
+        "caso": "desplazamiento negativo",
+        "metodo": "GET",
+        "url": "/api/v1/contacts?offset=-1",
+        "esperado": "422",
+        "obtenido": 422,
+        "ms": 3.5,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":[{\"loc\":[\"query\",\"offset\"],\"msg\":\"Input should be greater than or equal to 0\",\"type\":\"greater_than_equal\"}]}"
+      },
+      {
+        "caso": "orden que no existe",
+        "metodo": "GET",
+        "url": "/api/v1/contacts?sort=loquesea",
+        "esperado": "422",
+        "obtenido": 422,
+        "ms": 2.9,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":[{\"loc\":[\"query\",\"sort\"],\"msg\":\"Input should be 'name', '-name', 'company', 'created_at', '-created_at', 'updated_at' or '-updated_at'\",\"type\":\"litera"
+      },
+      {
+        "caso": "fecha con formato invalido",
+        "metodo": "GET",
+        "url": "/api/v1/contacts?updated_since=ayer",
+        "esperado": "422",
+        "obtenido": 422,
+        "ms": 3.3,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":[{\"loc\":[\"query\",\"updated_since\"],\"msg\":\"Input should be a valid datetime or date, input is too short\",\"type\":\"datetime_from_date_parsing\"}]}"
+      },
+      {
+        "caso": "fusionar un contacto consigo mismo",
+        "metodo": "POST",
+        "url": "/api/v1/contacts/merge",
+        "esperado": "400/404/422",
+        "obtenido": 400,
+        "ms": 3.8,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":\"El contacto principal no puede estar entre los duplicados\"}"
+      },
+      {
+        "caso": "fusionar con un contacto inexistente",
+        "metodo": "POST",
+        "url": "/api/v1/contacts/merge",
+        "esperado": "400/404",
+        "obtenido": 404,
+        "ms": 9.4,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":\"Contacto no encontrado\"}"
+      },
+      {
+        "caso": "accion en bloque sin ids",
+        "metodo": "POST",
+        "url": "/api/v1/contacts/bulk",
+        "esperado": "422",
+        "obtenido": 422,
+        "ms": 3.8,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":[{\"loc\":[\"body\",\"ids\"],\"msg\":\"List should have at least 1 item after validation, not 0\",\"type\":\"too_short\"}]}"
+      },
+      {
+        "caso": "etiquetar en bloque sin decir que etiqueta",
+        "metodo": "POST",
+        "url": "/api/v1/contacts/bulk",
+        "esperado": "422",
+        "obtenido": 422,
+        "ms": 3.8,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":[{\"loc\":[\"body\"],\"msg\":\"Value error, `value` es obligatorio para esta acción\",\"type\":\"value_error\"}]}"
+      },
+      {
+        "caso": "accion en bloque que no existe",
+        "metodo": "POST",
+        "url": "/api/v1/contacts/bulk",
+        "esperado": "422",
+        "obtenido": 422,
+        "ms": 3.3,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":[{\"loc\":[\"body\",\"action\"],\"msg\":\"Input should be 'delete', 'restore', 'add_label', 'remove_label' or 'set_category'\",\"type\":\"literal_error\"}]}"
+      },
+      {
+        "caso": "restaurar algo que no esta en la papelera",
+        "metodo": "POST",
+        "url": "/api/v1/contacts/32278e28-398b-47e2-9531-699cd2fe6c33/restore",
+        "esperado": "200",
+        "obtenido": 200,
+        "ms": 56.6,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"id\":\"32278e28-398b-47e2-9531-699cd2fe6c33\",\"display_name\":\"Renata Aguilar Aguilar\",\"name_prefix\":null,\"first_name\":\"Renata\",\"middle_name\":null,\"last_name\":\"Ag"
+      },
+      {
+        "caso": "editar con una version vieja",
+        "metodo": "PATCH",
+        "url": "/api/v1/contacts/32278e28-398b-47e2-9531-699cd2fe6c33",
+        "esperado": "409",
+        "obtenido": 409,
+        "ms": 10.3,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":\"El contacto cambió (versión actual 29). Vuelve a cargarlo.\"}"
+      },
+      {
+        "caso": "subir como foto algo que no es una imagen",
+        "metodo": "POST",
+        "url": "/api/v1/contacts/32278e28-398b-47e2-9531-699cd2fe6c33/photo",
+        "esperado": "400/415/422",
+        "obtenido": 400,
+        "ms": 188.2,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":\"No se pudo leer la imagen. Prueba con otra foto (JPG, PNG o WEBP).\"}"
+      },
+      {
+        "caso": "importar un CSV que no es de Google Contacts",
+        "metodo": "POST",
+        "url": "/api/v1/imports/google-csv",
+        "esperado": "400",
+        "obtenido": 400,
+        "ms": 4.6,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":\"El archivo no parece un CSV de Google Contacts (faltan columnas conocidas)\"}"
+      },
+      {
+        "caso": "importar un .vcf vacio",
+        "metodo": "POST",
+        "url": "/api/v1/imports/vcard",
+        "esperado": "400",
+        "obtenido": 400,
+        "ms": 3.8,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":\"El archivo está vacío\"}"
+      },
+      {
+        "caso": "nombre de archivo con ../ (path traversal)",
+        "metodo": "POST",
+        "url": "/api/v1/imports/vcard",
+        "esperado": "202/400",
+        "obtenido": 202,
+        "ms": 4.3,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"id\":\"84a2d98a-f245-4d7d-b165-036374f483a6\",\"provider\":\"vcard\",\"filename\":\"passwd.vcf\",\"on_conflict\":\"fill_missing\",\"status\":\"queued\",\"total\":0,\"created\":0,\"up"
+      },
+      {
+        "caso": "registrarse con un correo ya usado",
+        "metodo": "POST",
+        "url": "/api/v1/auth/register",
+        "esperado": "400/403/409",
+        "obtenido": 409,
+        "ms": 75.9,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":\"No se pudo completar el registro con esos datos\"}"
+      },
+      {
+        "caso": "contrasena demasiado corta",
+        "metodo": "POST",
+        "url": "/api/v1/auth/register",
+        "esperado": "422/403",
+        "obtenido": 422,
+        "ms": 3.1,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":[{\"loc\":[\"body\",\"password\"],\"msg\":\"String should have at least 10 characters\",\"type\":\"string_too_short\"}]}"
+      },
+      {
+        "caso": "contrasena de un solo caracter repetido",
+        "metodo": "POST",
+        "url": "/api/v1/auth/register",
+        "esperado": "422/403",
+        "obtenido": 422,
+        "ms": 2.5,
+        "correcto": true,
+        "quinientos": false,
+        "respuesta": "{\"detail\":[{\"loc\":[\"body\"],\"msg\":\"Value error, la contraseña es demasiado débil\",\"type\":\"value_error\"}]}"
+      }
+    ],
+    "total": 43,
+    "correctos": 43,
+    "errores_500": 0,
+    "pct_correcto": 100.0
+  },
+  "cerrojo": {
+    "correo": "intruso.8021ffce15@example.com",
+    "codigos": [
+      401,
+      401,
+      401,
+      401,
+      401,
+      429,
+      429
+    ],
+    "corta_despues_de": 5,
+    "bloquea": true
+  },
+  "integridad": {
+    "contactos_antes": 5000,
+    "contactos_ahora": 8051,
+    "en_la_papelera": 418,
+    "con_correo": 8051,
+    "con_telefono": 8051,
+    "fichas_de_referencia_vivas": "25/25",
+    "ficha_de_referencia": "Renata Aguilar Aguilar",
+    "servicio_responde": true
+  },
+  "sostenible": [
+    {
+      "escenario": "sostenido 5rps",
+      "n": 608,
+      "ok": 608,
+      "errores": 0,
+      "tasa_error_pct": 0.0,
+      "rps": 5.09,
+      "lat_p50_ms": 47.7,
+      "lat_p95_ms": 313.7,
+      "lat_p99_ms": 857.5,
+      "lat_max_ms": 4800.2,
+      "srv_p50_ms": 46.8,
+      "srv_p95_ms": 312.6,
+      "media_ms": 117.9,
+      "detalle_errores": {},
+      "duracion_s": 119.74,
+      "rps_objetivo": 5,
+      "factor": 56.1
+    },
+    {
+      "escenario": "sostenido 10rps",
+      "n": 1170,
+      "ok": 1170,
+      "errores": 0,
+      "tasa_error_pct": 0.0,
+      "rps": 9.76,
+      "lat_p50_ms": 49.3,
+      "lat_p95_ms": 354.2,
+      "lat_p99_ms": 699.7,
+      "lat_max_ms": 6203.9,
+      "srv_p50_ms": 48.4,
+      "srv_p95_ms": 353.5,
+      "media_ms": 126.6,
+      "detalle_errores": {},
+      "duracion_s": 119.95,
+      "rps_objetivo": 10,
+      "factor": 112.1
+    },
+    {
+      "escenario": "sostenido 15rps",
+      "n": 1767,
+      "ok": 1767,
+      "errores": 0,
+      "tasa_error_pct": 0.0,
+      "rps": 14.53,
+      "lat_p50_ms": 120.9,
+      "lat_p95_ms": 886.9,
+      "lat_p99_ms": 1397.9,
+      "lat_max_ms": 32057.4,
+      "srv_p50_ms": 119.6,
+      "srv_p95_ms": 885.9,
+      "media_ms": 314.9,
+      "detalle_errores": {},
+      "duracion_s": 121.64,
+      "rps_objetivo": 15,
+      "factor": 168.2
+    },
+    {
+      "escenario": "sostenido 20rps",
+      "n": 2341,
+      "ok": 810,
+      "errores": 1531,
+      "tasa_error_pct": 65.4,
+      "rps": 10.57,
+      "lat_p50_ms": 40915.1,
+      "lat_p95_ms": 100521.9,
+      "lat_p99_ms": 104269.2,
+      "lat_max_ms": 134219.7,
+      "srv_p50_ms": 33056.0,
+      "srv_p95_ms": 100467.2,
+      "media_ms": 38657.2,
+      "detalle_errores": {
+        "HTTP 500": 5,
+        "timeout": 1526
+      },
+      "duracion_s": 221.49,
+      "rps_objetivo": 20,
+      "factor": 224.3
+    }
+  ],
+  "escalada": [
+    {
+      "escenario": "oficina 1rps",
+      "n": 25,
+      "ok": 25,
+      "errores": 0,
+      "tasa_error_pct": 0.0,
+      "rps": 1.37,
+      "lat_p50_ms": 48.6,
+      "lat_p95_ms": 109.3,
+      "lat_p99_ms": 109.5,
+      "lat_max_ms": 109.5,
+      "srv_p50_ms": 47.8,
+      "srv_p95_ms": 106.6,
+      "media_ms": 57.9,
+      "detalle_errores": {},
+      "duracion_s": 19.26,
+      "rps_objetivo": 1,
+      "factor": 11.2,
+      "generadores": 1,
+      "recuperacion_s": null
+    },
+    {
+      "escenario": "oficina 5rps",
+      "n": 111,
+      "ok": 111,
+      "errores": 0,
+      "tasa_error_pct": 0.0,
+      "rps": 5.68,
+      "lat_p50_ms": 47.4,
+      "lat_p95_ms": 407.3,
+      "lat_p99_ms": 632.5,
+      "lat_max_ms": 3960.4,
+      "srv_p50_ms": 46.5,
+      "srv_p95_ms": 406.9,
+      "media_ms": 130.8,
+      "detalle_errores": {},
+      "duracion_s": 19.75,
+      "rps_objetivo": 5,
+      "factor": 56.1,
+      "generadores": 1,
+      "recuperacion_s": null
+    },
+    {
+      "escenario": "oficina 10rps",
+      "n": 205,
+      "ok": 205,
+      "errores": 0,
+      "tasa_error_pct": 0.0,
+      "rps": 10.31,
+      "lat_p50_ms": 48.8,
+      "lat_p95_ms": 361.8,
+      "lat_p99_ms": 458.3,
+      "lat_max_ms": 4960.7,
+      "srv_p50_ms": 47.8,
+      "srv_p95_ms": 361.6,
+      "media_ms": 114.1,
+      "detalle_errores": {},
+      "duracion_s": 19.99,
+      "rps_objetivo": 10,
+      "factor": 112.1,
+      "generadores": 1,
+      "recuperacion_s": null
+    },
+    {
+      "escenario": "oficina 20rps",
+      "n": 387,
+      "ok": 387,
+      "errores": 0,
+      "tasa_error_pct": 0.0,
+      "rps": 16.96,
+      "lat_p50_ms": 100.7,
+      "lat_p95_ms": 549.5,
+      "lat_p99_ms": 869.4,
+      "lat_max_ms": 6819.9,
+      "srv_p50_ms": 100.3,
+      "srv_p95_ms": 549.0,
+      "media_ms": 187.1,
+      "detalle_errores": {},
+      "duracion_s": 22.87,
+      "rps_objetivo": 20,
+      "factor": 224.3,
+      "generadores": 1,
+      "recuperacion_s": null
+    },
+    {
+      "escenario": "oficina 25rps",
+      "n": 503,
+      "ok": 503,
+      "errores": 0,
+      "tasa_error_pct": 0.0,
+      "rps": 13.72,
+      "lat_p50_ms": 365.5,
+      "lat_p95_ms": 1632.9,
+      "lat_p99_ms": 2421.7,
+      "lat_max_ms": 22252.3,
+      "srv_p50_ms": 365.0,
+      "srv_p95_ms": 1632.4,
+      "media_ms": 702.3,
+      "detalle_errores": {},
+      "duracion_s": 36.71,
+      "rps_objetivo": 25,
+      "factor": 280.4,
+      "generadores": 1,
+      "recuperacion_s": null
+    },
+    {
+      "escenario": "oficina 30rps",
+      "n": 608,
+      "ok": 245,
+      "errores": 363,
+      "tasa_error_pct": 59.7,
+      "rps": 5.94,
+      "lat_p50_ms": 30007.7,
+      "lat_p95_ms": 54226.5,
+      "lat_p99_ms": 54288.2,
+      "lat_max_ms": 84182.1,
+      "srv_p50_ms": 30007.1,
+      "srv_p95_ms": 54224.4,
+      "media_ms": 25500.4,
+      "detalle_errores": {
+        "timeout": 363
+      },
+      "duracion_s": 102.41,
+      "rps_objetivo": 30,
+      "factor": 336.4,
+      "generadores": 1,
+      "recuperacion_s": 178.6
+    }
+  ],
+  "recuperacion_s": 178.6,
+  "por_operacion_maxima": [
+    {
+      "operacion": "abrir ficha",
+      "n": 89,
+      "ok": 37,
+      "errores": 52,
+      "tasa_error_pct": 58.43,
+      "rps": 1.21,
+      "lat_p50_ms": 30004.6,
+      "lat_p95_ms": 54213.4,
+      "lat_p99_ms": 54288.2,
+      "lat_max_ms": 54305.0,
+      "srv_p50_ms": 30003.7,
+      "srv_p95_ms": 54212.9,
+      "media_ms": 24651.0,
+      "detalle_errores": {
+        "timeout": 52
+      }
+    },
+    {
+      "operacion": "buscar por texto",
+      "n": 106,
+      "ok": 41,
+      "errores": 65,
+      "tasa_error_pct": 61.32,
+      "rps": 1.44,
+      "lat_p50_ms": 30008.7,
+      "lat_p95_ms": 54175.3,
+      "lat_p99_ms": 54252.1,
+      "lat_max_ms": 54265.8,
+      "srv_p50_ms": 30008.1,
+      "srv_p95_ms": 54174.6,
+      "media_ms": 25106.8,
+      "detalle_errores": {
+        "timeout": 65
+      }
+    },
+    {
+      "operacion": "duplicados",
+      "n": 5,
+      "ok": 1,
+      "errores": 4,
+      "tasa_error_pct": 80.0,
+      "rps": 0.05,
+      "lat_p50_ms": 60004.1,
+      "lat_p95_ms": 84182.1,
+      "lat_p99_ms": 84182.1,
+      "lat_max_ms": 84182.1,
+      "srv_p50_ms": 60003.3,
+      "srv_p95_ms": 84181.6,
+      "media_ms": 64827.5,
+      "detalle_errores": {
+        "timeout": 4
+      }
+    },
+    {
+      "operacion": "etiquetas",
+      "n": 64,
+      "ok": 29,
+      "errores": 35,
+      "tasa_error_pct": 54.69,
+      "rps": 0.88,
+      "lat_p50_ms": 30004.5,
+      "lat_p95_ms": 54226.5,
+      "lat_p99_ms": 54248.8,
+      "lat_max_ms": 54251.1,
+      "srv_p50_ms": 30003.5,
+      "srv_p95_ms": 54225.6,
+      "media_ms": 22689.5,
+      "detalle_errores": {
+        "timeout": 35
+      }
+    },
+    {
+      "operacion": "filtrar",
+      "n": 39,
+      "ok": 15,
+      "errores": 24,
+      "tasa_error_pct": 61.54,
+      "rps": 0.53,
+      "lat_p50_ms": 30009.9,
+      "lat_p95_ms": 54244.7,
+      "lat_p99_ms": 54267.2,
+      "lat_max_ms": 54267.2,
+      "srv_p50_ms": 30008.9,
+      "srv_p95_ms": 54237.8,
+      "media_ms": 28042.5,
+      "detalle_errores": {
+        "timeout": 24
+      }
+    },
+    {
+      "operacion": "historial de la ficha",
+      "n": 10,
+      "ok": 4,
+      "errores": 6,
+      "tasa_error_pct": 60.0,
+      "rps": 0.15,
+      "lat_p50_ms": 30012.1,
+      "lat_p95_ms": 53759.4,
+      "lat_p99_ms": 53759.4,
+      "lat_max_ms": 53759.4,
+      "srv_p50_ms": 30011.3,
+      "srv_p95_ms": 53757.2,
+      "media_ms": 22728.3,
+      "detalle_errores": {
+        "timeout": 6
+      }
+    },
+    {
+      "operacion": "listar libreta",
+      "n": 145,
+      "ok": 59,
+      "errores": 86,
+      "tasa_error_pct": 59.31,
+      "rps": 1.97,
+      "lat_p50_ms": 30008.8,
+      "lat_p95_ms": 54205.9,
+      "lat_p99_ms": 54263.2,
+      "lat_max_ms": 54302.3,
+      "srv_p50_ms": 30008.0,
+      "srv_p95_ms": 54205.4,
+      "media_ms": 26170.5,
+      "detalle_errores": {
+        "timeout": 86
+      }
+    },
+    {
+      "operacion": "resumen",
+      "n": 150,
+      "ok": 59,
+      "errores": 91,
+      "tasa_error_pct": 60.67,
+      "rps": 2.03,
+      "lat_p50_ms": 30008.2,
+      "lat_p95_ms": 54209.6,
+      "lat_p99_ms": 54279.4,
+      "lat_max_ms": 54286.0,
+      "srv_p50_ms": 30007.1,
+      "srv_p95_ms": 54208.6,
+      "media_ms": 25046.9,
+      "detalle_errores": {
+        "timeout": 91
+      }
+    }
+  ],
+  "recursos": {
+    "contacthub": {
+      "proceso": "contacthub",
+      "muestras": 1545,
+      "cpu_media_pct": 56.2,
+      "cpu_max_pct": 225.0,
+      "rss_inicial_mb": 148.6,
+      "rss_max_mb": 1333.2,
+      "rss_final_mb": 846.0,
+      "deriva_memoria_mb": 697.4,
+      "hilos_max": 57,
+      "conexiones_max": 201
+    }
+  },
+  "marcas": [
+    {
+      "t": 0.0,
+      "etiqueta": "frio"
+    },
+    {
+      "t": 12.4,
+      "etiqueta": "rafagas"
+    },
+    {
+      "t": 65.6,
+      "etiqueta": "escrituras"
+    },
+    {
+      "t": 92.2,
+      "etiqueta": "busqueda dura"
+    },
+    {
+      "t": 238.2,
+      "etiqueta": "resistencia"
+    },
+    {
+      "t": 359.7,
+      "etiqueta": "importacion"
+    },
+    {
+      "t": 402.3,
+      "etiqueta": "errores"
+    },
+    {
+      "t": 404.7,
+      "etiqueta": "integridad"
+    },
+    {
+      "t": 405.1,
+      "etiqueta": "sostenible"
+    },
+    {
+      "t": 1194.9,
+      "etiqueta": "escalada"
+    }
+  ],
+  "renovaciones_de_token": 1,
+  "duracion_total_s": 1610.6,
+  "limpieza": {
+    "contactos_de_prueba_borrados": 72
+  }
+}

@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{ title }} · Directorio vivo</title>
+  <link rel="stylesheet" href="/static/app.css?v={{ v }}">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👥</text></svg>">
+  <script src="/static/app.js?v={{ v }}"></script>
+  {% block head %}{% endblock %}
+</head>
+<body>
+<div class="velo" onclick="menuAbrir(false)"></div>
+<div class="layout">
+  <aside>
+    <div class="brand">
+      <div class="logo">DV</div>
+      <div><h1>Directorio vivo</h1><span>Contactos del despacho</span></div>
+    </div>
+    <nav>
+      {% for path, tpl, label, icono in nav %}
+      <a href="{{ path }}" class="{{ 'active' if request.url.path == path else '' }}">
+        <span>{{ icono }}</span><b>{{ label }}</b>
+      </a>
+      {% endfor %}
+      <a href="/docs" target="_blank"><span>⌁</span><b>API</b></a>
+    </nav>
+    <div class="nota">
+      <p style="line-height:1.5">Las fichas se arman con lo que ya pasa: llamadas,
+        documentos y nomina. El registro vive en
+        <span class="mono">contactos.db</span> y nada sale de esta computadora.</p>
+      <p class="version-ui" style="margin-top:10px;opacity:.7">
+        version {{ v }}</p>
+    </div>
+  </aside>
+
+  <main>
+    <header class="page">
+      <button class="menu-btn" onclick="menuAbrir()" aria-label="Abrir menu"
+              aria-haspopup="dialog" aria-expanded="false">≡</button>
+      <div class="titulo">
+        <h2>{% block heading %}{{ title }}{% endblock %}</h2>
+        <p>{% block subtitle %}{{ subtitulo }}{% endblock %}</p>
+      </div>
+      <div class="row tight">
+        <span class="pill"><span class="dot on" id="sys-dot"></span><span id="sys-info">cargando…</span></span>
+        <button class="ghost" id="theme-btn" onclick="themeToggle()">Claro</button>
+      </div>
+    </header>
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+<script>
+/* Barra lateral en telefono: el boton la despliega, el velo o Escape la cierran. */
+function menuAbrir(forzar) {
+  const aside = document.querySelector('aside');
+  const abrir = forzar === undefined ? !aside.classList.contains('abierta') : forzar;
+  aside.classList.toggle('abierta', abrir);
+  document.body.classList.toggle('menu-abierto', abrir);
+  const b = document.querySelector('.menu-btn');
+  if (b) b.setAttribute('aria-expanded', String(abrir));
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') menuAbrir(false); });
+
+async function refreshSystem() {
+  try {
+    const m = await API.get('/api/metricas');
+    const r = m.resumen || {};
+    $('#sys-info').textContent =
+      `${r.personas || 0} fichas · ${r.casos || 0} `
+      + `expediente${r.casos === 1 ? '' : 's'} · ${r.hitos || 0} hitos`;
+    $('#sys-dot').className = 'dot on';
+  } catch (e) {
+    $('#sys-dot').className = 'dot off';
+    $('#sys-info').textContent = 'servidor no disponible';
+  }
+}
+themeApply(themeGet());
+refreshSystem();
+setInterval(refreshSystem, 30000);
+
+/* ---- piezas compartidas ---- */
+function fmtFecha(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (isNaN(d)) return iso;
+  return d.toLocaleString('es-MX', {day:'2-digit', month:'short', year:'numeric',
+                                    hour:'2-digit', minute:'2-digit'});
+}
+const ICONO_HITO = {llamada:'☎', documento:'▤', nota:'✎', hecho:'•'};
+
+function tarjetaPersona(p) {
+  const datos = (p.identificadores || []).slice(0, 3)
+    .map(i => `<span class="tag muted">${esc(i.valor)}</span>`).join(' ');
+  return `<a class="card persona" href="/persona/${p.id}" style="display:block">
+    <div class="row tight" style="justify-content:space-between;align-items:flex-start">
+      <div>
+        <div style="font-size:15px">${esc(p.nombre)}</div>
+        <div class="small muted">${esc([p.rol, p.organizacion, p.lugar].filter(Boolean).join(' · ')) || 'sin datos de perfil'}</div>
+      </div>
+      ${p.interno ? '<span class="tag info">del despacho</span>' : ''}
+    </div>
+    ${p.por ? `<div class="small" style="margin-top:8px;color:var(--accent)">↳ ${esc(p.por)}</div>` : ''}
+    <div style="margin-top:9px">${datos}</div>
+    <div class="small muted" style="margin-top:8px">
+      ${p.hitos || 0} hitos${p.ultimo ? ' · ultimo: ' + esc(p.ultimo) : ''}
+      ${p.ultimo_ts ? '<br>' + fmtFecha(p.ultimo_ts) : ''}
+    </div>
+  </a>`;
+}
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

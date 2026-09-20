@@ -1,0 +1,436 @@
+{% extends "base.html" %}
+{% block heading %}Puntos criticos{% endblock %}
+{% block subtitle %}Define las zonas que importan: aforo, permanencia y conteo de accesos{% endblock %}
+
+{% block content %}
+<div class="split">
+  <div class="card">
+    <h3>Editor de zonas <small>haz clic para trazar el poligono</small></h3>
+    <div class="videowrap" style="aspect-ratio:16/9">
+      <canvas id="editor"></canvas>
+      <video id="cam" autoplay muted playsinline style="display:none"></video>
+    </div>
+    <div class="row tight" style="margin-top:12px">
+      <button id="btn-cam" class="ghost">◉ Fondo desde camara</button>
+      <button id="btn-img" class="ghost">▣ Fondo desde imagen</button>
+      <input type="file" id="img" accept="image/*" style="display:none">
+      <button id="btn-undo" class="ghost">↶ Quitar punto</button>
+      <button id="btn-clear" class="ghost">✕ Limpiar</button>
+    </div>
+    <p class="small muted" style="margin-top:10px">
+      Las coordenadas se guardan normalizadas (0 a 1), asi la misma zona funciona con
+      cualquier camara o resolucion de video.
+    </p>
+  </div>
+
+  <div>
+    <div class="card">
+      <h3>Deteccion automatica <small>el sistema propone, tu decides</small></h3>
+      <div class="row tight">
+        <button id="btn-auto-escena" class="ghost">Detectar desde la escena</button>
+        <button id="btn-auto-act" class="ghost">Detectar por actividad</button>
+        <input type="file" id="escena" accept="image/*,video/*" style="display:none">
+      </div>
+      <p class="small muted" style="margin:10px 0 0" id="auto-info">
+        <strong>Escena:</strong> reconoce sillas, escritorios, monitores y personas en una
+        foto o video del lugar y agrupa lo que esta junto.
+        <strong>Actividad:</strong> usa las trayectorias ya analizadas para separar donde
+        la gente se queda de donde solo pasa.
+      </p>
+      <div id="propuestas" class="zone-list" style="margin-top:12px"></div>
+      <div class="row tight" id="propuestas-acciones" style="margin-top:10px;display:none">
+        <button id="btn-aplicar">Guardar seleccionadas</button>
+        <button id="btn-descartar" class="ghost">Descartar</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h3>Nueva zona / edicion</h3>
+      <div class="row tight">
+        <div style="flex:1;min-width:150px"><label>Nombre</label><input id="z-name" placeholder="Recepcion"></div>
+        <div style="min-width:130px"><label>Tipo</label>
+          <select id="z-kind">
+            <option value="area">Area de trabajo</option>
+            <option value="acceso">Acceso / entrada</option>
+            <option value="restringida">Restringida</option>
+          </select></div>
+      </div>
+      <div class="row tight" style="margin-top:10px">
+        <div><label>Aforo maximo</label><input id="z-max" type="number" value="6" min="0"></div>
+        <div><label>Minimo de personas</label><input id="z-min" type="number" value="0" min="0"></div>
+        <div style="max-width:90px"><label>Color</label><input id="z-color" type="color" value="#1a73e8" style="padding:2px;height:36px"></div>
+      </div>
+      <div class="row tight" style="margin-top:10px">
+        <div><label>Alerta de permanencia (min)</label><input id="z-dwell" type="number" value="3" min="0" step="0.5"></div>
+        <div><label>Tolerancia sin cubrir (min)</label><input id="z-vac" type="number" value="5" min="0" step="0.5"></div>
+      </div>
+      <p class="small muted" style="margin:8px 0 0">
+        Minimo 0 = la zona puede quedar vacia. Con 1 o mas, el sistema avisa si baja de
+        ese numero durante mas tiempo del tolerado, y vuelve a avisar cuando se cubre.
+      </p>
+      <div class="row tight" style="margin-top:12px">
+        <button id="btn-save">Guardar zona</button>
+        <button id="btn-new" class="ghost">Nueva</button>
+      </div>
+      <p class="small muted" id="edit-info" style="margin-top:8px">Puntos: 0</p>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h3>Zonas configuradas <small id="z-count"></small></h3>
+      <div class="zone-list" id="z-list"><p class="muted small">Cargando…</p></div>
+    </div>
+  </div>
+</div>
+
+<section class="card" style="margin-top:14px">
+  <h3>Reglas activas <small>se evaluan en cada cuadro analizado</small></h3>
+  <div class="grid g3">
+    <div><strong>Aforo excedido</strong><p class="small muted">Se dispara cuando la ocupacion instantanea supera el maximo de la zona.</p></div>
+    <div><strong>Permanencia excesiva</strong><p class="small muted">Una persona supera el limite de minutos dentro de la zona.</p></div>
+    <div><strong>Zona inactiva</strong><p class="small muted">Sin actividad durante el horario laboral por mas de <span id="r-idle"></span> minutos.</p></div>
+    <div><strong>Puesto desatendido</strong><p class="small muted">La zona baja del minimo de personas (por ejemplo, recepcion sin nadie) mas tiempo del tolerado. Se avisa tambien cuando se vuelve a cubrir, con el hueco total.</p></div>
+    <div><strong>Salida de zona</strong><p class="small muted">Cada vez que alguien abandona una zona, con el tiempo que estuvo dentro.</p></div>
+    <div><strong>Aglomeracion</strong><p class="small muted">Mas de <span id="r-crowd"></span> personas simultaneas en el encuadre.</p></div>
+    <div><strong>Actividad fuera de horario</strong><p class="small muted">Presencia detectada fuera de <span id="r-horario"></span>.</p></div>
+    <div><strong>Conteo de accesos</strong><p class="small muted">Entradas y salidas por zona, con permanencia acumulada por persona.</p></div>
+    <div><strong>Objeto nuevo o retirado</strong><p class="small muted">Se reconoce cuando aparece o desaparece un objeto de la escena, con su identificador.</p></div>
+    <div><strong>Objeto sin vigilancia</strong><p class="small muted">Una laptop, mochila o telefono sin ninguna persona cerca durante el tiempo configurado.</p></div>
+  </div>
+  <div class="sep"></div>
+  <h3>Que debe reconocer <small>el modelo conoce 80 tipos de elementos</small></h3>
+  <label style="display:flex;align-items:center;gap:9px;text-transform:none;
+                letter-spacing:0;font-size:13.5px;color:var(--txt);margin-bottom:12px">
+    <input type="checkbox" id="cfg-todo" style="width:auto">
+    Reconocer todo lo que vea y nombrarlo (recomendado)
+  </label>
+  <div class="chips" id="chips-clases"><span class="muted small">Cargando…</span></div>
+  <p class="small muted" style="margin-top:10px" id="clases-nota">
+    Con la opcion activada el sistema nombra cualquier elemento conocido que aparezca
+    (persona, laptop, silla, mochila, mesa, pantalla…). Si la desactivas, solo buscara
+    las clases que marques, lo que reduce ruido en escenas muy cargadas. Las personas
+    siempre se detectan: las reglas de aforo y permanencia se calculan sobre ellas.
+  </p>
+
+  <div class="sep"></div>
+  <div class="row tight" style="margin-top:14px">
+    <div><label>Aglomeracion (personas)</label><input id="cfg-crowd" type="number" min="1"></div>
+    <div><label>Zona inactiva (min)</label><input id="cfg-idle" type="number" min="1"></div>
+    <div><label>Objeto sin vigilancia (min)</label><input id="cfg-unatt" type="number" min="1"></div>
+    <div><label>Inicio jornada</label><input id="cfg-ini" placeholder="07:00"></div>
+    <div><label>Fin jornada</label><input id="cfg-fin" placeholder="18:00"></div>
+    <div style="align-self:end"><button id="btn-cfg">Guardar reglas</button></div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const cv = $('#editor'), cx = cv.getContext('2d');
+let bg = null, puntos = [], zonas = [], editId = null, camStream = null;
+let propuestas = [];
+cv.width = 1280; cv.height = 720;
+
+function dibujar() {
+  cx.clearRect(0, 0, cv.width, cv.height);
+  if (bg) cx.drawImage(bg, 0, 0, cv.width, cv.height);
+  else {
+    const css = getComputedStyle(document.documentElement);
+    cx.fillStyle = css.getPropertyValue('--surface-2').trim() || '#0c1526';
+    cx.fillRect(0, 0, cv.width, cv.height);
+    cx.strokeStyle = css.getPropertyValue('--line').trim() || 'rgba(148,163,184,.12)';
+    for (let x = 0; x < cv.width; x += 64) { cx.beginPath(); cx.moveTo(x, 0); cx.lineTo(x, cv.height); cx.stroke(); }
+    for (let y = 0; y < cv.height; y += 64) { cx.beginPath(); cx.moveTo(0, y); cx.lineTo(cv.width, y); cx.stroke(); }
+    cx.fillStyle = css.getPropertyValue('--txt-3').trim() || '#5f6368';
+    cx.font = '18px ui-sans-serif, system-ui, sans-serif'; cx.textAlign = 'center';
+    cx.fillText('Carga un fondo (camara o imagen) y traza las zonas', cv.width / 2, cv.height / 2);
+    cx.textAlign = 'start';
+    cx.textAlign = 'start';
+  }
+  zonas.filter(z => z.enabled).forEach(z => {
+    const pts = JSON.parse(z.polygon_json).map(p => [p[0] * cv.width, p[1] * cv.height]);
+    if (pts.length < 3) return;
+    cx.beginPath(); cx.moveTo(pts[0][0], pts[0][1]);
+    pts.slice(1).forEach(p => cx.lineTo(p[0], p[1])); cx.closePath();
+    cx.fillStyle = z.color + '25'; cx.fill();
+    cx.strokeStyle = z.id === editId ? '#ffffff' : z.color;
+    cx.lineWidth = z.id === editId ? 3 : 2; cx.stroke();
+    cx.fillStyle = z.color; cx.font = 'bold 16px Segoe UI, sans-serif';
+    cx.fillText(`${z.name} · aforo ${z.max_occupancy}`, pts[0][0] + 8, pts[0][1] + 22);
+  });
+  propuestas.forEach((z, i) => {
+    if (!z._sel) return;
+    const pts = z.polygon.map(p => [p[0] * cv.width, p[1] * cv.height]);
+    if (pts.length < 3) return;
+    cx.beginPath(); cx.moveTo(pts[0][0], pts[0][1]);
+    pts.slice(1).forEach(p => cx.lineTo(p[0], p[1])); cx.closePath();
+    cx.fillStyle = z.color + '1f'; cx.fill();
+    cx.strokeStyle = z.color; cx.lineWidth = 2; cx.setLineDash([10, 7]); cx.stroke();
+    cx.setLineDash([]);
+    cx.fillStyle = z.color; cx.font = '600 15px ui-sans-serif, system-ui, sans-serif';
+    cx.fillText('propuesta · ' + z.name, pts[0][0] + 8, pts[0][1] + 20);
+  });
+  if (puntos.length) {
+    const pts = puntos.map(p => [p[0] * cv.width, p[1] * cv.height]);
+    cx.beginPath(); cx.moveTo(pts[0][0], pts[0][1]);
+    pts.slice(1).forEach(p => cx.lineTo(p[0], p[1]));
+    if (pts.length > 2) { cx.closePath(); cx.fillStyle = $('#z-color').value + '33'; cx.fill(); }
+    cx.strokeStyle = $('#z-color').value; cx.lineWidth = 2; cx.setLineDash([8, 6]); cx.stroke();
+    cx.setLineDash([]);
+    pts.forEach((p, i) => {
+      cx.beginPath(); cx.arc(p[0], p[1], 6, 0, 7);
+      cx.fillStyle = i === 0 ? '#188038' : '#fff'; cx.fill();
+    });
+  }
+  $('#edit-info').textContent = `Puntos: ${puntos.length}` + (editId ? ` · editando zona #${editId}` : '');
+}
+
+cv.addEventListener('click', ev => {
+  const r = cv.getBoundingClientRect();
+  // el canvas usa object-fit:contain -> hay que descontar las bandas
+  const escala = Math.min(r.width / cv.width, r.height / cv.height);
+  const offX = (r.width - cv.width * escala) / 2, offY = (r.height - cv.height * escala) / 2;
+  const x = (ev.clientX - r.left - offX) / escala / cv.width;
+  const y = (ev.clientY - r.top - offY) / escala / cv.height;
+  if (x < 0 || x > 1 || y < 0 || y > 1) return;
+  puntos.push([Math.round(x * 1000) / 1000, Math.round(y * 1000) / 1000]);
+  dibujar();
+});
+
+$('#btn-undo').onclick = () => { puntos.pop(); dibujar(); };
+$('#btn-clear').onclick = () => { puntos = []; editId = null; dibujar(); };
+$('#btn-new').onclick = () => {
+  puntos = []; editId = null; $('#z-name').value = ''; dibujar();
+};
+$('#btn-img').onclick = () => $('#img').click();
+$('#img').onchange = ev => {
+  const f = ev.target.files[0]; if (!f) return;
+  const img = new Image();
+  img.onload = () => { bg = img; cv.width = img.width; cv.height = img.height; dibujar(); };
+  img.src = URL.createObjectURL(f);
+};
+$('#btn-cam').onclick = async () => {
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({video: {width: {ideal: 1280}}});
+    const v = $('#cam'); v.srcObject = camStream; await v.play();
+    setTimeout(() => {
+      cv.width = v.videoWidth; cv.height = v.videoHeight;
+      const tmp = document.createElement('canvas');
+      tmp.width = v.videoWidth; tmp.height = v.videoHeight;
+      tmp.getContext('2d').drawImage(v, 0, 0);
+      const img = new Image();
+      img.onload = () => { bg = img; dibujar(); };
+      img.src = tmp.toDataURL('image/jpeg', 0.85);
+      camStream.getTracks().forEach(t => t.stop());
+      toast('Fondo capturado de la camara', 'ok');
+    }, 700);
+  } catch (e) { toast('No se pudo usar la camara: ' + e.message, 'critical'); }
+};
+
+$('#btn-save').onclick = async () => {
+  const name = $('#z-name').value.trim();
+  if (!name) return toast('Ponle nombre a la zona', 'warning');
+  if (puntos.length < 3) return toast('Traza al menos 3 puntos', 'warning');
+  const payload = {
+    name, kind: $('#z-kind').value, polygon: puntos, color: $('#z-color').value,
+    max_occupancy: parseInt($('#z-max').value || '0', 10),
+    min_occupancy: parseInt($('#z-min').value || '0', 10),
+    dwell_alert_s: Math.round(parseFloat($('#z-dwell').value || '0') * 60),
+    vacancy_alert_s: Math.round(parseFloat($('#z-vac').value || '5') * 60),
+  };
+  try {
+    if (editId) await API.send('/api/zones/' + editId, payload, 'PUT');
+    else await API.send('/api/zones', payload);
+    toast('Zona guardada', 'ok');
+    puntos = []; editId = null;
+    cargarZonas();
+  } catch (e) { toast('Error: ' + e.message, 'critical'); }
+};
+
+function pintarPropuestas(mensaje) {
+  const cont = $('#propuestas');
+  $('#auto-info').textContent = mensaje || '';
+  if (!propuestas.length) {
+    cont.innerHTML = '<p class="muted small">Sin propuestas.</p>';
+    $('#propuestas-acciones').style.display = 'none';
+    dibujar(); return;
+  }
+  cont.innerHTML = propuestas.map((z, i) => `
+    <div class="zone-item">
+      <input type="checkbox" style="width:auto" ${z._sel ? 'checked' : ''}
+             onchange="propuestas[${i}]._sel=this.checked;pintarPropuestas()">
+      <span class="swatch" style="background:${esc(z.color)}"></span>
+      <div style="flex:1">
+        <div><strong>${esc(z.name)}</strong> <span class="tag muted">${esc(z.kind)}</span></div>
+        <div class="small muted">${esc(z.motivo || '')} · aforo ${z.max_occupancy}
+          · permanencia ${(z.dwell_alert_s / 60).toFixed(0)} min</div>
+      </div>
+    </div>`).join('');
+  $('#propuestas-acciones').style.display = 'flex';
+  dibujar();
+}
+
+async function autoActividad() {
+  $('#auto-info').textContent = 'Analizando trayectorias registradas…';
+  try {
+    const r = await API.get('/api/zones/suggest');
+    propuestas = (r.zones || []).map(z => ({...z, _sel: true}));
+    pintarPropuestas(r.mensaje);
+  } catch (e) { toast('Error: ' + e.message, 'critical'); }
+}
+
+async function autoEscena(file) {
+  $('#auto-info').textContent = 'Reconociendo objetos del espacio…';
+  const fd = new FormData();
+  fd.append('file', file, file.name || 'escena.jpg');
+  try {
+    const r = await fetch('/api/zones/suggest-image', {method: 'POST', body: fd});
+    if (!r.ok) throw new Error(await r.text());
+    const data = await r.json();
+    propuestas = (data.zones || []).map(z => ({...z, _sel: true}));
+    pintarPropuestas(data.mensaje);
+    if (!propuestas.length) toast(data.mensaje || 'Sin zonas propuestas', 'warning', 6000);
+  } catch (e) { toast('Error: ' + e.message, 'critical', 6000); }
+}
+
+$('#btn-auto-act').onclick = autoActividad;
+$('#btn-auto-escena').onclick = () => {
+  if (bg) {
+    // usa el fondo ya cargado en el editor
+    const tmp = document.createElement('canvas');
+    tmp.width = cv.width; tmp.height = cv.height;
+    tmp.getContext('2d').drawImage(bg, 0, 0, tmp.width, tmp.height);
+    tmp.toBlob(b => autoEscena(new File([b], 'escena.jpg', {type: 'image/jpeg'})),
+               'image/jpeg', 0.9);
+  } else {
+    $('#escena').click();
+  }
+};
+$('#escena').onchange = ev => {
+  const f = ev.target.files[0];
+  if (!f) return;
+  if (f.type.startsWith('image/')) {
+    const img = new Image();
+    img.onload = () => { bg = img; cv.width = img.width; cv.height = img.height; dibujar(); };
+    img.src = URL.createObjectURL(f);
+  }
+  autoEscena(f);
+};
+$('#btn-aplicar').onclick = async () => {
+  const sel = propuestas.filter(z => z._sel);
+  if (!sel.length) return toast('No hay zonas seleccionadas', 'warning');
+  try {
+    const r = await API.send('/api/zones/apply', {zones: sel});
+    toast(`${r.guardadas} zona(s) guardadas`, 'ok');
+    propuestas = []; pintarPropuestas('');
+    cargarZonas();
+  } catch (e) { toast('Error: ' + e.message, 'critical'); }
+};
+$('#btn-descartar').onclick = () => { propuestas = []; pintarPropuestas(''); };
+
+async function cargarZonas() {
+  zonas = await API.get('/api/zones');
+  $('#z-count').textContent = `${zonas.length} zonas`;
+  $('#z-list').innerHTML = zonas.map(z => `
+    <div class="zone-item">
+      <span class="swatch" style="background:${esc(z.color)}"></span>
+      <div style="flex:1">
+        <div><strong>${esc(z.name)}</strong> <span class="tag muted">${esc(z.kind)}</span></div>
+        <div class="small muted">aforo ${z.max_occupancy}${z.min_occupancy > 0
+            ? ` · minimo ${z.min_occupancy} (tolera ${((z.vacancy_alert_s || 300) / 60).toFixed(0)} min)` : ''}
+          · permanencia ${(z.dwell_alert_s / 60).toFixed(1)} min
+          · ${JSON.parse(z.polygon_json).length} puntos</div>
+      </div>
+      <button class="ghost" onclick="editar(${z.id})">Editar</button>
+      <button class="ghost" onclick="alternar(${z.id}, ${z.enabled ? 0 : 1})">${z.enabled ? 'Desactivar' : 'Activar'}</button>
+      <button class="danger" onclick="borrar(${z.id})">✕</button>
+    </div>`).join('') || '<p class="muted small">Sin zonas configuradas.</p>';
+  dibujar();
+}
+
+function editar(id) {
+  const z = zonas.find(x => x.id === id); if (!z) return;
+  editId = id; puntos = JSON.parse(z.polygon_json);
+  $('#z-name').value = z.name; $('#z-kind').value = z.kind;
+  $('#z-max').value = z.max_occupancy; $('#z-dwell').value = (z.dwell_alert_s / 60);
+  $('#z-min').value = z.min_occupancy || 0;
+  $('#z-vac').value = ((z.vacancy_alert_s || 300) / 60);
+  $('#z-color').value = z.color;
+  dibujar();
+}
+async function borrar(id) {
+  if (!confirm('¿Eliminar la zona?')) return;
+  await API.del('/api/zones/' + id); toast('Zona eliminada', 'warning'); cargarZonas();
+}
+async function alternar(id, enabled) {
+  await API.send('/api/zones/' + id, {enabled: !!enabled}, 'PUT'); cargarZonas();
+}
+
+let CLASES = {activas: [], sugeridas: []};
+
+async function cargarClases() {
+  CLASES = await API.get('/api/classes');
+  const nombres = CLASES.nombres || {};
+  const todo = !!CLASES.detect_all;
+  $('#cfg-todo').checked = todo;
+
+  const lista = Array.from(new Set([
+    ...(CLASES.sugeridas || []).map(x => x.clase),
+    ...(CLASES.activas || []),
+  ]));
+  $('#chips-clases').innerHTML = lista.map(c => {
+    const on = !todo && (CLASES.activas || []).includes(c);
+    const fija = c === (CLASES.primaria || 'person');
+    return `<span class="chip ${on ? 'on' : ''}" data-clase="${esc(c)}"
+       title="${esc(c)}"
+       style="${todo ? 'opacity:.4;cursor:default' : (fija ? 'opacity:.7;cursor:default' : '')}"
+       >${esc(nombres[c] || c)}</span>`;
+  }).join('');
+
+  $$('#chips-clases .chip').forEach(el => {
+    el.onclick = async () => {
+      if ($('#cfg-todo').checked) {
+        return toast('Desactiva "reconocer todo" para elegir clases sueltas', 'warning');
+      }
+      const clase = el.dataset.clase;
+      if (clase === (CLASES.primaria || 'person')) return;
+      const activas = new Set(CLASES.activas || []);
+      activas.has(clase) ? activas.delete(clase) : activas.add(clase);
+      activas.add(CLASES.primaria || 'person');
+      await API.send('/api/config', {classes: Array.from(activas)});
+      toast('Listo · se aplica a los analisis nuevos', 'ok');
+      cargarClases();
+    };
+  });
+}
+
+$('#cfg-todo').onchange = async () => {
+  await API.send('/api/config', {detect_all_classes: $('#cfg-todo').checked});
+  toast($('#cfg-todo').checked
+    ? 'El sistema nombrara todo lo que reconozca'
+    : 'Solo se buscaran las clases marcadas', 'ok');
+  cargarClases();
+};
+
+async function cargarConfig() {
+  const c = await API.get('/api/config');
+  $('#cfg-crowd').value = c.crowd_threshold;
+  $('#cfg-idle').value = Math.round(c.idle_zone_alert_s / 60);
+  $('#cfg-unatt').value = Math.round((c.unattended_alert_s || 120) / 60);
+  $('#cfg-ini').value = c.work_start; $('#cfg-fin').value = c.work_end;
+  $('#r-idle').textContent = Math.round(c.idle_zone_alert_s / 60);
+  $('#r-crowd').textContent = c.crowd_threshold;
+  $('#r-horario').textContent = `${c.work_start} a ${c.work_end}`;
+}
+$('#btn-cfg').onclick = async () => {
+  await API.send('/api/config', {
+    crowd_threshold: parseInt($('#cfg-crowd').value, 10),
+    idle_zone_alert_s: parseInt($('#cfg-idle').value, 10) * 60,
+    unattended_alert_s: Math.max(10, parseInt($('#cfg-unatt').value || '2', 10) * 60),
+    work_start: $('#cfg-ini').value, work_end: $('#cfg-fin').value,
+  });
+  toast('Reglas actualizadas', 'ok'); cargarConfig();
+};
+
+cargarZonas(); cargarConfig(); cargarClases(); dibujar();
+</script>
+{% endblock %}

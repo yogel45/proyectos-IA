@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="split">
+  <div class="card">
+    <h3>Pega lo que tengas <small>firma de correo, pie de escrito, tarjeta</small></h3>
+    <textarea id="texto" rows="12" placeholder="McWHIRTER, BELLINGER &amp; ASSOCIATES, P.A.
+Christopher M. Cunningham, Esq.
+Federal Bar No. 12383
+2437 Mineral Springs Road
+Lexington, South Carolina 29072
+P: (803) 359-5523  F: (803) 996-9080
+ccunningham@mbalaw.com"></textarea>
+    <div class="row tight" style="margin-top:11px">
+      <button onclick="leer()">Leer</button>
+      <button class="ghost" onclick="$('#texto').value='';$('#lectura').innerHTML=''">Limpiar</button>
+    </div>
+    <p class="small muted" style="margin-top:12px;line-height:1.55">
+      No se inventa nada: cada campo reconocido muestra la linea de la que salio, y antes
+      de guardar se avisa si ese telefono o ese nombre ya estan en otra ficha.</p>
+  </div>
+
+  <div id="lectura"></div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+let LECTURA = null;
+
+async function leer() {
+  const texto = $('#texto').value;
+  if (texto.trim().length < 5) { toast('Pega algo primero'); return; }
+  LECTURA = await API.send('/api/leer', {texto});
+  const c = LECTURA.campos || {}, ev = LECTURA.evidencia || {};
+  const campo = (clave, etiqueta) => `<div style="margin-bottom:10px">
+    <label>${etiqueta}</label>
+    <input id="a-${clave}" value="${esc(c[clave] || '')}">
+    ${ev[clave] ? `<div class="small muted" style="margin-top:3px">↳ de: "${esc(ev[clave])}"</div>` : ''}
+  </div>`;
+
+  const ident = (LECTURA.identificadores || []).map((i, n) => `<div class="row tight"
+      style="justify-content:space-between;padding:4px 0">
+      <label style="display:flex;align-items:center;gap:8px;margin:0;text-transform:none;
+                    letter-spacing:0;font-size:13px;color:var(--txt)">
+        <input type="checkbox" checked id="id-${n}" style="width:auto">
+        <span class="mono">${esc(i.valor)}</span></label>
+      <span class="tag muted">${esc(i.etiqueta || i.tipo)}</span></div>`).join('')
+    || '<div class="muted small">No se reconocio ningun telefono ni correo.</div>';
+
+  const aviso = LECTURA.coincide ? `<div class="card" style="margin-bottom:12px;
+      border-color:color-mix(in srgb,var(--warn) 45%,transparent)">
+      <div class="small" style="color:var(--warn)">Ojo: ${esc(LECTURA.coincide.por)}</div>
+      <div style="margin-top:5px"><a href="/persona/${LECTURA.coincide.id}">${esc(LECTURA.coincide.nombre)}</a></div>
+      <div class="small muted" style="margin-top:7px;line-height:1.5">Decide tu: un
+        conmutador lo comparten todos los abogados de un despacho, asi que a veces es la
+        misma persona y a veces no.</div>
+      <div class="row tight" style="margin-top:10px">
+        <label style="display:flex;align-items:center;gap:7px;margin:0;text-transform:none;
+                      letter-spacing:0;font-size:13px;color:var(--txt)">
+          <input type="radio" name="destino" value="sumar" checked style="width:auto">
+          sumar los datos a esa ficha</label>
+        <label style="display:flex;align-items:center;gap:7px;margin:0;text-transform:none;
+                      letter-spacing:0;font-size:13px;color:var(--txt)">
+          <input type="radio" name="destino" value="aparte" style="width:auto">
+          es otra persona, ficha aparte</label>
+      </div></div>` : '';
+
+  $('#lectura').innerHTML = `${aviso}<div class="card">
+    <h3>Esto entendi</h3>
+    ${campo('nombre', 'Nombre')}
+    ${campo('rol', 'Papel')}
+    ${campo('organizacion', 'Organizacion')}
+    ${campo('lugar', 'Lugar')}
+    ${c.colegiado ? `<div class="small muted" style="margin-bottom:10px">Numero de colegiado: ${esc(c.colegiado)}</div>` : ''}
+    <div class="sep"></div>
+    <div class="small muted" style="text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">
+      Datos de contacto</div>
+    ${ident}
+    <div class="sep"></div>
+    <div class="row">
+      <div><label>Expediente (opcional)</label><input id="a-exp" placeholder="3:24-cv-05148-MGL"></div>
+      <div><label>Papel en ese expediente</label><input id="a-rolcaso" placeholder="Abogado del demandado"></div>
+    </div>
+    <div class="row tight" style="margin-top:12px">
+      <button onclick="guardar()">Guardar ficha</button>
+      <label style="display:flex;align-items:center;gap:7px;margin:0;text-transform:none;
+                    letter-spacing:0;font-size:13px;color:var(--txt-2)">
+        <input type="checkbox" id="a-interno" style="width:auto"> es del despacho</label>
+    </div>
+  </div>`;
+}
+
+async function guardar() {
+  const identificadores = (LECTURA.identificadores || [])
+    .map((i, n) => ($(`#id-${n}`).checked ? i : null)).filter(Boolean);
+  const c = LECTURA.campos || {};
+  let notas = c.colegiado ? `Numero de colegiado: ${c.colegiado}` : '';
+  const elegido = document.querySelector('input[name="destino"]:checked');
+  const aparte = !!elegido && elegido.value === 'aparte';
+  const r = await API.send('/api/personas', {
+    aparte, distinta_de: aparte && LECTURA.coincide ? LECTURA.coincide.id : null,
+    nombre: $('#a-nombre').value.trim(), rol: $('#a-rol').value.trim(),
+    organizacion: $('#a-organizacion').value.trim(), lugar: $('#a-lugar').value.trim(),
+    interno: $('#a-interno').checked, notas,
+    expediente: $('#a-exp').value.trim(), rol_caso: $('#a-rolcaso').value.trim(),
+    identificadores, fuente_texto: $('#texto').value.slice(0, 400),
+  });
+  toast(r.creada ? 'Ficha creada' : 'Se completo la ficha que ya existia', 'ok');
+  location.href = '/persona/' + r.id;
+}
+
+const tel = new URLSearchParams(location.search).get('tel');
+if (tel) $('#texto').value = tel;
+</script>
+{% endblock %}

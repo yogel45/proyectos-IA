@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+{% block heading %}Camara en vivo{% endblock %}
+{% block subtitle %}La camara de tu PC (o una camara IP del servidor) analizada cuadro a cuadro{% endblock %}
+
+{% block content %}
+<div class="split">
+  <div class="card">
+    <h3>Vista analizada <small id="v-detector">—</small></h3>
+    <div class="videowrap">
+      <video id="cam" autoplay muted playsinline style="display:none"></video>
+      <canvas id="view"></canvas>
+      <img id="mjpeg" style="display:none" alt="stream del servidor">
+    </div>
+    <div class="row tight" style="margin-top:12px">
+      <button id="btn-start">▶ Iniciar camara</button>
+      <button id="btn-stop" class="ghost" disabled>■ Detener</button>
+      <button id="btn-zones" class="ghost">↻ Recargar zonas</button>
+      <div style="min-width:190px;flex:1">
+        <label>Camara</label><select id="device"></select>
+      </div>
+      <div style="min-width:120px">
+        <label>FPS analisis</label>
+        <select id="fps">
+          <option value="2">2 fps</option><option value="4">4 fps</option>
+          <option value="6" selected>6 fps</option><option value="10">10 fps</option>
+        </select>
+      </div>
+      <div style="min-width:130px">
+        <label>Resolucion envio</label>
+        <select id="res">
+          <option value="480">480p (rapido)</option>
+          <option value="640" selected>640p (equilibrado)</option>
+          <option value="960">960p (preciso)</option>
+        </select>
+      </div>
+    </div>
+    <p class="small muted" style="margin:10px 0 0">
+      El navegador captura la camara y envia cuadros JPEG por WebSocket; el servidor
+      detecta, sigue y registra en la base de datos. No se guarda video, solo metricas
+      y capturas de eventos criticos (con rostros difuminados).
+    </p>
+  </div>
+
+  <div>
+    <div class="grid g2">
+      <div class="card kpi acc"><div class="label">Personas ahora</div><div class="value" id="s-personas">0</div>
+        <div class="sub" id="s-zonas">—</div></div>
+      <div class="card kpi ok"><div class="label">Personas unicas</div><div class="value" id="s-unicas">0</div>
+        <div class="sub">en esta sesion</div></div>
+      <div class="card kpi"><div class="label">FPS procesado</div><div class="value" id="s-fps">0</div>
+        <div class="sub" id="s-lat">latencia —</div></div>
+      <div class="card kpi crit"><div class="label">Alertas</div><div class="value" id="s-alertas">0</div>
+        <div class="sub" id="s-sesion">sesion —</div></div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h3>Ocupacion por zona <small>tiempo real</small></h3>
+      <div id="s-zonatabla" class="zone-list"><p class="muted small">Inicia la camara para ver las zonas.</p></div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h3>Que esta viendo <small id="obj-total">—</small></h3>
+      <p id="s-descripcion" style="font-size:15px;margin:0 0 12px">
+        <span class="muted">Inicia la camara para que describa la escena.</span></p>
+      <div id="s-objetos"><p class="muted small">Se listan al iniciar la camara.</p></div>
+      <p class="small muted" style="margin:10px 0 0">
+        El modelo reconoce 80 tipos de elementos y los nombra en espanol.
+        Cada objeto recibe su propio identificador de seguimiento. El sistema avisa
+        cuando aparece uno nuevo, cuando desaparece y cuando un objeto de valor
+        (laptop, mochila, telefono) se queda sin nadie cerca.
+      </p>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h3>Camara del servidor / IP <small>opcional</small></h3>
+      <div class="row tight">
+        <div style="flex:1;min-width:170px"><label>Fuente</label>
+          <input id="cam-src" value="0" placeholder="0 o rtsp://usuario:clave@ip:554/stream"></div>
+        <div style="align-self:end"><button id="btn-srv">Conectar</button></div>
+        <div style="align-self:end"><button id="btn-srv-stop" class="ghost">Detener</button></div>
+      </div>
+      <p class="small muted" style="margin:8px 0 0" id="srv-info">
+        Usa esto cuando la camara este conectada al equipo que corre el servidor o sea una camara IP/RTSP.
+      </p>
+    </div>
+  </div>
+</div>
+
+<section class="grid g2" style="margin-top:14px">
+  <div class="card">
+    <h3>Eventos de esta sesion <small>en vivo</small></h3>
+    <div class="feed" id="f-live"><p class="muted small">Sin eventos todavia.</p></div>
+  </div>
+  <div class="card">
+    <h3>Ocupacion (ultimos minutos)</h3>
+    <canvas class="chart" id="c-live"></canvas>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const video = $('#cam'), view = $('#view'), ctx = view.getContext('2d');
+const capture = document.createElement('canvas');
+let stream = null, ws = null, running = false, lastResult = null, zones = [];
+let waiting = false, timer = null;
+const serie = [], MAXPTS = 120;
+
+async function listDevices() {
+  try {
+    const devs = await navigator.mediaDevices.enumerateDevices();
+    const cams = devs.filter(d => d.kind === 'videoinput');
+    $('#device').innerHTML = cams.map((d, i) =>
+      `<option value="${d.deviceId}">${esc(d.label || 'Camara ' + (i + 1))}</option>`).join('')
+      || '<option value="">(sin camaras)</option>';
+  } catch (e) { /* requiere permiso previo */ }
+}
+
+function drawFrame() {
+  if (!running) return;
+  if (video.videoWidth) {
+    if (view.width !== video.videoWidth) {
+      view.width = video.videoWidth; view.height = video.videoHeight;
+    }
+    ctx.drawImage(video, 0, 0, view.width, view.height);
+    drawOverlay();
+  }
+  requestAnimationFrame(drawFrame);
+}
+
+function drawOverlay() {
+  const W = view.width, H = view.height;
+  zones.forEach(z => {
+    const pts = z.polygon.map(p => [p[0] * W, p[1] * H]);
+    if (pts.length < 3) return;
+    ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+    pts.slice(1).forEach(p => ctx.lineTo(p[0], p[1]));
+    ctx.closePath();
+    ctx.fillStyle = z.color + '22'; ctx.fill();
+    ctx.strokeStyle = z.color; ctx.lineWidth = 2; ctx.stroke();
+    const occ = lastResult?.zones?.[z.name]?.occupancy ?? 0;
+    ctx.fillStyle = z.color; ctx.font = 'bold 14px Segoe UI, sans-serif';
+    ctx.fillText(`${z.name} [${occ}/${z.max_occupancy}]`, pts[0][0] + 6, pts[0][1] + 18);
+  });
+  (lastResult?.tracks || []).forEach(t => {
+    const [x1, y1, x2, y2] = t.norm.map((v, i) => v * (i % 2 ? H : W));
+    const alerta = t.duration > 180;
+    ctx.strokeStyle = alerta ? '#e37400' : '#188038'; ctx.lineWidth = 2;
+    ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+    const label = `${t.key} · ${fmtDur(t.duration)}${t.zones.length ? ' · ' + t.zones[0] : ''}`;
+    ctx.font = '12px Segoe UI, sans-serif';
+    const w = ctx.measureText(label).width + 10;
+    ctx.fillStyle = alerta ? '#e37400' : '#188038';
+    ctx.fillRect(x1, Math.max(0, y1 - 18), w, 18);
+    ctx.fillStyle = '#15171a'; ctx.fillText(label, x1 + 5, Math.max(13, y1 - 5));
+  });
+  (lastResult?.objects_detail || []).forEach(o => {
+    const [x1, y1, x2, y2] = o.norm.map((v, i) => v * (i % 2 ? H : W));
+    ctx.strokeStyle = 'rgba(150,152,158,.8)'; ctx.lineWidth = 1;
+    ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+    ctx.fillStyle = 'rgba(178,181,186,.95)';
+    ctx.font = '11px ui-sans-serif, system-ui, sans-serif';
+    const id = o.key ? ' ' + o.key.split('-').pop() : '';
+    const etiq = (lastResult?.inventory?.etiquetas || {})[o.label] || o.label;
+    ctx.fillText(etiq + id, x1 + 2, Math.max(10, y1 - 3));
+  });
+}
+
+function sendFrame() {
+  if (!running || waiting || !ws || ws.readyState !== 1 || !video.videoWidth) return;
+  const target = parseInt($('#res').value, 10);
+  const scale = target / Math.max(video.videoWidth, 1);
+  capture.width = Math.round(video.videoWidth * Math.min(1, scale));
+  capture.height = Math.round(video.videoHeight * Math.min(1, scale));
+  capture.getContext('2d').drawImage(video, 0, 0, capture.width, capture.height);
+  capture.toBlob(blob => {
+    if (!blob || !running || ws.readyState !== 1) return;
+    waiting = true;
+    blob.arrayBuffer().then(buf => ws.send(buf));
+  }, 'image/jpeg', 0.7);
+}
+
+function pintarSerie() {
+  lineChart($('#c-live'), {
+    labels: serie.map(p => p.t),
+    series: [{name: 'Personas', data: serie.map(p => p.v), color: '#1a73e8'}],
+    empty: 'Inicia la camara',
+  });
+}
+
+function aplicarResultado(r) {
+  lastResult = r;
+  $('#s-personas').textContent = r.persons;
+  $('#s-unicas').textContent = r.metrics.unique_persons;
+  $('#s-fps').textContent = r.fps;
+  $('#s-lat').textContent = `latencia ${r.latency_ms} ms · modelo ${r.detector}`;
+  $('#s-alertas').textContent = r.metrics.total_alerts;
+  $('#s-sesion').textContent = 'sesion #' + r.session_id;
+  const dentro = Object.entries(r.zones || {}).filter(([, z]) => z.occupancy > 0)
+    .map(([n, z]) => `${n}: ${z.occupancy}`).join(' · ');
+  $('#s-zonas').textContent = dentro || 'nadie dentro de zonas';
+
+  $('#s-zonatabla').innerHTML = Object.entries(r.zones || {}).map(([name, z]) => `
+    <div class="zone-item">
+      <span class="swatch" style="background:${esc(z.color)}"></span>
+      <div style="flex:1">
+        <div><strong>${esc(name)}</strong> <span class="muted small">· ${esc(z.kind)}</span>
+          ${z.desatendida ? '<span class="tag critical">sin cubrir</span>' : ''}</div>
+        <div class="bar" style="margin-top:5px"><span style="width:${Math.min(100, z.max_occupancy ? z.occupancy / z.max_occupancy * 100 : 0)}%"></span></div>
+      </div>
+      <div class="right small">
+        <div><strong>${z.occupancy}</strong>/${z.max_occupancy}</div>
+        <div class="muted">${z.entries} entradas${z.min_occupancy > 0
+          ? ` · min ${z.min_occupancy}` : ''}</div>
+      </div>
+    </div>`).join('') || '<p class="muted small">No hay zonas configuradas.</p>';
+
+  const inv = r.inventory || {visibles: {}, unicos: {}, etiquetas: {}};
+  const nom = c => (inv.etiquetas || {})[c] || c;
+  $('#s-descripcion').textContent = r.descripcion || 'nada reconocible en el encuadre';
+  const visibles = Object.entries(inv.visibles || {});
+  $('#obj-total').textContent =
+    `${r.objects} en pantalla · ${Object.values(inv.unicos || {}).reduce((a, b) => a + b, 0)} unicos`;
+  $('#s-objetos').innerHTML = visibles.length ? `<div class="zone-list">` + visibles
+    .sort((a, b) => b[1] - a[1]).map(([clase, n]) => `
+      <div class="zone-item">
+        <div style="flex:1"><strong>${esc(nom(clase))}</strong>
+          <span class="muted small">· ${esc(clase)}</span></div>
+        <div class="right small"><strong>${n}</strong> ahora
+          <span class="muted">· ${(inv.unicos || {})[clase] || n} distintos</span></div>
+      </div>`).join('') + `</div>`
+    : '<p class="muted small">Ningun objeto en el encuadre.</p>';
+
+  if (r.events?.length) {
+    const cont = $('#f-live');
+    if (cont.querySelector('p')) cont.innerHTML = '';
+    r.events.forEach(e => {
+      const div = document.createElement('div');
+      div.className = 'item ' + e.severity;
+      div.innerHTML = `<div class="meta">${severityTag(e.severity)}<span>${fmtClock(r.ts)}</span>
+        <span class="mono">${esc(e.type)}</span></div><div>${esc(e.message)}</div>`;
+      cont.prepend(div);
+    });
+    while (cont.children.length > 60) cont.lastChild.remove();
+  }
+
+  serie.push({t: new Date(r.ts).toLocaleTimeString('es-MX').slice(0, 5), v: r.persons});
+  if (serie.length > MAXPTS) serie.shift();
+  pintarSerie();
+}
+
+async function start() {
+  try {
+    const deviceId = $('#device').value;
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: deviceId ? {deviceId: {exact: deviceId}} : {width: {ideal: 1280}},
+      audio: false,
+    });
+  } catch (e) {
+    toast('No se pudo abrir la camara: ' + e.message, 'critical'); return;
+  }
+  video.srcObject = stream;
+  await video.play();
+  listDevices();
+
+  ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws/live');
+  ws.onopen = () => ws.send(JSON.stringify({type: 'start', name: 'Camara PC'}));
+  ws.onmessage = ev => {
+    const msg = JSON.parse(ev.data);
+    if (msg.type === 'started') {
+      zones = msg.zones || [];
+      $('#v-detector').textContent = msg.detector.description;
+      $('#s-sesion').textContent = 'sesion #' + msg.session_id;
+      toast('Sesion iniciada (#' + msg.session_id + ') con ' + msg.detector.backend, 'ok');
+    } else if (msg.type === 'zones') {
+      zones = msg.zones || []; toast('Zonas recargadas', 'ok');
+    } else if (msg.type === 'frame') {
+      waiting = false; aplicarResultado(msg);
+    } else if (msg.type === 'stopped') {
+      toast('Sesion cerrada · ' + (msg.metrics?.unique_persons ?? 0) + ' personas unicas', 'ok');
+    }
+  };
+  ws.onclose = () => { waiting = false; };
+  ws.onerror = () => toast('Error de conexion con el servidor', 'critical');
+
+  running = true;
+  $('#btn-start').disabled = true; $('#btn-stop').disabled = false;
+  drawFrame();
+  timer = setInterval(sendFrame, 1000 / parseInt($('#fps').value, 10));
+}
+
+function stop() {
+  running = false;
+  clearInterval(timer); timer = null;
+  if (ws && ws.readyState === 1) { ws.send(JSON.stringify({type: 'stop'})); ws.close(); }
+  if (stream) stream.getTracks().forEach(t => t.stop());
+  stream = null;
+  $('#btn-start').disabled = false; $('#btn-stop').disabled = true;
+}
+
+$('#btn-start').onclick = start;
+$('#btn-stop').onclick = stop;
+$('#btn-zones').onclick = async () => {
+  zones = await API.get('/api/zones').then(zs => zs.filter(z => z.enabled)
+    .map(z => ({...z, polygon: JSON.parse(z.polygon_json)})));
+  if (ws && ws.readyState === 1) ws.send(JSON.stringify({type: 'reload_zones'}));
+  toast('Zonas actualizadas en el navegador', 'ok');
+};
+$('#fps').onchange = () => {
+  if (!running) return;
+  clearInterval(timer);
+  timer = setInterval(sendFrame, 1000 / parseInt($('#fps').value, 10));
+};
+
+$('#btn-srv').onclick = async () => {
+  try {
+    const r = await API.send('/api/camera/start', {source: $('#cam-src').value});
+    if (!r.ok) { toast('No se pudo abrir: ' + (r.error || ''), 'critical'); return; }
+    $('#mjpeg').src = '/api/camera/stream?t=' + Date.now();
+    $('#mjpeg').style.display = 'block';
+    $('#view').style.display = 'none';
+    $('#srv-info').textContent = 'Transmitiendo desde el servidor · sesion #' + r.session_id;
+    toast('Camara del servidor conectada', 'ok');
+  } catch (e) { toast(e.message, 'critical'); }
+};
+$('#btn-srv-stop').onclick = async () => {
+  await API.send('/api/camera/stop');
+  $('#mjpeg').style.display = 'none'; $('#mjpeg').src = '';
+  $('#view').style.display = 'block';
+  $('#srv-info').textContent = 'Camara del servidor detenida.';
+};
+
+window.addEventListener('beforeunload', stop);
+registerChart(pintarSerie);
+listDevices();
+</script>
+{% endblock %}

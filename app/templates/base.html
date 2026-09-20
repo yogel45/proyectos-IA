@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{ title }} · OfficeVision AI</title>
+  <link rel="stylesheet" href="/static/app.css?v={{ v }}">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👁️</text></svg>">
+  <script src="/static/app.js?v={{ v }}"></script>
+  {% block head %}{% endblock %}
+</head>
+<body>
+<div class="velo" onclick="menuAbrir(false)"></div>
+<div class="layout">
+  <aside>
+    <div class="brand">
+      <div class="logo">OV</div>
+      <div><h1>OfficeVision AI</h1><span>Vision por computadora · Oficina</span></div>
+    </div>
+    <nav>
+      {% for path, tpl, label, icon in nav %}
+      <a href="{{ path }}" class="{{ 'active' if request.url.path == path else '' }}">
+        <span>{{ icon }}</span><b>{{ label }}</b>
+      </a>
+      {% endfor %}
+    </nav>
+    <div class="nota">
+      <div class="pill" style="width:100%;justify-content:flex-start">
+        <span class="dot" id="nav-dot"></span><span id="nav-detector">detector…</span>
+      </div>
+      <p style="margin-top:12px;line-height:1.5">Los datos se guardan en
+        <span class="mono">data/officevision.db</span>. Sin reconocimiento facial:
+        identificadores anonimos.</p>
+      <p class="version-ui" style="margin-top:10px;opacity:.7">
+        version {{ v }}</p>
+    </div>
+  </aside>
+
+  <main>
+    <header class="page">
+      <button class="menu-btn" onclick="menuAbrir()" aria-label="Abrir menu"
+              aria-haspopup="dialog" aria-expanded="false">≡</button>
+      <div class="titulo">
+        <h2>{% block heading %}{{ title }}{% endblock %}</h2>
+        <p>{% block subtitle %}{% endblock %}</p>
+      </div>
+      <div class="row tight">
+        <span class="pill"><span class="dot on" id="sys-dot"></span><span id="sys-info">cargando…</span></span>
+        <span class="pill" id="sys-counts">—</span>
+        <button class="ghost" id="theme-btn" onclick="themeToggle()">Claro</button>
+      </div>
+    </header>
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+<script>
+/* Barra lateral en telefono: el boton la despliega, el velo o Escape la cierran. */
+function menuAbrir(forzar) {
+  const aside = document.querySelector('aside');
+  const abrir = forzar === undefined ? !aside.classList.contains('abierta') : forzar;
+  aside.classList.toggle('abierta', abrir);
+  document.body.classList.toggle('menu-abierto', abrir);
+  const b = document.querySelector('.menu-btn');
+  if (b) b.setAttribute('aria-expanded', String(abrir));
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') menuAbrir(false); });
+
+async function refreshSystem() {
+  try {
+    const s = await API.get('/api/system');
+    const det = Object.entries(s.backends).filter(([, v]) => v).map(([k]) => k).join(', ');
+    $('#sys-info').textContent = `Modelo: ${s.detector_config} · backends: ${det} · OpenCV ${s.opencv}`;
+    $('#nav-detector').textContent = `${s.detector_config} · ${s.model}`;
+    $('#nav-dot').className = 'dot on';
+    const c = s.counts || {};
+    $('#sys-counts').textContent =
+      `${c.sesiones || 0} sesiones · ${c.eventos || 0} eventos · ${c.tracks || 0} personas · ${c.zonas || 0} zonas`;
+  } catch (e) {
+    $('#sys-dot').className = 'dot off';
+    $('#sys-info').textContent = 'servidor no disponible';
+  }
+}
+themeApply(themeGet());
+refreshSystem();
+setInterval(refreshSystem, 15000);
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

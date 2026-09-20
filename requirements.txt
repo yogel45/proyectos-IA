@@ -1,0 +1,28 @@
+# --- Nucleo de la aplicacion (obligatorio) ---------------------------------
+fastapi>=0.110
+uvicorn[standard]>=0.27
+jinja2>=3.1
+python-multipart>=0.0.9
+opencv-python-headless>=4.8
+numpy>=1.24
+openpyxl>=3.1
+
+# --- Documentos (clasificacion y nombrado) ---------------------------------
+pymupdf>=1.24
+python-docx>=1.1
+
+# --- Modelo de deteccion (recomendado) -------------------------------------
+# YOLO11/YOLOv8. Si no se instala, la app sigue funcionando en modo
+# "motion" (sustraccion de fondo) o con un modelo .onnx propio en models/.
+ultralytics>=8.3
+lap>=0.5
+
+# --- OCR opcional (solo para PDFs escaneados e imagenes) -------------------
+# Requiere ademas el binario Tesseract instalado en el sistema.
+# pytesseract>=0.3.10
+# pillow>=10.0
+
+# --- Pruebas de carga (Reto 7) ---------------------------------------------
+# httpx ya viene con FastAPI; psutil y matplotlib son para medir y dibujar.
+psutil>=5.9
+matplotlib>=3.7

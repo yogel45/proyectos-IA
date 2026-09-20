@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block heading %}Reglas y nombres{% endblock %}
+{% block subtitle %}Como se nombran los archivos, donde se archivan y cuando se pide revision{% endblock %}
+
+{% block content %}
+<div class="split">
+  <div class="card">
+    <h3>Convencion de nombres <small id="conv-ejemplo"></small></h3>
+    <div class="row tight">
+      <div style="flex:1;min-width:230px"><label>Plantilla</label>
+        <input id="c-plantilla" placeholder="{fecha}_{categoria}_{expediente}_{descriptor}"></div>
+      <div style="max-width:90px"><label>Separador</label><input id="c-sep" maxlength="1"></div>
+    </div>
+    <div class="row tight" style="margin-top:10px">
+      <div><label>Carpetas</label><select id="c-esquema"></select></div>
+      <div><label>Largo maximo</label><input id="c-max" type="number" min="40" max="200"></div>
+      <div><label>Umbral de revision</label><input id="c-umbral" type="number" min="0" max="1" step="0.05"></div>
+    </div>
+    <div class="row tight" style="margin-top:10px">
+      <div><label>Originales</label>
+        <select id="c-conservar"><option value="true">Conservar (copiar)</option>
+          <option value="false">Mover al archivo</option></select></div>
+      <div><label>Trabajos en paralelo</label><input id="c-trabajos" type="number" min="1" max="8"></div>
+      <div><label>Guardar texto</label>
+        <select id="c-texto"><option value="true">Si (permite buscar)</option>
+          <option value="false">No</option></select></div>
+    </div>
+    <div class="row tight" style="margin-top:12px">
+      <button id="btn-conv">Guardar</button>
+      <button class="ghost" id="btn-reorg">Reorganizar lo ya archivado</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Vista previa <small>con un documento ya procesado</small></h3>
+    <div class="row tight">
+      <div style="flex:1"><label>Documento</label><select id="p-doc"></select></div>
+    </div>
+    <div id="p-vista" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<section class="card" style="margin-top:14px">
+  <h3>Anadir una categoria</h3>
+  <div class="row tight">
+    <div style="max-width:150px"><label>Codigo</label><input id="n-codigo" placeholder="PERMISO"></div>
+    <div style="flex:1;min-width:180px"><label>Nombre visible</label><input id="n-nombre" placeholder="Permiso / licencia municipal"></div>
+    <div style="flex:1;min-width:200px"><label>Descripcion</label><input id="n-desc" placeholder="Que agrupa"></div>
+  </div>
+  <div class="row tight" style="margin-top:10px">
+    <div style="flex:1"><label>Palabras que la identifican</label>
+      <input id="n-terminos" placeholder="certificate of occupancy, permit number, zoning"></div>
+    <div style="align-self:end"><button id="btn-cat">Crear</button></div>
+    <div style="align-self:end"><button class="ghost" id="btn-reproc">Reprocesar los que estan en revision</button></div>
+  </div>
+</section>
+
+<section class="card" style="margin-top:14px">
+  <h3>Categorias <small id="cat-count"></small></h3>
+  <div class="scroll" style="max-height:420px"><table>
+    <thead><tr><th>Codigo</th><th>Categoria</th><th>Que agrupa</th><th class="right">Terminos</th>
+      <th class="right">Documentos</th><th></th></tr></thead>
+    <tbody id="t-cats"><tr><td colspan="5" class="muted">Cargando…</td></tr></tbody>
+  </table></div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let ESQUEMAS = {};
+
+async function cargar() {
+  const [c, cfg, cats, metricas, docs] = await Promise.all([
+    API.get('/api/convencion'), API.get('/api/convencion'),
+    API.get('/api/categorias'), API.get('/api/metricas'),
+    API.get('/api/documentos?limite=60'),
+  ]);
+  ESQUEMAS = c.esquemas;
+  $('#c-plantilla').value = c.plantilla;
+  $('#c-sep').value = c.separador;
+  $('#c-max').value = c.max_nombre;
+  $('#c-umbral').value = c.umbral_revision;
+  $('#c-conservar').value = String(c.conservar_original);
+  $('#c-trabajos').value = c.max_trabajos;
+  $('#c-texto').value = String(c.guardar_texto);
+  $('#c-esquema').innerHTML = Object.entries(c.esquemas).map(([k, v]) =>
+    `<option value="${k}" ${k === c.esquema_carpetas ? 'selected' : ''}>${esc(v)}</option>`).join('');
+  $('#conv-ejemplo').textContent = c.ejemplo;
+
+  const porCat = Object.fromEntries((metricas.por_categoria || []).map(x => [x.categoria, x.n]));
+  $('#cat-count').textContent = `${cats.length} categorias`;
+  $('#t-cats').innerHTML = cats.map(c2 => `<tr>
+    <td class="mono small">${esc(c2.codigo)}</td>
+    <td>${esc(c2.nombre)} ${c2.propia ? '<span class="tag info">propia</span>' : ''}</td>
+    <td class="small muted">${esc(c2.descripcion)}</td>
+    <td class="right">${c2.terminos}</td>
+    <td class="right">${porCat[c2.codigo] || 0}</td>
+    <td class="right">${c2.propia
+      ? `<button class="danger" onclick="borrarCategoria('${esc(c2.codigo)}')">✕</button>` : ''}</td>
+    </tr>`).join('');
+
+  $('#p-doc').innerHTML = docs.map(d =>
+    `<option value="${d.id}">${esc(d.nombre_original)}</option>`).join('')
+    || '<option value="">(aun no hay documentos)</option>';
+  if (docs.length) vistaPrevia();
+}
+
+async function vistaPrevia() {
+  const id = $('#p-doc').value;
+  if (!id) return;
+  const d = await API.get('/api/documentos/' + id);
+  const e = d.entidades || {};
+  $('#p-vista').innerHTML = `
+    <table>
+      <tr><td class="muted small">Original</td><td class="small mono">${esc(d.nombre_original)}</td></tr>
+      <tr><td class="muted small">Nombre generado</td><td class="small mono"><strong>${esc(d.nombre_final || d.nombre_propuesto)}</strong></td></tr>
+      <tr><td class="muted small">Carpeta</td><td class="small mono">${esc(d.carpeta || '(raiz)')}</td></tr>
+      <tr><td class="muted small">fecha</td><td class="small">${esc(e.fecha || 'sin-fecha')} <span class="muted">(${esc(e.fecha_origen || '')})</span></td></tr>
+      <tr><td class="muted small">categoria</td><td class="small">${esc(d.categoria)}</td></tr>
+      <tr><td class="muted small">expediente</td><td class="small">${esc(e.expediente || 'sin-expediente')}</td></tr>
+      <tr><td class="muted small">descriptor</td><td class="small">${esc((e.partes || []).join(' v ') || e.titulo || '')}</td></tr>
+    </table>`;
+}
+
+$('#btn-cat').onclick = async () => {
+  try {
+    const r = await API.send('/api/categorias', {
+      codigo: $('#n-codigo').value, nombre: $('#n-nombre').value,
+      descripcion: $('#n-desc').value, terminos: $('#n-terminos').value,
+    });
+    toast(`Categoria ${esc(r.codigo)} creada (${Object.keys(r.terminos).length} terminos)`, 'ok');
+    $('#n-codigo').value = $('#n-nombre').value = $('#n-desc').value = $('#n-terminos').value = '';
+    cargar();
+  } catch (e) { toast('Error: ' + e.message, 'critical', 6000); }
+};
+$('#btn-reproc').onclick = async () => {
+  toast('Reprocesando…');
+  const r = await API.send('/api/reprocesar', {solo_revision: true});
+  toast(`${r.cambiados} de ${r.revisados} documentos cambiaron de categoria`, 'ok', 5000);
+  cargar();
+};
+async function borrarCategoria(codigo) {
+  if (!confirm(`¿Eliminar la categoria ${codigo}? Los documentos ya clasificados no se tocan.`)) return;
+  await API.del('/api/categorias/' + codigo);
+  toast('Categoria eliminada', 'warning');
+  cargar();
+}
+
+$('#p-doc').onchange = vistaPrevia;
+$('#btn-conv').onclick = async () => {
+  await API.send('/api/convencion', {
+    plantilla_nombre: $('#c-plantilla').value,
+    separador: $('#c-sep').value || '_',
+    max_nombre: parseInt($('#c-max').value, 10),
+    esquema_carpetas: $('#c-esquema').value,
+    umbral_revision: parseFloat($('#c-umbral').value),
+    conservar_original: $('#c-conservar').value === 'true',
+    max_trabajos: parseInt($('#c-trabajos').value, 10),
+    guardar_texto: $('#c-texto').value === 'true',
+  });
+  toast('Guardado · se aplica a los documentos nuevos', 'ok');
+  cargar();
+};
+$('#btn-reorg').onclick = async () => {
+  if (!confirm('¿Renombrar y mover todo lo ya archivado con la convencion actual?')) return;
+  toast('Reorganizando…');
+  const r = await API.send('/api/renombrar-todos');
+  toast(`${r.renombrados} de ${r.total} documentos reorganizados`, 'ok');
+  cargar();
+};
+
+cargar();
+</script>
+{% endblock %}

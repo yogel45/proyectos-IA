@@ -1,0 +1,2342 @@
+escenario,operacion,t_rel_s,latencia_ms,servicio_ms,espera_cola_ms,estado,bytes,error
+sostenido 20rps,resumen,0.05,136.03,117.02,19.01,200,230,
+sostenido 20rps,resumen,0.058,129.43,117.34,12.09,200,230,
+sostenido 20rps,resumen,0.282,126.27,125.58,0.69,200,230,
+sostenido 20rps,listar libreta,0.307,40.77,40.55,0.21,200,64669,
+sostenido 20rps,buscar por texto,0.31,81.09,80.65,0.44,200,32236,
+sostenido 20rps,buscar por texto,0.315,68.14,67.74,0.4,200,32224,
+sostenido 20rps,filtrar,0.334,84.29,82.52,1.77,200,32297,
+sostenido 20rps,buscar por texto,0.335,91.42,90.25,1.17,200,32332,
+sostenido 20rps,listar libreta,0.392,51.63,50.67,0.96,200,64721,
+sostenido 20rps,abrir ficha,0.559,14.28,13.57,0.71,200,1278,
+sostenido 20rps,etiquetas,0.56,22.85,22.41,0.44,200,236,
+sostenido 20rps,resumen,0.598,100.68,100.14,0.54,200,230,
+sostenido 20rps,buscar por texto,0.618,47.16,46.19,0.97,200,32196,
+sostenido 20rps,etiquetas,0.623,24.99,24.35,0.64,200,236,
+sostenido 20rps,abrir ficha,0.624,14.86,14.23,0.63,200,1288,
+sostenido 20rps,etiquetas,0.639,21.46,20.41,1.05,200,236,
+sostenido 20rps,listar libreta,0.704,28.32,27.55,0.77,200,64586,
+sostenido 20rps,resumen,0.718,118.73,117.54,1.18,200,230,
+sostenido 20rps,listar libreta,0.776,24.62,24.35,0.27,200,64667,
+sostenido 20rps,resumen,0.818,163.93,161.99,1.94,200,230,
+sostenido 20rps,buscar por texto,0.83,112.69,112.31,0.38,200,32272,
+sostenido 20rps,resumen,0.835,170.55,170.33,0.22,200,230,
+sostenido 20rps,listar libreta,0.845,88.14,87.94,0.2,200,64667,
+sostenido 20rps,resumen,0.948,108.47,108.09,0.38,200,230,
+sostenido 20rps,buscar por texto,0.96,54.39,53.3,1.08,200,32075,
+sostenido 20rps,resumen,1.149,110.14,109.71,0.43,200,230,
+sostenido 20rps,etiquetas,1.181,22.97,22.45,0.51,200,236,
+sostenido 20rps,resumen,1.222,112.88,110.68,2.19,200,230,
+sostenido 20rps,filtrar,1.224,41.82,41.34,0.48,200,32448,
+sostenido 20rps,abrir ficha,1.267,11.27,10.15,1.12,200,1294,
+sostenido 20rps,listar libreta,1.349,25.46,24.43,1.04,200,64667,
+sostenido 20rps,abrir ficha,1.394,15.06,13.93,1.14,200,1298,
+sostenido 20rps,resumen,1.398,108.32,107.19,1.13,200,230,
+sostenido 20rps,resumen,1.472,104.2,103.22,0.98,200,230,
+sostenido 20rps,listar libreta,1.509,25.47,25.04,0.43,200,64669,
+sostenido 20rps,buscar por texto,1.532,52.74,52.36,0.38,200,32272,
+sostenido 20rps,abrir ficha,1.559,12.54,12.08,0.46,200,1292,
+sostenido 20rps,listar libreta,1.6,24.73,23.99,0.74,200,64667,
+sostenido 20rps,abrir ficha,1.742,19.29,17.36,1.93,200,1290,
+sostenido 20rps,etiquetas,1.746,25.16,24.13,1.03,200,236,
+sostenido 20rps,etiquetas,1.751,25.56,24.52,1.04,200,236,
+sostenido 20rps,listar libreta,1.762,26.56,26.36,0.2,200,64669,
+sostenido 20rps,resumen,1.821,104.93,104.1,0.82,200,230,
+sostenido 20rps,resumen,1.838,104.25,103.07,1.18,200,230,
+sostenido 20rps,filtrar,1.935,31.25,30.23,1.02,200,31988,
+sostenido 20rps,buscar por texto,1.966,48.79,47.89,0.9,200,32109,
+sostenido 20rps,buscar por texto,2.026,55.44,54.93,0.51,200,32224,
+sostenido 20rps,resumen,2.055,107.83,107.49,0.34,200,230,
+sostenido 20rps,resumen,2.056,106.38,106.0,0.38,200,230,
+sostenido 20rps,historial de la ficha,2.083,11.14,10.49,0.66,200,8039,
+sostenido 20rps,resumen,2.102,104.57,104.0,0.57,200,230,
+sostenido 20rps,listar libreta,2.19,38.9,37.92,0.97,200,64586,
+sostenido 20rps,filtrar,2.204,67.99,66.91,1.08,200,32448,
+sostenido 20rps,buscar por texto,2.207,75.92,75.11,0.81,200,32075,
+sostenido 20rps,abrir ficha,2.231,23.92,23.29,0.63,200,1272,
+sostenido 20rps,filtrar,2.27,39.67,38.68,0.99,200,32452,
+sostenido 20rps,resumen,2.321,103.22,102.78,0.44,200,230,
+sostenido 20rps,listar libreta,2.413,40.4,39.31,1.09,200,64669,
+sostenido 20rps,buscar por texto,2.42,48.53,48.28,0.25,200,32233,
+sostenido 20rps,abrir ficha,2.48,10.16,9.89,0.28,200,1271,
+sostenido 20rps,buscar por texto,2.492,52.03,51.86,0.17,200,32267,
+sostenido 20rps,abrir ficha,2.526,21.54,20.46,1.09,200,1272,
+sostenido 20rps,filtrar,2.568,35.0,33.69,1.31,200,32367,
+sostenido 20rps,abrir ficha,2.593,15.25,14.8,0.46,200,1266,
+sostenido 20rps,buscar por texto,2.736,48.23,47.48,0.75,200,32196,
+sostenido 20rps,resumen,2.757,104.35,103.06,1.29,200,230,
+sostenido 20rps,buscar por texto,2.839,46.48,45.56,0.91,200,32233,
+sostenido 20rps,abrir ficha,2.902,14.14,13.36,0.78,200,1275,
+sostenido 20rps,buscar por texto,2.908,54.81,53.93,0.88,200,32255,
+sostenido 20rps,buscar por texto,2.945,59.72,59.15,0.57,200,32677,
+sostenido 20rps,listar libreta,2.978,58.33,57.19,1.15,200,64667,
+sostenido 20rps,abrir ficha,2.983,21.78,21.25,0.53,200,1294,
+sostenido 20rps,duplicados,3.05,7652.0,7650.75,1.24,200,2197582,
+sostenido 20rps,filtrar,3.082,34.96,33.98,0.98,200,32367,
+sostenido 20rps,resumen,3.116,161.92,160.85,1.07,200,230,
+sostenido 20rps,listar libreta,3.122,90.33,89.86,0.47,200,64669,
+sostenido 20rps,buscar por texto,3.138,110.49,110.12,0.37,200,32224,
+sostenido 20rps,buscar por texto,3.371,266.75,266.13,0.61,200,32269,
+sostenido 20rps,etiquetas,3.386,74.07,72.73,1.33,200,236,
+sostenido 20rps,resumen,3.404,293.31,292.62,0.69,200,230,
+sostenido 20rps,abrir ficha,3.463,172.48,172.33,0.15,200,1268,
+sostenido 20rps,listar libreta,3.625,71.72,70.67,1.05,200,64586,
+sostenido 20rps,resumen,3.66,435.3,434.37,0.93,200,230,
+sostenido 20rps,resumen,3.665,448.55,448.3,0.25,200,230,
+sostenido 20rps,historial de la ficha,3.761,516.23,514.23,2.01,200,3835,
+sostenido 20rps,resumen,3.784,559.44,558.47,0.97,200,230,
+sostenido 20rps,resumen,3.788,582.51,581.98,0.53,200,230,
+sostenido 20rps,historial de la ficha,3.818,749.57,749.34,0.23,200,9584,
+sostenido 20rps,filtrar,3.831,934.06,933.49,0.57,200,32367,
+sostenido 20rps,listar libreta,3.861,792.12,790.97,1.15,200,64721,
+sostenido 20rps,resumen,3.881,515.73,513.79,1.94,200,230,
+sostenido 20rps,resumen,3.947,626.67,626.19,0.48,200,230,
+sostenido 20rps,listar libreta,3.953,781.75,781.53,0.22,200,64669,
+sostenido 20rps,listar libreta,3.961,991.94,991.19,0.74,200,64721,
+sostenido 20rps,listar libreta,3.983,953.84,952.92,0.93,200,64586,
+sostenido 20rps,listar libreta,4.012,717.95,716.46,1.49,200,64721,
+sostenido 20rps,abrir ficha,4.093,283.45,283.27,0.17,200,1267,
+sostenido 20rps,etiquetas,4.095,178.38,177.9,0.48,200,236,
+sostenido 20rps,resumen,4.22,385.36,384.82,0.54,200,230,
+sostenido 20rps,etiquetas,4.307,100.36,97.99,2.38,200,236,
+sostenido 20rps,filtrar,4.363,390.49,389.9,0.59,200,32367,
+sostenido 20rps,resumen,4.458,310.61,308.71,1.9,200,230,
+sostenido 20rps,etiquetas,4.506,123.38,122.65,0.73,200,236,
+sostenido 20rps,listar libreta,4.576,482.23,481.49,0.75,200,64669,
+sostenido 20rps,resumen,4.587,174.22,173.76,0.46,200,230,
+sostenido 20rps,buscar por texto,4.66,339.84,338.84,1.01,200,32075,
+sostenido 20rps,listar libreta,4.662,382.97,382.29,0.68,200,64667,
+sostenido 20rps,abrir ficha,4.664,107.32,107.1,0.22,200,1275,
+sostenido 20rps,listar libreta,4.845,282.89,282.47,0.42,200,64586,
+sostenido 20rps,resumen,4.909,168.6,167.93,0.67,200,230,
+sostenido 20rps,buscar por texto,4.919,193.62,191.48,2.14,200,32255,
+sostenido 20rps,buscar por texto,5.009,345.4,344.18,1.21,200,32109,
+sostenido 20rps,historial de la ficha,5.035,79.58,78.5,1.08,200,4101,
+sostenido 20rps,resumen,5.118,295.67,294.57,1.11,200,230,
+sostenido 20rps,etiquetas,5.152,190.07,189.24,0.83,200,236,
+sostenido 20rps,buscar por texto,5.165,267.84,266.78,1.06,200,32272,
+sostenido 20rps,etiquetas,5.181,173.83,172.85,0.97,200,236,
+sostenido 20rps,filtrar,5.24,163.7,163.07,0.64,200,32297,
+sostenido 20rps,abrir ficha,5.336,30.27,29.64,0.63,200,1292,
+sostenido 20rps,resumen,5.378,301.95,299.91,2.03,200,230,
+sostenido 20rps,abrir ficha,5.469,31.91,30.41,1.5,200,1266,
+sostenido 20rps,resumen,5.521,323.89,323.53,0.36,200,230,
+sostenido 20rps,resumen,5.536,308.02,306.51,1.5,200,230,
+sostenido 20rps,listar libreta,5.564,243.16,242.06,1.1,200,64669,
+sostenido 20rps,listar libreta,5.608,285.56,284.86,0.7,200,64669,
+sostenido 20rps,listar libreta,5.645,175.14,173.3,1.84,200,64667,
+sostenido 20rps,buscar por texto,5.647,256.78,255.66,1.13,200,32203,
+sostenido 20rps,listar libreta,5.702,264.91,264.26,0.65,200,64586,
+sostenido 20rps,buscar por texto,5.733,224.74,222.79,1.95,200,32272,
+sostenido 20rps,abrir ficha,5.837,43.47,42.59,0.88,200,1271,
+sostenido 20rps,abrir ficha,5.89,40.46,39.6,0.86,200,1273,
+sostenido 20rps,listar libreta,5.906,134.64,134.2,0.44,200,64586,
+sostenido 20rps,resumen,5.935,322.48,321.34,1.14,200,230,
+sostenido 20rps,buscar por texto,5.976,341.95,340.64,1.31,200,32353,
+sostenido 20rps,buscar por texto,5.996,307.04,306.3,0.74,200,32196,
+sostenido 20rps,resumen,6.135,249.42,248.67,0.75,200,230,
+sostenido 20rps,abrir ficha,6.177,112.6,111.74,0.87,200,1276,
+sostenido 20rps,listar libreta,6.274,108.28,107.68,0.6,200,64667,
+sostenido 20rps,resumen,6.301,127.08,126.37,0.71,200,230,
+sostenido 20rps,resumen,6.364,389.92,389.67,0.25,200,230,
+sostenido 20rps,buscar por texto,6.379,88.42,87.44,0.97,200,32677,
+sostenido 20rps,abrir ficha,6.388,14.78,14.62,0.16,200,1279,
+sostenido 20rps,etiquetas,6.491,37.51,36.64,0.87,200,236,
+sostenido 20rps,etiquetas,6.518,238.92,236.84,2.08,200,236,
+sostenido 20rps,buscar por texto,6.55,276.39,275.78,0.61,200,32066,
+sostenido 20rps,listar libreta,6.619,193.13,192.2,0.93,200,64586,
+sostenido 20rps,listar libreta,6.837,195.61,194.62,0.99,200,64669,
+sostenido 20rps,listar libreta,6.851,208.57,208.17,0.41,200,64667,
+sostenido 20rps,filtrar,6.858,189.97,189.34,0.63,200,32367,
+sostenido 20rps,abrir ficha,6.871,50.5,49.77,0.73,200,1271,
+sostenido 20rps,buscar por texto,6.924,174.0,173.63,0.37,200,32203,
+sostenido 20rps,resumen,6.944,155.63,154.84,0.79,200,230,
+sostenido 20rps,abrir ficha,6.962,84.8,84.08,0.73,200,1291,
+sostenido 20rps,resumen,7.04,395.48,395.19,0.29,200,230,
+sostenido 20rps,resumen,7.104,351.43,351.03,0.4,200,230,
+sostenido 20rps,etiquetas,7.143,297.31,296.21,1.1,200,236,
+sostenido 20rps,resumen,7.153,386.51,384.7,1.81,200,230,
+sostenido 20rps,listar libreta,7.281,204.89,204.35,0.54,200,64669,
+sostenido 20rps,resumen,7.371,182.23,181.6,0.64,200,230,
+sostenido 20rps,etiquetas,7.421,50.15,47.51,2.64,200,236,
+sostenido 20rps,etiquetas,7.449,50.05,49.23,0.83,200,236,
+sostenido 20rps,etiquetas,7.523,76.94,76.27,0.67,200,236,
+sostenido 20rps,resumen,7.594,473.76,473.11,0.65,200,230,
+sostenido 20rps,listar libreta,7.64,623.25,622.96,0.29,200,64721,
+sostenido 20rps,listar libreta,7.672,691.53,690.52,1.01,200,64721,
+sostenido 20rps,listar libreta,7.687,677.57,675.58,1.99,200,64721,
+sostenido 20rps,resumen,7.878,295.97,294.76,1.21,200,230,
+sostenido 20rps,abrir ficha,7.966,166.59,165.61,0.98,200,1291,
+sostenido 20rps,resumen,8.021,217.87,216.41,1.46,200,230,
+sostenido 20rps,abrir ficha,8.068,121.46,120.51,0.96,200,1275,
+sostenido 20rps,listar libreta,8.075,291.39,290.37,1.02,200,64586,
+sostenido 20rps,resumen,8.086,181.7,180.54,1.15,200,230,
+sostenido 20rps,etiquetas,8.209,55.54,55.1,0.45,200,236,
+sostenido 20rps,listar libreta,8.226,190.35,189.53,0.82,200,64667,
+sostenido 20rps,resumen,8.326,148.57,148.19,0.38,200,230,
+sostenido 20rps,listar libreta,8.36,82.14,81.17,0.97,200,64586,
+sostenido 20rps,etiquetas,8.499,31.36,30.66,0.7,200,236,
+sostenido 20rps,listar libreta,8.61,791.43,790.96,0.47,200,64667,
+sostenido 20rps,etiquetas,8.641,268.86,267.91,0.95,200,236,
+sostenido 20rps,buscar por texto,8.708,468.52,467.96,0.56,200,32185,
+sostenido 20rps,listar libreta,8.716,758.55,758.06,0.49,200,64669,
+sostenido 20rps,listar libreta,8.734,695.97,695.46,0.51,200,64586,
+sostenido 20rps,buscar por texto,8.766,428.87,427.75,1.11,200,32677,
+sostenido 20rps,listar libreta,8.771,525.94,525.37,0.57,200,64669,
+sostenido 20rps,buscar por texto,8.819,347.66,347.19,0.47,200,32151,
+sostenido 20rps,resumen,8.907,162.3,160.47,1.83,200,230,
+sostenido 20rps,resumen,8.911,163.88,163.08,0.8,200,230,
+sostenido 20rps,listar libreta,8.925,577.0,576.64,0.36,200,64721,
+sostenido 20rps,abrir ficha,8.993,116.68,115.37,1.31,200,1275,
+sostenido 20rps,listar libreta,9.186,359.59,358.39,1.2,200,64667,
+sostenido 20rps,listar libreta,9.34,222.08,221.12,0.96,200,64721,
+sostenido 20rps,resumen,9.347,154.46,153.35,1.11,200,230,
+sostenido 20rps,abrir ficha,9.377,71.15,70.69,0.46,200,1271,
+sostenido 20rps,etiquetas,9.389,45.98,45.09,0.89,200,236,
+sostenido 20rps,abrir ficha,9.425,59.67,59.15,0.52,200,1288,
+sostenido 20rps,buscar por texto,9.536,101.48,100.8,0.69,200,32269,
+sostenido 20rps,resumen,9.589,155.51,154.9,0.61,200,230,
+sostenido 20rps,resumen,9.703,152.63,152.14,0.49,200,230,
+sostenido 20rps,abrir ficha,9.723,39.18,38.11,1.07,200,1281,
+sostenido 20rps,abrir ficha,9.731,31.2,31.05,0.15,200,1283,
+sostenido 20rps,listar libreta,9.848,1110.29,1109.39,0.9,200,64721,
+sostenido 20rps,abrir ficha,9.88,922.32,921.2,1.12,200,1291,
+sostenido 20rps,abrir ficha,9.94,933.58,932.61,0.97,200,1283,
+sostenido 20rps,listar libreta,9.952,2499.99,2498.86,1.13,200,64586,
+sostenido 20rps,listar libreta,9.981,1257.81,1257.63,0.18,200,64667,
+sostenido 20rps,abrir ficha,10.048,768.27,767.28,0.99,200,1294,
+sostenido 20rps,listar libreta,10.15,1485.69,1484.74,0.95,200,64669,
+sostenido 20rps,abrir ficha,10.17,724.58,722.96,1.62,200,1290,
+sostenido 20rps,etiquetas,10.193,584.4,584.01,0.39,200,236,
+sostenido 20rps,resumen,10.272,601.47,601.04,0.42,200,230,
+sostenido 20rps,resumen,10.294,614.99,614.6,0.39,200,230,
+sostenido 20rps,buscar por texto,10.301,888.57,888.12,0.45,200,32182,
+sostenido 20rps,listar libreta,10.357,1418.12,1416.96,1.16,200,64667,
+sostenido 20rps,listar libreta,10.481,1676.86,1676.53,0.33,200,64721,
+sostenido 20rps,buscar por texto,10.51,1086.99,1086.68,0.31,200,32267,
+sostenido 20rps,buscar por texto,10.518,744.85,743.84,1.01,200,32196,
+sostenido 20rps,filtrar,10.54,859.93,858.93,1.0,200,32452,
+sostenido 20rps,buscar por texto,10.541,1038.55,1037.81,0.75,200,32233,
+sostenido 20rps,listar libreta,10.553,1638.27,1637.12,1.15,200,64669,
+sostenido 20rps,abrir ficha,10.564,430.29,428.36,1.93,200,1285,
+sostenido 20rps,resumen,10.575,486.36,485.63,0.72,200,230,
+sostenido 20rps,filtrar,10.597,995.25,994.31,0.93,200,32446,
+sostenido 20rps,buscar por texto,10.607,959.83,959.05,0.78,200,32206,
+sostenido 20rps,buscar por texto,10.685,1160.59,1159.65,0.94,200,32185,
+sostenido 20rps,etiquetas,10.731,383.2,382.36,0.84,200,236,
+sostenido 20rps,resumen,10.894,370.47,370.01,0.46,200,230,
+sostenido 20rps,abrir ficha,10.911,397.08,396.64,0.44,200,1293,
+sostenido 20rps,listar libreta,11.102,1826.58,1825.83,0.75,200,64721,
+sostenido 20rps,buscar por texto,11.289,902.12,900.15,1.98,200,32236,
+sostenido 20rps,listar libreta,11.329,1523.64,1522.85,0.79,200,64721,
+sostenido 20rps,filtrar,11.345,953.21,952.75,0.46,200,32398,
+sostenido 20rps,listar libreta,11.368,1379.02,1378.11,0.91,200,64586,
+sostenido 20rps,abrir ficha,11.389,301.35,300.91,0.44,200,1275,
+sostenido 20rps,listar libreta,11.41,1299.25,1299.01,0.24,200,64586,
+sostenido 20rps,listar libreta,11.472,1492.14,1491.85,0.29,200,64667,
+sostenido 20rps,etiquetas,11.475,174.84,174.53,0.3,200,236,
+sostenido 20rps,listar libreta,11.617,1285.07,1284.23,0.85,200,64667,
+sostenido 20rps,etiquetas,11.657,70.92,69.97,0.95,200,236,
+sostenido 20rps,resumen,11.663,158.13,157.4,0.73,200,230,
+sostenido 20rps,listar libreta,11.704,1560.51,1559.73,0.78,200,64667,
+sostenido 20rps,abrir ficha,11.778,121.94,121.74,0.21,200,1277,
+sostenido 20rps,listar libreta,11.8,1287.89,1287.21,0.68,200,64586,
+sostenido 20rps,listar libreta,11.816,1538.94,1538.45,0.49,200,64586,
+sostenido 20rps,listar libreta,11.989,991.01,990.02,0.99,200,64586,
+sostenido 20rps,abrir ficha,12.126,131.12,130.05,1.08,200,1271,
+sostenido 20rps,abrir ficha,12.188,115.91,114.74,1.17,200,1291,
+sostenido 20rps,filtrar,12.202,607.74,607.21,0.53,200,32448,
+sostenido 20rps,resumen,12.284,157.86,157.14,0.71,200,230,
+sostenido 20rps,etiquetas,12.301,78.79,78.18,0.61,200,236,
+sostenido 20rps,etiquetas,12.333,62.06,61.27,0.79,200,236,
+sostenido 20rps,buscar por texto,12.396,664.1,663.89,0.21,200,32311,
+sostenido 20rps,buscar por texto,12.536,710.02,709.33,0.69,200,32182,
+sostenido 20rps,resumen,12.584,174.43,173.84,0.58,200,230,
+sostenido 20rps,listar libreta,12.631,940.06,939.49,0.58,200,64667,
+sostenido 20rps,buscar por texto,12.633,764.76,764.51,0.25,200,32353,
+sostenido 20rps,filtrar,12.657,838.68,838.03,0.65,200,32306,
+sostenido 20rps,resumen,12.657,271.53,270.69,0.84,200,230,
+sostenido 20rps,buscar por texto,12.857,707.53,706.47,1.05,200,32267,
+sostenido 20rps,buscar por texto,12.905,739.29,738.79,0.5,200,32224,
+sostenido 20rps,listar libreta,12.907,947.55,947.26,0.3,200,64667,
+sostenido 20rps,listar libreta,12.949,758.86,757.77,1.09,200,64586,
+sostenido 20rps,etiquetas,13.044,59.98,59.64,0.34,200,236,
+sostenido 20rps,historial de la ficha,13.088,251.73,251.56,0.18,200,11835,
+sostenido 20rps,abrir ficha,13.137,83.87,83.6,0.28,200,1298,
+sostenido 20rps,filtrar,13.178,502.36,502.12,0.23,200,32452,
+sostenido 20rps,etiquetas,13.181,48.39,47.72,0.67,200,236,
+sostenido 20rps,buscar por texto,13.199,522.83,522.43,0.4,200,32269,
+sostenido 20rps,resumen,13.28,237.0,235.91,1.1,200,230,
+sostenido 20rps,resumen,13.286,230.55,230.23,0.32,200,230,
+sostenido 20rps,resumen,13.347,257.18,256.98,0.2,200,230,
+sostenido 20rps,resumen,13.361,260.88,259.96,0.92,200,230,
+sostenido 20rps,listar libreta,13.361,445.04,443.99,1.06,200,64721,
+sostenido 20rps,listar libreta,13.371,511.03,510.78,0.25,200,64667,
+sostenido 20rps,buscar por texto,13.374,471.83,471.15,0.68,200,32203,
+sostenido 20rps,resumen,13.396,286.85,286.25,0.6,200,230,
+sostenido 20rps,listar libreta,13.434,464.16,462.25,1.91,200,64586,
+sostenido 20rps,listar libreta,13.626,287.27,286.84,0.43,200,64667,
+sostenido 20rps,etiquetas,13.736,43.32,42.2,1.13,200,236,
+sostenido 20rps,abrir ficha,13.827,45.56,44.82,0.74,200,1272,
+sostenido 20rps,buscar por texto,13.89,52.32,50.19,2.13,200,32196,
+sostenido 20rps,abrir ficha,14.034,11.89,11.12,0.76,200,1268,
+sostenido 20rps,filtrar,14.189,31.85,30.23,1.62,200,31988,
+sostenido 20rps,resumen,14.23,105.58,104.41,1.17,200,230,
+sostenido 20rps,buscar por texto,14.335,48.02,47.03,0.99,200,32223,
+sostenido 20rps,buscar por texto,14.345,137.5,137.2,0.3,200,32066,
+sostenido 20rps,buscar por texto,14.386,108.2,107.8,0.4,200,32272,
+sostenido 20rps,resumen,14.392,177.32,177.17,0.14,200,230,
+sostenido 20rps,resumen,14.397,173.0,171.89,1.11,200,230,
+sostenido 20rps,etiquetas,14.537,25.74,25.13,0.61,200,236,
+sostenido 20rps,listar libreta,14.681,27.29,26.21,1.08,200,64586,
+sostenido 20rps,resumen,14.717,106.42,104.95,1.47,200,230,
+sostenido 20rps,buscar por texto,14.837,50.1,49.24,0.86,200,32075,
+sostenido 20rps,abrir ficha,15.069,12.3,11.79,0.52,200,1291,
+sostenido 20rps,listar libreta,15.097,30.04,29.24,0.8,200,64667,
+sostenido 20rps,resumen,15.099,111.47,111.02,0.45,200,230,
+sostenido 20rps,etiquetas,15.173,24.34,23.72,0.62,200,236,
+sostenido 20rps,buscar por texto,15.311,58.25,57.84,0.41,200,32203,
+sostenido 20rps,etiquetas,15.335,26.96,26.01,0.94,200,236,
+sostenido 20rps,buscar por texto,15.342,52.54,52.12,0.42,200,32272,
+sostenido 20rps,resumen,15.343,110.24,109.51,0.73,200,230,
+sostenido 20rps,resumen,15.444,104.76,103.66,1.11,200,230,
+sostenido 20rps,resumen,15.468,106.61,105.68,0.93,200,230,
+sostenido 20rps,buscar por texto,15.561,49.92,48.33,1.59,200,32311,
+sostenido 20rps,buscar por texto,15.593,47.37,46.36,1.01,200,32316,
+sostenido 20rps,resumen,15.695,122.53,121.87,0.66,200,230,
+sostenido 20rps,listar libreta,15.734,75.25,74.05,1.2,200,64721,
+sostenido 20rps,filtrar,15.741,92.02,91.75,0.26,200,32367,
+sostenido 20rps,resumen,15.742,143.66,142.97,0.69,200,230,
+sostenido 20rps,etiquetas,15.751,59.13,58.13,1.0,200,236,
+sostenido 20rps,resumen,15.76,145.89,145.08,0.81,200,230,
+sostenido 20rps,listar libreta,15.791,66.91,66.33,0.58,200,64667,
+sostenido 20rps,etiquetas,15.798,42.38,41.22,1.16,200,236,
+sostenido 20rps,buscar por texto,15.887,49.82,49.33,0.49,200,32196,
+sostenido 20rps,abrir ficha,15.981,13.09,12.72,0.36,200,1261,
+sostenido 20rps,resumen,16.016,109.35,109.08,0.28,200,230,
+sostenido 20rps,listar libreta,16.051,33.64,33.16,0.48,200,64667,
+sostenido 20rps,resumen,16.137,106.54,104.54,2.0,200,230,
+sostenido 20rps,buscar por texto,16.394,48.79,47.73,1.06,200,32066,
+sostenido 20rps,filtrar,16.522,39.45,38.97,0.48,200,32302,
+sostenido 20rps,historial de la ficha,16.573,15.35,14.85,0.49,200,9584,
+sostenido 20rps,buscar por texto,16.576,46.83,46.67,0.17,200,32180,
+sostenido 20rps,etiquetas,16.739,23.45,22.96,0.49,200,236,
+sostenido 20rps,abrir ficha,16.767,10.74,10.34,0.39,200,1275,
+sostenido 20rps,abrir ficha,16.887,11.58,10.66,0.92,200,1279,
+sostenido 20rps,etiquetas,16.941,22.64,21.99,0.65,200,236,
+sostenido 20rps,listar libreta,16.966,25.57,25.21,0.36,200,64586,
+sostenido 20rps,buscar por texto,16.998,53.34,52.66,0.68,200,32066,
+sostenido 20rps,historial de la ficha,17.006,11.53,10.66,0.87,200,3337,
+sostenido 20rps,listar libreta,17.168,26.94,25.79,1.14,200,64586,
+sostenido 20rps,resumen,17.207,103.22,101.19,2.03,200,230,
+sostenido 20rps,buscar por texto,17.253,47.11,46.67,0.44,200,32224,
+sostenido 20rps,buscar por texto,17.275,118.24,117.6,0.65,200,32353,
+sostenido 20rps,resumen,17.311,170.17,169.93,0.24,200,230,
+sostenido 20rps,buscar por texto,17.354,73.59,73.01,0.58,200,32224,
+sostenido 20rps,buscar por texto,17.44,54.65,52.93,1.72,200,32272,
+sostenido 20rps,etiquetas,17.479,25.6,24.64,0.96,200,236,
+sostenido 20rps,resumen,17.489,106.2,105.58,0.62,200,230,
+sostenido 20rps,etiquetas,17.493,23.66,22.44,1.22,200,236,
+sostenido 20rps,duplicados,17.516,75654.49,75653.37,1.11,200,2197582,
+sostenido 20rps,listar libreta,17.742,68.01,67.19,0.82,200,64667,
+sostenido 20rps,resumen,17.794,183.21,182.33,0.88,200,230,
+sostenido 20rps,resumen,17.848,209.44,208.56,0.87,200,230,
+sostenido 20rps,abrir ficha,17.873,134.22,133.53,0.69,200,1270,
+sostenido 20rps,resumen,17.92,178.04,177.74,0.3,200,230,
+sostenido 20rps,listar libreta,17.948,112.41,111.74,0.67,200,64721,
+sostenido 20rps,historial de la ficha,17.954,65.83,65.59,0.24,200,8584,
+sostenido 20rps,buscar por texto,18.032,81.34,80.23,1.11,200,32269,
+sostenido 20rps,resumen,18.069,269.81,268.52,1.29,200,230,
+sostenido 20rps,buscar por texto,18.082,70.86,69.82,1.03,200,32267,
+sostenido 20rps,resumen,18.082,258.04,255.91,2.13,200,230,
+sostenido 20rps,listar libreta,18.27,1052.96,1051.03,1.94,200,64586,
+sostenido 20rps,resumen,18.316,503.68,502.96,0.72,200,230,
+sostenido 20rps,filtrar,18.356,900.13,899.1,1.03,200,32367,
+sostenido 20rps,listar libreta,18.396,851.97,851.05,0.91,200,64586,
+sostenido 20rps,etiquetas,18.399,213.34,213.18,0.16,200,236,
+sostenido 20rps,filtrar,18.434,552.68,551.94,0.74,200,32306,
+sostenido 20rps,listar libreta,18.473,672.79,672.3,0.49,200,64586,
+sostenido 20rps,listar libreta,18.503,976.79,976.24,0.56,200,64721,
+sostenido 20rps,abrir ficha,18.508,332.75,332.04,0.71,200,1287,
+sostenido 20rps,resumen,18.519,335.1,334.37,0.74,200,230,
+sostenido 20rps,resumen,18.559,375.94,375.69,0.25,200,230,
+sostenido 20rps,buscar por texto,18.599,758.05,755.61,2.44,200,32203,
+sostenido 20rps,listar libreta,18.658,1048.68,1047.01,1.66,200,64669,
+sostenido 20rps,resumen,18.691,302.55,302.17,0.38,200,230,
+sostenido 20rps,listar libreta,18.738,673.33,672.67,0.66,200,64721,
+sostenido 20rps,buscar por texto,18.853,605.4,605.21,0.19,200,32075,
+sostenido 20rps,listar libreta,18.933,772.06,770.6,1.45,200,64586,
+sostenido 20rps,buscar por texto,18.97,592.99,592.19,0.8,200,32332,
+sostenido 20rps,etiquetas,19.037,48.5,48.1,0.39,200,236,
+sostenido 20rps,abrir ficha,19.069,107.68,107.24,0.44,200,1272,
+sostenido 20rps,abrir ficha,19.08,93.56,93.34,0.22,200,1288,
+sostenido 20rps,abrir ficha,19.135,76.78,76.13,0.65,200,1292,
+sostenido 20rps,filtrar,19.219,387.21,386.35,0.86,200,32367,
+sostenido 20rps,filtrar,19.278,399.66,398.82,0.85,200,32448,
+sostenido 20rps,resumen,19.343,187.8,187.47,0.32,200,230,
+sostenido 20rps,buscar por texto,19.35,351.79,351.05,0.74,200,32224,
+sostenido 20rps,listar libreta,19.51,628.66,627.77,0.9,200,64721,
+sostenido 20rps,listar libreta,19.641,498.12,496.13,1.99,200,64586,
+sostenido 20rps,buscar por texto,19.65,378.27,377.75,0.52,200,32203,
+sostenido 20rps,listar libreta,19.652,558.19,557.46,0.73,200,64669,
+sostenido 20rps,listar libreta,19.807,599.34,598.5,0.84,200,64667,
+sostenido 20rps,resumen,19.809,256.83,256.57,0.26,200,230,
+sostenido 20rps,listar libreta,19.833,509.05,508.7,0.36,200,64721,
+sostenido 20rps,listar libreta,19.846,509.53,507.78,1.74,200,64667,
+sostenido 20rps,abrir ficha,19.897,79.42,78.36,1.06,200,1283,
+sostenido 20rps,buscar por texto,19.903,356.9,356.02,0.88,200,32185,
+sostenido 20rps,resumen,19.983,161.34,160.86,0.48,200,230,
+sostenido 20rps,resumen,20.104,204.69,203.81,0.87,200,230,
+sostenido 20rps,resumen,20.143,183.16,182.74,0.42,200,230,
+sostenido 20rps,listar libreta,20.15,232.7,231.92,0.78,200,64669,
+sostenido 20rps,etiquetas,20.173,67.5,67.14,0.36,200,236,
+sostenido 20rps,buscar por texto,20.306,144.14,143.69,0.45,200,32185,
+sostenido 20rps,abrir ficha,20.342,55.97,55.01,0.95,200,1273,
+sostenido 20rps,etiquetas,20.352,45.08,43.66,1.42,200,236,
+sostenido 20rps,listar libreta,20.381,130.79,130.53,0.26,200,64721,
+sostenido 20rps,buscar por texto,20.399,104.2,103.29,0.91,200,32233,
+sostenido 20rps,filtrar,20.447,302.49,301.39,1.1,200,32306,
+sostenido 20rps,buscar por texto,20.474,318.08,317.84,0.24,200,32224,
+sostenido 20rps,buscar por texto,20.524,470.98,469.33,1.64,200,32206,
+sostenido 20rps,listar libreta,20.609,450.76,450.14,0.62,200,64586,
+sostenido 20rps,listar libreta,20.658,404.17,403.89,0.28,200,64669,
+sostenido 20rps,resumen,20.767,160.26,158.58,1.68,200,230,
+sostenido 20rps,resumen,20.777,235.89,234.92,0.97,200,230,
+sostenido 20rps,listar libreta,20.785,378.86,375.96,2.9,200,64669,
+sostenido 20rps,resumen,20.793,243.53,242.48,1.05,200,230,
+sostenido 20rps,listar libreta,20.795,351.89,351.54,0.35,200,64721,
+sostenido 20rps,resumen,20.805,271.5,269.52,1.98,200,230,
+sostenido 20rps,etiquetas,20.864,149.52,147.9,1.62,200,236,
+sostenido 20rps,abrir ficha,20.88,204.04,203.37,0.67,200,1283,
+sostenido 20rps,listar libreta,20.936,264.98,263.07,1.91,200,64669,
+sostenido 20rps,resumen,20.974,197.09,195.16,1.92,200,230,
+sostenido 20rps,etiquetas,20.978,81.26,80.99,0.28,200,236,
+sostenido 20rps,buscar por texto,20.986,185.86,184.72,1.13,200,32677,
+sostenido 20rps,resumen,21.082,145.44,144.45,0.99,200,230,
+sostenido 20rps,resumen,21.152,367.27,366.18,1.1,200,230,
+sostenido 20rps,resumen,21.19,324.42,322.94,1.48,200,230,
+sostenido 20rps,listar libreta,21.206,527.03,526.13,0.9,200,64721,
+sostenido 20rps,abrir ficha,21.242,241.62,240.84,0.78,200,1285,
+sostenido 20rps,buscar por texto,21.252,469.71,467.56,2.15,200,32179,
+sostenido 20rps,etiquetas,21.276,253.94,253.0,0.94,200,236,
+sostenido 20rps,duplicados,21.284,71944.4,71941.31,3.09,200,2197582,
+sostenido 20rps,abrir ficha,21.293,355.67,355.17,0.5,200,1277,
+sostenido 20rps,resumen,21.35,398.54,397.91,0.63,200,230,
+sostenido 20rps,resumen,21.372,348.97,348.13,0.84,200,230,
+sostenido 20rps,etiquetas,21.391,157.51,155.68,1.82,200,236,
+sostenido 20rps,resumen,21.476,231.26,230.09,1.17,200,230,
+sostenido 20rps,abrir ficha,21.495,153.83,151.14,2.69,200,1288,
+sostenido 20rps,listar libreta,21.535,226.81,226.0,0.81,200,64667,
+sostenido 20rps,etiquetas,21.549,66.39,66.13,0.26,200,236,
+sostenido 20rps,abrir ficha,21.76,21.36,20.26,1.09,200,1297,
+sostenido 20rps,buscar por texto,21.77,364.23,363.81,0.42,200,32267,
+sostenido 20rps,abrir ficha,21.791,245.64,244.8,0.84,200,1288,
+sostenido 20rps,abrir ficha,21.83,202.08,201.39,0.69,200,1279,
+sostenido 20rps,buscar por texto,21.949,190.54,188.62,1.91,200,32255,
+sostenido 20rps,abrir ficha,21.959,104.74,104.59,0.15,200,1272,
+sostenido 20rps,listar libreta,21.984,220.82,220.47,0.35,200,64667,
+sostenido 20rps,abrir ficha,22.021,55.58,53.71,1.88,200,1273,
+sostenido 20rps,resumen,22.05,182.12,180.99,1.13,200,230,
+sostenido 20rps,resumen,22.077,157.7,156.91,0.79,200,230,
+sostenido 20rps,buscar por texto,22.123,128.24,127.4,0.84,200,32311,
+sostenido 20rps,resumen,22.125,145.11,145.08,0.02,200,230,
+sostenido 20rps,abrir ficha,22.202,55.03,52.71,2.32,200,1276,
+sostenido 20rps,filtrar,22.204,184.85,183.68,1.17,200,32297,
+sostenido 20rps,historial de la ficha,22.261,51.06,50.78,0.28,200,7146,
+sostenido 20rps,listar libreta,22.277,149.71,149.14,0.57,200,64667,
+sostenido 20rps,filtrar,22.488,74.68,73.99,0.69,200,32446,
+sostenido 20rps,etiquetas,22.497,28.98,28.23,0.75,200,236,
+sostenido 20rps,abrir ficha,22.5,35.86,34.79,1.07,200,1276,
+sostenido 20rps,etiquetas,22.501,37.76,37.52,0.24,200,236,
+sostenido 20rps,abrir ficha,22.512,36.61,35.46,1.16,200,1266,
+sostenido 20rps,abrir ficha,22.556,22.98,22.42,0.55,200,1281,
+sostenido 20rps,filtrar,22.565,52.87,51.81,1.07,200,32306,
+sostenido 20rps,filtrar,22.633,588.4,587.43,0.97,200,32452,
+sostenido 20rps,buscar por texto,22.643,544.65,543.88,0.77,200,32066,
+sostenido 20rps,abrir ficha,22.694,352.37,351.35,1.02,200,1271,
+sostenido 20rps,etiquetas,22.734,229.82,229.31,0.51,200,236,
+sostenido 20rps,buscar por texto,22.769,395.42,394.56,0.86,200,32182,
+sostenido 20rps,abrir ficha,22.786,258.3,258.04,0.26,200,1266,
+sostenido 20rps,filtrar,22.791,410.24,409.95,0.3,200,32306,
+sostenido 20rps,abrir ficha,22.8,258.81,257.02,1.8,200,1290,
+sostenido 20rps,resumen,22.809,300.06,299.34,0.72,200,230,
+sostenido 20rps,resumen,22.851,183.98,182.85,1.12,200,230,
+sostenido 20rps,etiquetas,22.863,97.4,96.3,1.1,200,236,
+sostenido 20rps,listar libreta,22.888,374.76,373.84,0.92,200,64669,
+sostenido 20rps,resumen,22.92,265.24,261.41,3.83,200,230,
+sostenido 20rps,resumen,23.001,251.49,250.72,0.77,200,230,
+sostenido 20rps,resumen,23.055,193.97,192.58,1.38,200,230,
+sostenido 20rps,filtrar,23.17,196.94,196.43,0.51,200,32302,
+sostenido 20rps,filtrar,23.193,177.52,177.16,0.35,200,32448,
+sostenido 20rps,duplicados,23.292,69881.03,69880.62,0.41,200,2197582,
+sostenido 20rps,abrir ficha,23.294,33.87,33.08,0.79,200,1299,
+sostenido 20rps,listar libreta,23.4,183.61,182.5,1.11,200,64586,
+sostenido 20rps,abrir ficha,23.534,35.59,35.05,0.54,200,1266,
+sostenido 20rps,etiquetas,23.555,45.03,44.68,0.35,200,236,
+sostenido 20rps,resumen,23.609,404.13,403.43,0.69,200,230,
+sostenido 20rps,listar libreta,23.695,529.78,528.69,1.09,200,64721,
+sostenido 20rps,resumen,23.72,335.92,335.67,0.24,200,230,
+sostenido 20rps,listar libreta,23.78,328.51,326.67,1.85,200,64667,
+sostenido 20rps,resumen,23.797,313.31,312.87,0.44,200,230,
+sostenido 20rps,listar libreta,23.802,533.52,532.59,0.93,200,64586,
+sostenido 20rps,resumen,23.813,302.48,301.19,1.29,200,230,
+sostenido 20rps,listar libreta,23.847,248.29,247.29,1.0,200,64667,
+sostenido 20rps,listar libreta,24.049,421.71,419.46,2.25,200,64586,
+sostenido 20rps,abrir ficha,24.06,73.26,72.5,0.77,200,1275,
+sostenido 20rps,listar libreta,24.136,330.97,330.56,0.41,200,64586,
+sostenido 20rps,abrir ficha,24.276,43.89,43.66,0.23,200,1288,
+sostenido 20rps,listar libreta,24.352,1103.21,1102.22,0.99,200,64667,
+sostenido 20rps,listar libreta,24.366,1082.77,1081.1,1.67,200,64669,
+sostenido 20rps,buscar por texto,24.383,865.77,865.15,0.62,200,32151,
+sostenido 20rps,buscar por texto,24.419,938.58,937.72,0.86,200,32677,
+sostenido 20rps,buscar por texto,24.419,849.99,848.67,1.32,200,32353,
+sostenido 20rps,resumen,24.476,205.88,205.59,0.29,200,230,
+sostenido 20rps,listar libreta,24.496,1740.51,1740.22,0.28,200,64721,
+sostenido 20rps,historial de la ficha,24.501,671.82,671.14,0.67,200,13130,
+sostenido 20rps,abrir ficha,24.506,140.53,140.03,0.5,200,1290,
+sostenido 20rps,listar libreta,24.54,1398.25,1398.05,0.2,200,64586,
+sostenido 20rps,resumen,24.551,239.5,238.68,0.82,200,230,
+sostenido 20rps,listar libreta,24.604,1534.79,1532.97,1.82,200,64667,
+sostenido 20rps,resumen,24.619,251.13,250.87,0.26,200,230,
+sostenido 20rps,resumen,24.774,418.46,417.81,0.65,200,230,
+sostenido 20rps,listar libreta,24.801,863.3,862.14,1.16,200,64586,
+sostenido 20rps,resumen,24.803,554.93,554.14,0.79,200,230,
+sostenido 20rps,listar libreta,24.84,1244.19,1240.55,3.64,200,64586,
+sostenido 20rps,buscar por texto,25.017,1041.19,1040.87,0.32,200,32269,
+sostenido 20rps,resumen,25.071,389.91,389.01,0.9,200,230,
+sostenido 20rps,buscar por texto,25.087,522.39,521.67,0.71,200,32236,
+sostenido 20rps,listar libreta,25.133,1103.39,1102.43,0.96,200,64669,
+sostenido 20rps,resumen,25.161,342.61,342.34,0.27,200,230,
+sostenido 20rps,listar libreta,25.17,1245.59,1244.74,0.85,200,64669,
+sostenido 20rps,listar libreta,25.172,1182.01,1181.63,0.38,200,64721,
+sostenido 20rps,resumen,25.176,443.94,443.35,0.59,200,230,
+sostenido 20rps,buscar por texto,25.189,1006.74,1004.9,1.84,200,32075,
+sostenido 20rps,buscar por texto,25.264,1052.12,1051.56,0.56,200,32206,
+sostenido 20rps,abrir ficha,25.286,735.2,733.03,2.16,200,1280,
+sostenido 20rps,listar libreta,25.295,1601.82,1600.99,0.83,200,64669,
+sostenido 20rps,listar libreta,25.306,1209.58,1207.86,1.72,200,64667,
+sostenido 20rps,resumen,25.414,782.01,781.16,0.85,200,230,
+sostenido 20rps,resumen,25.499,736.59,735.81,0.79,200,230,
+sostenido 20rps,buscar por texto,25.526,1414.65,1414.11,0.53,200,32109,
+sostenido 20rps,buscar por texto,25.624,1189.53,1188.85,0.68,200,32066,
+sostenido 20rps,etiquetas,25.676,578.3,577.37,0.93,200,236,
+sostenido 20rps,abrir ficha,25.703,846.81,844.86,1.95,200,1279,
+sostenido 20rps,resumen,25.759,648.49,647.94,0.56,200,230,
+sostenido 20rps,listar libreta,25.76,1652.14,1651.95,0.2,200,64586,
+sostenido 20rps,filtrar,25.778,1514.55,1514.05,0.5,200,32398,
+sostenido 20rps,abrir ficha,25.8,530.78,529.85,0.93,200,1290,
+sostenido 20rps,buscar por texto,25.938,684.63,684.32,0.31,200,32255,
+sostenido 20rps,resumen,25.978,537.05,536.22,0.82,200,230,
+sostenido 20rps,resumen,25.996,525.79,525.06,0.73,200,230,
+sostenido 20rps,etiquetas,26.105,92.09,91.22,0.87,200,236,
+sostenido 20rps,buscar por texto,26.115,1042.11,1041.27,0.83,200,32223,
+sostenido 20rps,abrir ficha,26.139,367.75,367.71,0.04,200,1294,
+sostenido 20rps,listar libreta,26.175,670.14,667.65,2.49,200,64667,
+sostenido 20rps,abrir ficha,26.201,133.6,133.28,0.33,200,1271,
+sostenido 20rps,listar libreta,26.298,1856.34,1855.54,0.79,200,64667,
+sostenido 20rps,listar libreta,26.494,1486.9,1486.58,0.32,200,64721,
+sostenido 20rps,buscar por texto,26.558,818.89,817.02,1.87,200,32203,
+sostenido 20rps,buscar por texto,26.577,856.88,856.21,0.68,200,32182,
+sostenido 20rps,listar libreta,26.579,1346.45,1345.85,0.6,200,64721,
+sostenido 20rps,listar libreta,26.586,1843.45,1843.26,0.19,200,64721,
+sostenido 20rps,resumen,26.591,409.17,408.74,0.42,200,230,
+sostenido 20rps,listar libreta,26.624,2306.46,2305.69,0.77,200,64721,
+sostenido 20rps,etiquetas,26.688,300.59,299.83,0.76,200,236,
+sostenido 20rps,abrir ficha,26.699,373.87,372.86,1.0,200,1275,
+sostenido 20rps,etiquetas,26.715,788.74,787.5,1.25,200,236,
+sostenido 20rps,filtrar,26.815,1205.78,1204.62,1.16,200,32446,
+sostenido 20rps,resumen,26.815,497.99,496.99,1.0,200,230,
+sostenido 20rps,resumen,26.874,599.64,599.39,0.25,200,230,
+sostenido 20rps,buscar por texto,26.879,658.64,657.93,0.71,200,32267,
+sostenido 20rps,etiquetas,26.919,519.23,518.04,1.2,200,236,
+sostenido 20rps,listar libreta,26.974,1817.92,1817.25,0.67,200,64586,
+sostenido 20rps,listar libreta,26.987,1511.71,1511.22,0.49,200,64667,
+sostenido 20rps,listar libreta,27.05,1742.17,1741.07,1.1,200,64669,
+sostenido 20rps,resumen,27.074,851.93,851.37,0.56,200,230,
+sostenido 20rps,etiquetas,27.079,479.32,478.22,1.11,200,236,
+sostenido 20rps,buscar por texto,27.095,1485.95,1485.59,0.36,200,32224,
+sostenido 20rps,abrir ficha,27.105,851.19,849.35,1.84,200,1280,
+sostenido 20rps,etiquetas,27.198,1398.39,1397.4,0.99,200,236,
+sostenido 20rps,etiquetas,27.26,1364.3,1363.11,1.19,200,236,
+sostenido 20rps,buscar por texto,27.269,1412.4,1411.41,1.0,200,32223,
+sostenido 20rps,duplicados,27.346,65822.83,65822.19,0.64,200,2197582,
+sostenido 20rps,resumen,27.36,812.63,812.43,0.2,200,230,
+sostenido 20rps,abrir ficha,27.483,750.43,749.89,0.54,200,1296,
+sostenido 20rps,listar libreta,27.507,1620.87,1620.18,0.69,200,64669,
+sostenido 20rps,etiquetas,27.563,912.21,911.16,1.04,200,236,
+sostenido 20rps,listar libreta,27.563,1299.83,1298.55,1.28,200,64669,
+sostenido 20rps,abrir ficha,27.654,1043.06,1042.66,0.41,200,1292,
+sostenido 20rps,filtrar,27.656,963.66,962.93,0.73,200,32398,
+sostenido 20rps,abrir ficha,27.737,807.58,807.29,0.3,200,1267,
+sostenido 20rps,buscar por texto,27.747,1554.45,1554.22,0.23,200,32075,
+sostenido 20rps,resumen,27.836,961.08,959.93,1.15,200,230,
+sostenido 20rps,listar libreta,27.849,1464.08,1463.19,0.9,200,64667,
+sostenido 20rps,resumen,27.945,931.54,930.93,0.62,200,230,
+sostenido 20rps,filtrar,28.045,1039.42,1039.01,0.41,200,32263,
+sostenido 20rps,resumen,28.102,892.11,891.69,0.42,200,230,
+sostenido 20rps,listar libreta,28.293,1658.78,1658.37,0.41,200,64721,
+sostenido 20rps,filtrar,28.304,1140.89,1139.53,1.36,200,32483,
+sostenido 20rps,buscar por texto,28.339,1048.25,1047.79,0.47,200,32272,
+sostenido 20rps,listar libreta,28.362,1622.95,1622.09,0.86,200,64586,
+sostenido 20rps,abrir ficha,28.373,624.48,622.93,1.54,200,1261,
+sostenido 20rps,resumen,28.44,1145.46,1145.26,0.2,200,230,
+sostenido 20rps,listar libreta,28.452,1616.68,1616.23,0.45,200,64667,
+sostenido 20rps,abrir ficha,28.545,542.1,541.06,1.03,200,1293,
+sostenido 20rps,abrir ficha,28.596,575.0,574.89,0.11,200,1281,
+sostenido 20rps,listar libreta,28.665,1421.03,1419.08,1.95,200,64667,
+sostenido 20rps,resumen,28.714,606.72,606.46,0.26,200,230,
+sostenido 20rps,filtrar,28.72,857.69,854.12,3.57,200,32263,
+sostenido 20rps,etiquetas,28.788,554.69,553.62,1.07,200,236,
+sostenido 20rps,resumen,28.788,684.46,682.72,1.74,200,230,
+sostenido 20rps,buscar por texto,28.809,843.5,842.21,1.29,200,32311,
+sostenido 20rps,resumen,28.896,615.3,614.79,0.52,200,230,
+sostenido 20rps,listar libreta,28.903,823.68,822.83,0.84,200,64721,
+sostenido 20rps,resumen,28.958,719.73,719.48,0.25,200,230,
+sostenido 20rps,resumen,28.975,705.15,704.72,0.44,200,230,
+sostenido 20rps,buscar por texto,29.2,1410.8,1409.75,1.05,200,32109,
+sostenido 20rps,resumen,29.208,588.25,587.5,0.76,200,230,
+sostenido 20rps,resumen,29.219,536.87,535.24,1.63,200,230,
+sostenido 20rps,listar libreta,29.235,1755.73,1754.88,0.85,200,64586,
+sostenido 20rps,buscar por texto,29.361,1446.73,1445.95,0.79,200,32075,
+sostenido 20rps,listar libreta,29.474,2045.52,2045.09,0.43,200,64586,
+sostenido 20rps,resumen,29.612,293.41,292.25,1.16,200,230,
+sostenido 20rps,buscar por texto,29.615,1330.2,1329.27,0.93,200,32196,
+sostenido 20rps,listar libreta,29.649,1820.93,1820.27,0.66,200,64667,
+sostenido 20rps,filtrar,29.689,1424.13,1422.96,1.18,200,32297,
+sostenido 20rps,listar libreta,29.734,1855.84,1853.86,1.98,200,64586,
+sostenido 20rps,abrir ficha,29.776,337.6,337.14,0.46,200,1290,
+sostenido 20rps,listar libreta,29.807,2025.3,2024.47,0.83,200,64669,
+sostenido 20rps,buscar por texto,29.924,1274.03,1272.96,1.07,200,32182,
+sostenido 20rps,buscar por texto,30.003,1385.2,1384.32,0.89,200,32203,
+sostenido 20rps,abrir ficha,30.007,565.26,564.02,1.24,200,1275,
+sostenido 20rps,etiquetas,30.029,626.47,625.32,1.16,200,236,
+sostenido 20rps,abrir ficha,30.104,632.74,630.63,2.11,200,1278,
+sostenido 20rps,listar libreta,30.211,1809.33,1808.41,0.92,200,64586,
+sostenido 20rps,listar libreta,30.371,1614.45,1613.23,1.21,200,64721,
+sostenido 20rps,etiquetas,30.482,513.01,511.95,1.06,200,236,
+sostenido 20rps,abrir ficha,30.712,378.06,377.08,0.98,200,1271,
+sostenido 20rps,resumen,30.765,384.15,383.59,0.56,200,230,
+sostenido 20rps,resumen,30.859,388.17,386.34,1.83,200,230,
+sostenido 20rps,abrir ficha,30.866,353.49,352.95,0.54,200,1293,
+sostenido 20rps,historial de la ficha,30.982,306.75,305.83,0.93,200,4674,
+sostenido 20rps,filtrar,31.188,691.45,690.54,0.91,200,32302,
+sostenido 20rps,resumen,31.221,173.22,172.12,1.1,200,230,
+sostenido 20rps,resumen,31.293,159.32,158.62,0.7,200,230,
+sostenido 20rps,abrir ficha,31.346,93.4,92.2,1.2,200,1272,
+sostenido 20rps,listar libreta,31.371,1094.79,1094.38,0.41,200,64721,
+sostenido 20rps,listar libreta,31.395,1149.55,1148.88,0.67,200,64586,
+sostenido 20rps,buscar por texto,31.467,566.57,566.2,0.38,200,32316,
+sostenido 20rps,listar libreta,31.487,1102.76,1101.34,1.42,200,64721,
+sostenido 20rps,buscar por texto,31.584,594.55,593.88,0.67,200,32353,
+sostenido 20rps,listar libreta,31.721,1074.0,1072.85,1.15,200,64669,
+sostenido 20rps,listar libreta,31.779,1077.44,1076.8,0.64,200,64721,
+sostenido 20rps,abrir ficha,31.797,124.02,123.54,0.48,200,1261,
+sostenido 20rps,etiquetas,31.818,103.05,102.37,0.68,200,236,
+sostenido 20rps,abrir ficha,31.883,114.67,113.71,0.96,200,1297,
+sostenido 20rps,resumen,31.922,149.24,148.85,0.39,200,230,
+sostenido 20rps,etiquetas,31.966,77.27,76.08,1.19,200,236,
+sostenido 20rps,buscar por texto,32.006,643.9,641.89,2.02,200,32196,
+sostenido 20rps,listar libreta,32.254,1502.81,1502.07,0.74,200,64669,
+sostenido 20rps,abrir ficha,32.346,73.48,73.09,0.38,200,1279,
+sostenido 20rps,buscar por texto,32.499,494.19,493.86,0.33,200,32233,
+sostenido 20rps,listar libreta,32.591,1864.83,1863.78,1.05,200,64586,
+sostenido 20rps,filtrar,32.594,534.56,533.73,0.83,200,32398,
+sostenido 20rps,abrir ficha,32.615,77.4,76.34,1.06,200,1288,
+sostenido 20rps,listar libreta,32.683,1609.53,1608.86,0.67,200,64669,
+sostenido 20rps,resumen,32.852,149.08,147.9,1.19,200,230,
+sostenido 20rps,buscar por texto,32.897,1255.46,1254.99,0.47,200,32272,
+sostenido 20rps,listar libreta,32.926,1397.22,1396.56,0.66,200,64586,
+sostenido 20rps,buscar por texto,33.002,1031.78,1031.17,0.61,200,32223,
+sostenido 20rps,resumen,33.005,506.35,505.49,0.86,200,230,
+sostenido 20rps,etiquetas,33.052,449.42,448.23,1.19,200,236,
+sostenido 20rps,listar libreta,33.075,1571.87,1571.41,0.45,200,64669,
+sostenido 20rps,listar libreta,33.313,1443.49,1442.7,0.79,200,64586,
+sostenido 20rps,buscar por texto,33.393,1216.38,1215.68,0.71,200,32206,
+sostenido 20rps,resumen,33.434,320.08,319.18,0.9,200,230,
+sostenido 20rps,buscar por texto,33.443,1005.71,1004.78,0.93,200,32233,
+sostenido 20rps,abrir ficha,33.473,219.47,218.31,1.16,200,1293,
+sostenido 20rps,etiquetas,33.506,301.36,300.47,0.89,200,236,
+sostenido 20rps,filtrar,33.599,1042.72,1041.56,1.16,200,32446,
+sostenido 20rps,abrir ficha,33.612,507.83,507.32,0.51,200,1292,
+sostenido 20rps,listar libreta,33.629,1266.53,1265.92,0.61,200,64721,
+sostenido 20rps,buscar por texto,33.711,1293.65,1292.72,0.93,200,32179,
+sostenido 20rps,historial de la ficha,33.714,583.18,582.19,0.99,200,6773,
+sostenido 20rps,resumen,33.866,583.12,581.03,2.08,200,230,
+sostenido 20rps,etiquetas,33.901,440.22,439.61,0.61,200,236,
+sostenido 20rps,listar libreta,33.974,1806.74,1804.81,1.93,200,64669,
+sostenido 20rps,resumen,34.007,484.88,484.07,0.81,200,230,
+sostenido 20rps,filtrar,34.022,1893.67,1892.57,1.1,200,32483,
+sostenido 20rps,abrir ficha,34.059,491.96,490.0,1.96,200,1261,
+sostenido 20rps,abrir ficha,34.061,515.33,514.15,1.18,200,1283,
+sostenido 20rps,resumen,34.133,529.46,528.32,1.14,200,230,
+sostenido 20rps,listar libreta,34.249,1170.75,1170.01,0.74,200,64667,
+sostenido 20rps,listar libreta,34.251,1617.0,1616.02,0.98,200,64667,
+sostenido 20rps,buscar por texto,34.257,1351.92,1351.52,0.41,200,32353,
+sostenido 20rps,historial de la ficha,34.329,439.44,438.98,0.46,200,8039,
+sostenido 20rps,resumen,34.364,421.48,420.31,1.17,200,230,
+sostenido 20rps,resumen,34.369,441.22,440.18,1.04,200,230,
+sostenido 20rps,historial de la ficha,34.397,545.07,543.98,1.08,200,3499,
+sostenido 20rps,etiquetas,34.415,89.3,89.04,0.26,200,236,
+sostenido 20rps,etiquetas,34.461,348.09,347.0,1.08,200,236,
+sostenido 20rps,resumen,34.502,945.4,944.62,0.78,200,230,
+sostenido 20rps,resumen,34.543,471.29,470.53,0.76,200,230,
+sostenido 20rps,resumen,34.659,362.17,360.41,1.76,200,230,
+sostenido 20rps,resumen,34.78,224.32,223.83,0.49,200,230,
+sostenido 20rps,abrir ficha,34.848,581.1,579.99,1.11,200,1294,
+sostenido 20rps,resumen,34.912,597.2,596.02,1.17,200,230,
+sostenido 20rps,etiquetas,34.957,473.15,472.45,0.7,200,236,
+sostenido 20rps,abrir ficha,34.989,512.17,511.53,0.64,200,1279,
+sostenido 20rps,buscar por texto,35.0,1029.32,1027.09,2.24,200,32066,
+sostenido 20rps,etiquetas,35.015,468.41,467.71,0.7,200,236,
+sostenido 20rps,resumen,35.044,667.6,667.35,0.25,200,230,
+sostenido 20rps,filtrar,35.064,1005.46,1004.58,0.88,200,32452,
+sostenido 20rps,listar libreta,35.11,1757.84,1757.33,0.51,200,64669,
+sostenido 20rps,abrir ficha,35.133,449.86,448.88,0.98,200,1287,
+sostenido 20rps,resumen,35.214,558.7,557.47,1.23,200,230,
+sostenido 20rps,listar libreta,35.242,1591.99,1589.82,2.17,200,64667,
+sostenido 20rps,listar libreta,35.313,961.4,960.71,0.69,200,64721,
+sostenido 20rps,abrir ficha,35.367,193.3,192.11,1.19,200,1278,
+sostenido 20rps,listar libreta,35.37,899.56,899.46,0.11,200,64669,
+sostenido 20rps,abrir ficha,35.409,263.89,263.63,0.27,200,1268,
+sostenido 20rps,listar libreta,35.413,991.65,990.03,1.62,200,64721,
+sostenido 20rps,buscar por texto,35.458,654.53,653.41,1.12,200,32677,
+sostenido 20rps,buscar por texto,35.507,806.07,804.98,1.09,200,32316,
+sostenido 20rps,resumen,35.687,342.37,341.27,1.11,200,230,
+sostenido 20rps,resumen,35.739,345.26,344.44,0.83,200,230,
+sostenido 20rps,filtrar,35.797,650.67,649.83,0.84,200,32398,
+sostenido 20rps,resumen,35.8,406.63,405.84,0.79,200,230,
+sostenido 20rps,listar libreta,35.845,893.87,892.84,1.03,200,64721,
+sostenido 20rps,buscar por texto,35.892,529.65,529.28,0.37,200,32206,
+sostenido 20rps,resumen,35.905,379.37,378.69,0.68,200,230,
+sostenido 20rps,listar libreta,35.965,1516.02,1514.88,1.14,200,64669,
+sostenido 20rps,abrir ficha,35.971,408.09,407.35,0.75,200,1266,
+sostenido 20rps,listar libreta,36.009,1272.98,1271.71,1.27,200,64669,
+sostenido 20rps,resumen,36.046,392.86,392.43,0.42,200,230,
+sostenido 20rps,buscar por texto,36.061,1111.59,1110.39,1.2,200,32179,
+sostenido 20rps,filtrar,36.138,1090.56,1088.48,2.07,200,32263,
+sostenido 20rps,buscar por texto,36.153,984.22,983.86,0.36,200,32151,
+sostenido 20rps,buscar por texto,36.186,1042.43,1041.99,0.44,200,32066,
+sostenido 20rps,etiquetas,36.349,139.48,138.0,1.49,200,236,
+sostenido 20rps,buscar por texto,36.369,816.5,815.02,1.48,200,32272,
+sostenido 20rps,listar libreta,36.373,1140.81,1139.92,0.89,200,64667,
+sostenido 20rps,listar libreta,36.382,1454.24,1454.08,0.16,200,64667,
+sostenido 20rps,filtrar,36.436,1100.93,1099.82,1.11,200,32302,
+sostenido 20rps,buscar por texto,36.508,1063.12,1062.58,0.54,200,32206,
+sostenido 20rps,buscar por texto,36.559,1142.26,1141.24,1.02,200,32182,
+sostenido 20rps,resumen,36.582,750.03,749.85,0.18,200,230,
+sostenido 20rps,buscar por texto,36.63,1230.91,1230.36,0.55,200,32255,
+sostenido 20rps,listar libreta,36.672,1273.19,1272.88,0.31,200,64721,
+sostenido 20rps,resumen,36.714,670.54,669.97,0.57,200,230,
+sostenido 20rps,abrir ficha,36.75,606.45,606.03,0.42,200,1279,
+sostenido 20rps,listar libreta,36.776,1918.18,1917.82,0.36,200,64669,
+sostenido 20rps,abrir ficha,36.82,645.04,644.11,0.94,200,1270,
+sostenido 20rps,listar libreta,36.931,2006.93,2006.24,0.69,200,64586,
+sostenido 20rps,listar libreta,36.935,1738.18,1737.49,0.7,200,64721,
+sostenido 20rps,etiquetas,37.021,516.1,515.1,0.99,200,236,
+sostenido 20rps,etiquetas,37.058,506.85,504.96,1.88,200,236,
+sostenido 20rps,buscar por texto,37.088,796.94,796.71,0.24,200,32272,
+sostenido 20rps,resumen,37.101,607.28,606.49,0.79,200,230,
+sostenido 20rps,buscar por texto,37.117,1258.3,1258.02,0.27,200,32677,
+sostenido 20rps,resumen,37.157,609.47,608.62,0.84,200,230,
+sostenido 20rps,buscar por texto,37.173,1388.71,1388.27,0.45,200,32224,
+sostenido 20rps,resumen,37.2,661.12,660.45,0.67,200,230,
+sostenido 20rps,listar libreta,37.257,1694.57,1694.16,0.41,200,64586,
+sostenido 20rps,listar libreta,37.315,1999.65,1999.37,0.28,200,64586,
+sostenido 20rps,resumen,37.34,2072.89,2070.71,2.18,200,230,
+sostenido 20rps,etiquetas,37.346,567.84,566.81,1.03,200,236,
+sostenido 20rps,buscar por texto,37.373,1440.95,1439.01,1.94,200,32677,
+sostenido 20rps,etiquetas,37.396,564.39,563.94,0.45,200,236,
+sostenido 20rps,abrir ficha,37.406,620.73,618.69,2.04,200,1272,
+sostenido 20rps,listar libreta,37.412,2085.81,2084.97,0.84,200,64721,
+sostenido 20rps,listar libreta,37.417,2229.4,2228.81,0.59,200,64721,
+sostenido 20rps,abrir ficha,37.469,985.25,984.58,0.67,200,1268,
+sostenido 20rps,listar libreta,37.496,2412.47,2411.51,0.96,200,64721,
+sostenido 20rps,listar libreta,37.539,2487.24,2486.37,0.87,200,64667,
+sostenido 20rps,listar libreta,37.541,2284.08,2283.5,0.59,200,64667,
+sostenido 20rps,listar libreta,37.586,2144.0,2142.43,1.57,200,64586,
+sostenido 20rps,abrir ficha,37.601,1299.4,1298.37,1.04,200,1275,
+sostenido 20rps,etiquetas,37.611,1327.7,1327.32,0.38,200,236,
+sostenido 20rps,resumen,37.617,1708.44,1707.59,0.84,200,230,
+sostenido 20rps,historial de la ficha,37.708,1715.42,1715.06,0.36,200,3180,
+sostenido 20rps,listar libreta,37.743,2450.0,2448.74,1.27,200,64667,
+sostenido 20rps,resumen,37.845,1646.84,1645.4,1.44,200,230,
+sostenido 20rps,buscar por texto,37.85,1005.13,1004.21,0.92,200,32151,
+sostenido 20rps,buscar por texto,37.915,2826.8,2826.43,0.36,200,32224,
+sostenido 20rps,listar libreta,37.984,2136.24,2135.63,0.61,200,64586,
+sostenido 20rps,buscar por texto,38.065,1912.71,1912.3,0.41,200,32196,
+sostenido 20rps,listar libreta,38.078,3405.12,3404.11,1.02,200,64721,
+sostenido 20rps,abrir ficha,38.105,1477.4,1476.1,1.3,200,1277,
+sostenido 20rps,resumen,38.153,1582.92,1582.5,0.42,200,230,
+sostenido 20rps,resumen,38.189,1550.27,1548.09,2.17,200,230,
+sostenido 20rps,abrir ficha,38.224,1558.81,1557.71,1.1,200,1279,
+sostenido 20rps,etiquetas,38.234,1591.47,1590.94,0.53,200,236,
+sostenido 20rps,listar libreta,38.3,4983.97,4983.11,0.86,200,64721,
+sostenido 20rps,listar libreta,38.325,4955.57,4954.46,1.11,200,64721,
+sostenido 20rps,buscar por texto,38.376,2013.72,2013.46,0.26,200,32236,
+sostenido 20rps,duplicados,38.519,79127.92,79127.58,0.34,0,0,timeout
+sostenido 20rps,filtrar,38.529,2072.79,2071.43,1.36,200,32446,
+sostenido 20rps,buscar por texto,38.863,1789.34,1787.35,1.99,200,32311,
+sostenido 20rps,buscar por texto,38.879,1757.98,1757.48,0.5,200,32223,
+sostenido 20rps,resumen,38.893,1180.3,1178.79,1.51,200,230,
+sostenido 20rps,resumen,39.005,1167.44,1166.32,1.12,200,230,
+sostenido 20rps,listar libreta,39.052,1962.54,1961.63,0.91,200,64586,
+sostenido 20rps,buscar por texto,39.187,790.42,789.89,0.53,200,32203,
+sostenido 20rps,listar libreta,39.322,2137.95,2136.94,1.01,200,64667,
+sostenido 20rps,buscar por texto,39.358,1424.95,1424.1,0.84,200,32179,
+sostenido 20rps,buscar por texto,39.401,1474.99,1473.77,1.21,200,32353,
+sostenido 20rps,etiquetas,39.445,802.6,801.49,1.11,200,236,
+sostenido 20rps,abrir ficha,39.476,101.72,101.2,0.52,200,1283,
+sostenido 20rps,listar libreta,39.479,2130.31,2129.52,0.79,200,64667,
+sostenido 20rps,listar libreta,39.537,2321.84,2320.75,1.09,200,64586,
+sostenido 20rps,filtrar,39.561,1817.44,1816.3,1.14,200,32448,
+sostenido 20rps,resumen,39.586,1204.63,1203.88,0.75,200,230,
+sostenido 20rps,buscar por texto,39.635,1843.1,1842.24,0.87,200,32182,
+sostenido 20rps,abrir ficha,39.673,1134.74,1134.1,0.64,200,1277,
+sostenido 20rps,abrir ficha,39.692,228.5,226.6,1.89,200,1266,
+sostenido 20rps,abrir ficha,39.705,218.79,218.13,0.66,200,1273,
+sostenido 20rps,buscar por texto,39.737,1486.97,1485.95,1.02,200,32332,
+sostenido 20rps,buscar por texto,39.764,429.56,428.54,1.02,200,32180,
+sostenido 20rps,listar libreta,39.784,3510.9,3510.5,0.4,200,64586,
+sostenido 20rps,listar libreta,39.839,3456.21,3455.65,0.56,200,64586,
+sostenido 20rps,abrir ficha,40.129,1413.65,1412.15,1.5,200,1268,
+sostenido 20rps,abrir ficha,40.138,1404.67,1404.06,0.61,200,1296,
+sostenido 20rps,resumen,40.177,1472.41,1472.23,0.17,200,230,
+sostenido 20rps,filtrar,40.18,3096.75,3096.22,0.52,200,31988,
+sostenido 20rps,resumen,40.241,1457.15,1456.65,0.51,200,230,
+sostenido 20rps,etiquetas,40.248,1376.6,1376.08,0.52,200,236,
+sostenido 20rps,buscar por texto,40.274,30088.31,30088.06,0.26,500,21,HTTP 500
+sostenido 20rps,listar libreta,40.394,2910.24,2909.55,0.7,200,64667,
+sostenido 20rps,abrir ficha,40.398,1328.19,1328.04,0.15,200,1288,
+sostenido 20rps,listar libreta,40.413,2892.02,2891.14,0.88,200,64669,
+sostenido 20rps,listar libreta,40.477,2827.76,2826.85,0.91,200,64667,
+sostenido 20rps,buscar por texto,40.56,2738.62,2738.35,0.27,200,32185,
+sostenido 20rps,listar libreta,40.592,30128.08,30127.68,0.41,0,0,timeout
+sostenido 20rps,resumen,40.795,30071.06,30070.86,0.2,0,0,timeout
+sostenido 20rps,resumen,40.835,30105.18,30104.48,0.7,0,0,timeout
+sostenido 20rps,resumen,40.889,30087.08,30085.73,1.35,0,0,timeout
+sostenido 20rps,listar libreta,40.922,30139.58,30138.55,1.03,0,0,timeout
+sostenido 20rps,listar libreta,40.925,30183.23,30182.91,0.31,0,0,timeout
+sostenido 20rps,abrir ficha,40.941,30206.03,30205.65,0.38,0,0,timeout
+sostenido 20rps,abrir ficha,40.989,30192.68,30192.01,0.67,0,0,timeout
+sostenido 20rps,resumen,40.997,30219.21,30218.45,0.76,0,0,timeout
+sostenido 20rps,buscar por texto,41.021,30372.98,30372.71,0.27,0,0,timeout
+sostenido 20rps,resumen,41.021,30406.74,30406.43,0.31,0,0,timeout
+sostenido 20rps,buscar por texto,41.261,30379.77,30379.05,0.72,0,0,timeout
+sostenido 20rps,resumen,41.281,30393.22,30392.73,0.49,0,0,timeout
+sostenido 20rps,listar libreta,41.293,30415.24,30414.68,0.56,0,0,timeout
+sostenido 20rps,abrir ficha,41.367,30728.37,30727.36,1.01,500,21,HTTP 500
+sostenido 20rps,abrir ficha,41.376,30719.98,30719.33,0.65,500,21,HTTP 500
+sostenido 20rps,listar libreta,41.392,30704.3,30703.23,1.07,500,21,HTTP 500
+sostenido 20rps,buscar por texto,41.521,30609.22,30609.05,0.17,0,0,timeout
+sostenido 20rps,etiquetas,41.596,54.5,53.89,0.61,200,236,
+sostenido 20rps,filtrar,41.675,30736.9,30734.92,1.98,0,0,timeout
+sostenido 20rps,filtrar,41.754,30692.25,30691.96,0.29,0,0,timeout
+sostenido 20rps,resumen,41.785,30695.45,30695.1,0.35,0,0,timeout
+sostenido 20rps,listar libreta,41.895,30619.56,30618.36,1.2,0,0,timeout
+sostenido 20rps,abrir ficha,41.986,30744.24,30743.87,0.37,0,0,timeout
+sostenido 20rps,buscar por texto,41.994,30772.11,30771.7,0.41,0,0,timeout
+sostenido 20rps,resumen,42.118,30685.38,30684.84,0.54,0,0,timeout
+sostenido 20rps,abrir ficha,42.154,30682.59,30681.84,0.75,0,0,timeout
+sostenido 20rps,buscar por texto,42.154,30716.39,30714.91,1.47,0,0,timeout
+sostenido 20rps,resumen,42.228,30677.47,30676.17,1.31,0,0,timeout
+sostenido 20rps,abrir ficha,42.23,30709.41,30709.08,0.33,0,0,timeout
+sostenido 20rps,buscar por texto,42.249,30723.8,30723.56,0.24,0,0,timeout
+sostenido 20rps,resumen,42.304,30702.85,30701.87,0.98,0,0,timeout
+sostenido 20rps,buscar por texto,42.312,30728.39,30727.9,0.49,0,0,timeout
+sostenido 20rps,buscar por texto,42.4,31027.94,31027.62,0.32,0,0,timeout
+sostenido 20rps,buscar por texto,42.417,31044.28,31044.05,0.24,0,0,timeout
+sostenido 20rps,etiquetas,42.435,31059.74,31058.8,0.94,0,0,timeout
+sostenido 20rps,resumen,42.452,31075.5,31074.69,0.8,0,0,timeout
+sostenido 20rps,listar libreta,42.508,31053.46,31052.48,0.98,0,0,timeout
+sostenido 20rps,historial de la ficha,42.638,30956.08,30955.62,0.47,0,0,timeout
+sostenido 20rps,duplicados,42.65,31552.61,31551.81,0.79,500,21,HTTP 500
+sostenido 20rps,etiquetas,42.724,31275.2,31273.49,1.71,0,0,timeout
+sostenido 20rps,listar libreta,42.731,31301.55,31300.78,0.77,0,0,timeout
+sostenido 20rps,abrir ficha,42.732,31333.99,31333.33,0.67,0,0,timeout
+sostenido 20rps,filtrar,42.754,31345.92,31345.06,0.86,0,0,timeout
+sostenido 20rps,historial de la ficha,42.76,31372.8,31371.91,0.89,0,0,timeout
+sostenido 20rps,listar libreta,42.868,31367.86,31366.89,0.97,0,0,timeout
+sostenido 20rps,listar libreta,42.869,31398.45,31397.99,0.47,0,0,timeout
+sostenido 20rps,listar libreta,42.922,31378.16,31377.45,0.71,0,0,timeout
+sostenido 20rps,filtrar,42.939,31394.03,31393.2,0.83,0,0,timeout
+sostenido 20rps,buscar por texto,42.989,31377.03,31376.3,0.73,0,0,timeout
+sostenido 20rps,listar libreta,43.117,31281.68,31280.45,1.23,0,0,timeout
+sostenido 20rps,filtrar,43.359,31649.6,31649.32,0.28,0,0,timeout
+sostenido 20rps,resumen,43.392,31930.13,31926.18,3.95,0,0,timeout
+sostenido 20rps,listar libreta,43.473,31881.84,31881.02,0.81,0,0,timeout
+sostenido 20rps,listar libreta,43.504,31884.66,31884.22,0.44,0,0,timeout
+sostenido 20rps,resumen,43.559,31862.85,31862.37,0.49,0,0,timeout
+sostenido 20rps,resumen,43.627,31829.64,31828.97,0.67,0,0,timeout
+sostenido 20rps,abrir ficha,43.673,31816.35,31815.89,0.46,0,0,timeout
+sostenido 20rps,abrir ficha,43.695,31828.09,31827.86,0.23,0,0,timeout
+sostenido 20rps,listar libreta,43.713,31843.92,31843.2,0.72,0,0,timeout
+sostenido 20rps,listar libreta,43.921,31668.66,31667.0,1.66,0,0,timeout
+sostenido 20rps,resumen,44.066,32146.5,32146.15,0.35,0,0,timeout
+sostenido 20rps,filtrar,44.1,32146.44,32146.1,0.34,0,0,timeout
+sostenido 20rps,abrir ficha,44.108,32173.35,32172.51,0.84,0,0,timeout
+sostenido 20rps,listar libreta,44.228,32424.16,32422.05,2.11,0,0,timeout
+sostenido 20rps,resumen,44.246,32439.29,32438.86,0.43,0,0,timeout
+sostenido 20rps,buscar por texto,44.26,32458.11,32456.15,1.96,0,0,timeout
+sostenido 20rps,resumen,44.27,32480.61,32480.05,0.56,0,0,timeout
+sostenido 20rps,listar libreta,44.405,32379.2,32378.23,0.97,0,0,timeout
+sostenido 20rps,listar libreta,44.591,32226.28,32225.03,1.25,0,0,timeout
+sostenido 20rps,resumen,44.62,32230.25,32228.92,1.34,0,0,timeout
+sostenido 20rps,resumen,44.689,32194.04,32192.34,1.69,0,0,timeout
+sostenido 20rps,buscar por texto,44.776,32140.04,32139.32,0.72,0,0,timeout
+sostenido 20rps,abrir ficha,44.787,32162.64,32161.59,1.05,0,0,timeout
+sostenido 20rps,resumen,44.84,32143.46,32142.41,1.05,0,0,timeout
+sostenido 20rps,filtrar,44.896,32120.0,32119.4,0.6,0,0,timeout
+sostenido 20rps,resumen,44.908,32141.03,32139.84,1.19,0,0,timeout
+sostenido 20rps,resumen,44.944,32138.18,32137.14,1.05,0,0,timeout
+sostenido 20rps,filtrar,44.965,32150.59,32149.45,1.14,0,0,timeout
+sostenido 20rps,abrir ficha,44.969,32741.74,32741.0,0.74,0,0,timeout
+sostenido 20rps,resumen,45.035,32712.88,32711.89,0.99,0,0,timeout
+sostenido 20rps,resumen,45.166,32617.03,32616.03,1.01,0,0,timeout
+sostenido 20rps,listar libreta,45.242,32576.86,32576.04,0.83,0,0,timeout
+sostenido 20rps,etiquetas,45.431,32729.03,32727.89,1.14,0,0,timeout
+sostenido 20rps,buscar por texto,45.555,32637.7,32637.24,0.46,0,0,timeout
+sostenido 20rps,listar libreta,45.684,32540.98,32540.04,0.94,0,0,timeout
+sostenido 20rps,buscar por texto,45.712,32544.95,32542.95,2.0,0,0,timeout
+sostenido 20rps,listar libreta,45.732,32557.61,32556.6,1.01,0,0,timeout
+sostenido 20rps,listar libreta,45.746,32578.45,32577.94,0.51,0,0,timeout
+sostenido 20rps,listar libreta,45.778,32579.13,32578.72,0.41,0,0,timeout
+sostenido 20rps,buscar por texto,45.814,32575.54,32575.15,0.39,0,0,timeout
+sostenido 20rps,buscar por texto,45.823,32597.54,32597.27,0.27,0,0,timeout
+sostenido 20rps,abrir ficha,45.911,32542.97,32542.37,0.6,0,0,timeout
+sostenido 20rps,buscar por texto,45.98,32514.24,32512.34,1.9,0,0,timeout
+sostenido 20rps,buscar por texto,45.984,32542.64,32541.65,0.99,0,0,timeout
+sostenido 20rps,abrir ficha,45.985,32574.41,32573.64,0.77,0,0,timeout
+sostenido 20rps,buscar por texto,46.045,32547.24,32546.88,0.36,0,0,timeout
+sostenido 20rps,resumen,46.052,32573.26,32573.06,0.2,0,0,timeout
+sostenido 20rps,resumen,46.082,32575.07,32574.59,0.48,0,0,timeout
+sostenido 20rps,etiquetas,46.087,32602.82,32602.61,0.21,0,0,timeout
+sostenido 20rps,resumen,46.096,32626.45,32626.2,0.25,0,0,timeout
+sostenido 20rps,listar libreta,46.126,32629.71,32628.59,1.11,0,0,timeout
+sostenido 20rps,buscar por texto,46.128,32659.32,32659.21,0.11,0,0,timeout
+sostenido 20rps,resumen,46.279,33167.81,33166.77,1.04,0,0,timeout
+sostenido 20rps,resumen,46.403,33080.17,33079.79,0.39,0,0,timeout
+sostenido 20rps,listar libreta,46.477,33042.55,33041.04,1.51,0,0,timeout
+sostenido 20rps,historial de la ficha,46.488,33068.95,33068.59,0.35,0,0,timeout
+sostenido 20rps,etiquetas,46.777,33164.66,33162.62,2.03,0,0,timeout
+sostenido 20rps,buscar por texto,46.887,33087.33,33086.31,1.02,0,0,timeout
+sostenido 20rps,listar libreta,46.905,33101.14,33100.77,0.37,0,0,timeout
+sostenido 20rps,resumen,47.045,32992.88,32992.36,0.52,0,0,timeout
+sostenido 20rps,abrir ficha,47.289,32783.56,32782.27,1.29,0,0,timeout
+sostenido 20rps,resumen,47.313,32793.45,32793.04,0.41,0,0,timeout
+sostenido 20rps,resumen,47.355,32786.31,32786.07,0.25,0,0,timeout
+sostenido 20rps,abrir ficha,47.392,32784.89,32783.98,0.91,0,0,timeout
+sostenido 20rps,abrir ficha,47.423,32788.1,32787.8,0.3,0,0,timeout
+sostenido 20rps,listar libreta,47.431,32813.93,32813.68,0.25,0,0,timeout
+sostenido 20rps,resumen,47.435,32842.77,32842.4,0.38,0,0,timeout
+sostenido 20rps,listar libreta,47.446,32865.34,32864.39,0.95,0,0,timeout
+sostenido 20rps,resumen,47.491,32854.71,32854.32,0.4,0,0,timeout
+sostenido 20rps,resumen,47.498,32882.45,32881.79,0.66,0,0,timeout
+sostenido 20rps,listar libreta,47.506,32907.18,32906.08,1.1,0,0,timeout
+sostenido 20rps,resumen,47.509,32935.57,32934.8,0.77,0,0,timeout
+sostenido 20rps,resumen,47.543,32933.41,32932.87,0.54,0,0,timeout
+sostenido 20rps,etiquetas,47.596,32912.0,32911.01,0.99,0,0,timeout
+sostenido 20rps,filtrar,47.71,33646.51,33645.78,0.73,0,0,timeout
+sostenido 20rps,etiquetas,47.733,33657.13,33656.37,0.76,0,0,timeout
+sostenido 20rps,abrir ficha,47.794,33633.77,33633.49,0.28,0,0,timeout
+sostenido 20rps,listar libreta,47.956,33504.95,33504.45,0.49,0,0,timeout
+sostenido 20rps,listar libreta,48.013,33481.56,33481.15,0.42,0,0,timeout
+sostenido 20rps,resumen,48.014,33512.97,33512.72,0.25,0,0,timeout
+sostenido 20rps,buscar por texto,48.069,33491.09,33490.22,0.88,0,0,timeout
+sostenido 20rps,buscar por texto,48.072,33520.99,33520.89,0.1,0,0,timeout
+sostenido 20rps,listar libreta,48.074,33551.47,33551.31,0.16,0,0,timeout
+sostenido 20rps,buscar por texto,48.143,33684.92,33683.76,1.15,0,0,timeout
+sostenido 20rps,resumen,48.224,33633.71,33633.0,0.71,0,0,timeout
+sostenido 20rps,historial de la ficha,48.27,33618.3,33617.35,0.95,0,0,timeout
+sostenido 20rps,abrir ficha,48.28,33638.08,33637.86,0.23,0,0,timeout
+sostenido 20rps,etiquetas,48.281,33666.36,33665.95,0.41,0,0,timeout
+sostenido 20rps,resumen,48.293,33683.74,33683.31,0.43,0,0,timeout
+sostenido 20rps,historial de la ficha,48.296,33710.68,33710.4,0.28,0,0,timeout
+sostenido 20rps,filtrar,48.306,33731.05,33730.24,0.81,0,0,timeout
+sostenido 20rps,etiquetas,48.321,33744.99,33744.29,0.7,0,0,timeout
+sostenido 20rps,listar libreta,48.346,33749.43,33748.86,0.56,0,0,timeout
+sostenido 20rps,filtrar,48.392,33733.59,33732.5,1.09,0,0,timeout
+sostenido 20rps,listar libreta,48.424,33730.39,33729.83,0.56,0,0,timeout
+sostenido 20rps,resumen,48.52,33663.98,33663.08,0.9,0,0,timeout
+sostenido 20rps,resumen,48.556,33657.29,33656.96,0.33,0,0,timeout
+sostenido 20rps,abrir ficha,48.577,33666.04,33665.25,0.79,0,0,timeout
+sostenido 20rps,listar libreta,48.588,33684.82,33683.52,1.3,0,0,timeout
+sostenido 20rps,listar libreta,48.589,33713.99,33712.93,1.06,0,0,timeout
+sostenido 20rps,resumen,48.6,33732.65,33732.36,0.29,0,0,timeout
+sostenido 20rps,listar libreta,48.61,33752.3,33750.4,1.9,0,0,timeout
+sostenido 20rps,buscar por texto,48.688,33704.27,33703.93,0.34,0,0,timeout
+sostenido 20rps,resumen,48.727,33694.94,33694.37,0.56,0,0,timeout
+sostenido 20rps,etiquetas,48.795,33656.36,33656.05,0.31,0,0,timeout
+sostenido 20rps,resumen,48.838,33642.94,33641.77,1.17,0,0,timeout
+sostenido 20rps,filtrar,48.966,33544.64,33544.27,0.38,0,0,timeout
+sostenido 20rps,resumen,48.999,33541.65,33541.46,0.2,0,0,timeout
+sostenido 20rps,listar libreta,49.087,33488.76,33488.13,0.62,0,0,timeout
+sostenido 20rps,filtrar,49.407,33902.02,33901.63,0.39,0,0,timeout
+sostenido 20rps,filtrar,49.496,33845.48,33843.56,1.92,0,0,timeout
+sostenido 20rps,listar libreta,49.545,33826.77,33826.16,0.61,0,0,timeout
+sostenido 20rps,buscar por texto,49.59,33811.53,33810.92,0.6,0,0,timeout
+sostenido 20rps,resumen,49.626,33805.99,33805.78,0.21,0,0,timeout
+sostenido 20rps,historial de la ficha,49.644,33818.85,33818.05,0.8,0,0,timeout
+sostenido 20rps,etiquetas,49.659,33834.22,33833.0,1.22,0,0,timeout
+sostenido 20rps,listar libreta,49.67,33853.09,33851.9,1.19,0,0,timeout
+sostenido 20rps,resumen,49.816,33738.51,33736.83,1.68,0,0,timeout
+sostenido 20rps,listar libreta,49.962,33780.93,33778.7,2.23,0,0,timeout
+sostenido 20rps,resumen,50.006,33765.09,33764.85,0.24,0,0,timeout
+sostenido 20rps,resumen,50.098,33700.65,33700.31,0.34,0,0,timeout
+sostenido 20rps,resumen,50.137,33689.67,33688.95,0.72,0,0,timeout
+sostenido 20rps,buscar por texto,50.155,33698.61,33697.79,0.81,0,0,timeout
+sostenido 20rps,resumen,50.277,33604.88,33603.67,1.2,0,0,timeout
+sostenido 20rps,buscar por texto,50.407,33502.41,33501.99,0.42,0,0,timeout
+sostenido 20rps,resumen,50.481,33455.86,33453.88,1.98,0,0,timeout
+sostenido 20rps,listar libreta,50.502,33462.19,33460.1,2.09,0,0,timeout
+sostenido 20rps,listar libreta,50.547,33445.42,33444.25,1.17,0,0,timeout
+sostenido 20rps,filtrar,50.576,33443.25,33442.76,0.49,0,0,timeout
+sostenido 20rps,abrir ficha,50.625,33422.83,33421.89,0.94,0,0,timeout
+sostenido 20rps,abrir ficha,50.659,33415.96,33415.59,0.37,0,0,timeout
+sostenido 20rps,historial de la ficha,50.661,33442.33,33442.23,0.1,0,0,timeout
+sostenido 20rps,listar libreta,50.666,33464.73,33463.85,0.88,0,0,timeout
+sostenido 20rps,resumen,50.713,33445.49,33445.02,0.47,0,0,timeout
+sostenido 20rps,buscar por texto,50.743,33442.91,33441.74,1.17,0,0,timeout
+sostenido 20rps,resumen,50.787,33426.1,33425.65,0.45,0,0,timeout
+sostenido 20rps,buscar por texto,50.857,33383.77,33383.12,0.65,0,0,timeout
+sostenido 20rps,resumen,50.894,33375.19,33374.27,0.92,0,0,timeout
+sostenido 20rps,abrir ficha,50.898,33398.17,33397.31,0.86,0,0,timeout
+sostenido 20rps,historial de la ficha,50.918,33405.84,33403.99,1.85,0,0,timeout
+sostenido 20rps,listar libreta,50.961,33389.8,33388.72,1.07,0,0,timeout
+sostenido 20rps,resumen,51.068,33310.52,33308.56,1.96,0,0,timeout
+sostenido 20rps,listar libreta,51.1,33306.04,33305.51,0.53,0,0,timeout
+sostenido 20rps,listar libreta,51.118,33315.53,33314.67,0.85,0,0,timeout
+sostenido 20rps,listar libreta,51.138,66559.51,66558.13,1.38,0,0,timeout
+sostenido 20rps,resumen,51.146,66602.37,66601.6,0.77,0,0,timeout
+sostenido 20rps,etiquetas,51.187,66613.43,66613.15,0.28,0,0,timeout
+sostenido 20rps,filtrar,51.211,66644.56,66643.96,0.6,0,0,timeout
+sostenido 20rps,listar libreta,51.29,66621.02,66620.08,0.94,0,0,timeout
+sostenido 20rps,listar libreta,51.438,66524.97,66524.37,0.6,0,0,timeout
+sostenido 20rps,buscar por texto,51.455,66561.37,66561.07,0.3,0,0,timeout
+sostenido 20rps,listar libreta,51.504,66563.99,66563.39,0.61,0,0,timeout
+sostenido 20rps,listar libreta,51.508,66612.02,66611.87,0.15,0,0,timeout
+sostenido 20rps,buscar por texto,51.52,66650.48,66650.06,0.42,0,0,timeout
+sostenido 20rps,resumen,51.565,95978.12,95977.68,0.43,0,0,timeout
+sostenido 20rps,listar libreta,51.837,95743.0,95742.16,0.84,0,0,timeout
+sostenido 20rps,listar libreta,51.856,95758.88,95757.79,1.09,0,0,timeout
+sostenido 20rps,etiquetas,51.877,95773.73,95771.65,2.09,0,0,timeout
+sostenido 20rps,listar libreta,51.95,95734.91,95733.87,1.04,0,0,timeout
+sostenido 20rps,resumen,52.046,95673.65,95672.42,1.22,0,0,timeout
+sostenido 20rps,buscar por texto,52.068,95688.44,95686.52,1.92,0,0,timeout
+sostenido 20rps,resumen,52.116,95675.4,95675.2,0.2,0,0,timeout
+sostenido 20rps,abrir ficha,52.219,95607.46,95606.44,1.02,0,0,timeout
+sostenido 20rps,abrir ficha,52.508,95357.57,95355.47,2.1,0,0,timeout
+sostenido 20rps,resumen,52.535,95366.2,95365.22,0.98,0,0,timeout
+sostenido 20rps,listar libreta,52.536,95400.45,95396.96,3.49,0,0,timeout
+sostenido 20rps,resumen,52.548,95422.22,95421.82,0.4,0,0,timeout
+sostenido 20rps,listar libreta,52.555,95451.03,95450.82,0.21,0,0,timeout
+sostenido 20rps,resumen,52.615,95426.74,95426.4,0.34,0,0,timeout
+sostenido 20rps,filtrar,52.643,95433.1,95431.07,2.04,0,0,timeout
+sostenido 20rps,resumen,52.676,95435.41,95434.43,0.98,0,0,timeout
+sostenido 20rps,resumen,52.696,95450.31,95449.64,0.67,0,0,timeout
+sostenido 20rps,listar libreta,52.709,95471.54,95471.03,0.51,0,0,timeout
+sostenido 20rps,buscar por texto,52.891,95324.3,95323.92,0.38,0,0,timeout
+sostenido 20rps,listar libreta,52.909,95341.22,95340.68,0.54,0,0,timeout
+sostenido 20rps,listar libreta,52.964,95319.73,95318.49,1.24,0,0,timeout
+sostenido 20rps,listar libreta,53.091,95227.72,95226.53,1.19,0,0,timeout
+sostenido 20rps,filtrar,53.116,95236.81,95235.69,1.13,0,0,timeout
+sostenido 20rps,abrir ficha,53.143,95243.58,95242.55,1.03,0,0,timeout
+sostenido 20rps,abrir ficha,53.157,95263.48,95262.44,1.04,0,0,timeout
+sostenido 20rps,listar libreta,53.208,95246.77,95246.23,0.54,0,0,timeout
+sostenido 20rps,abrir ficha,53.216,95273.96,95273.57,0.39,0,0,timeout
+sostenido 20rps,listar libreta,53.298,95226.95,95226.41,0.54,0,0,timeout
+sostenido 20rps,listar libreta,53.347,95212.41,95211.92,0.49,0,0,timeout
+sostenido 20rps,listar libreta,53.422,95173.24,95171.19,2.05,0,0,timeout
+sostenido 20rps,buscar por texto,53.437,95194.2,95193.95,0.24,0,0,timeout
+sostenido 20rps,filtrar,53.507,95159.65,95159.38,0.27,0,0,timeout
+sostenido 20rps,resumen,53.563,95139.28,95139.11,0.17,0,0,timeout
+sostenido 20rps,buscar por texto,53.583,95154.97,95154.64,0.33,0,0,timeout
+sostenido 20rps,resumen,53.586,95188.61,95186.68,1.92,0,0,timeout
+sostenido 20rps,buscar por texto,53.606,95204.45,95203.44,1.02,0,0,timeout
+sostenido 20rps,resumen,53.627,95219.19,95218.42,0.77,0,0,timeout
+sostenido 20rps,buscar por texto,53.757,95124.85,95124.35,0.5,0,0,timeout
+sostenido 20rps,etiquetas,53.801,95115.39,95114.29,1.1,0,0,timeout
+sostenido 20rps,etiquetas,53.843,95108.2,95106.16,2.04,0,0,timeout
+sostenido 20rps,listar libreta,53.857,95129.44,95128.77,0.67,0,0,timeout
+sostenido 20rps,resumen,53.895,95126.27,95125.56,0.7,0,0,timeout
+sostenido 20rps,etiquetas,53.973,95083.84,95081.19,2.65,0,0,timeout
+sostenido 20rps,buscar por texto,54.11,94982.52,94981.89,0.64,0,0,timeout
+sostenido 20rps,listar libreta,54.144,94984.61,94984.34,0.28,0,0,timeout
+sostenido 20rps,listar libreta,54.244,94920.64,94919.53,1.11,0,0,timeout
+sostenido 20rps,listar libreta,54.283,94917.81,94917.45,0.35,0,0,timeout
+sostenido 20rps,resumen,54.441,94795.97,94794.99,0.97,0,0,timeout
+sostenido 20rps,buscar por texto,54.477,94795.38,94794.85,0.52,0,0,timeout
+sostenido 20rps,buscar por texto,54.522,94785.42,94784.25,1.17,0,0,timeout
+sostenido 20rps,resumen,54.593,94749.38,94749.02,0.36,0,0,timeout
+sostenido 20rps,resumen,54.696,94682.32,94681.59,0.73,0,0,timeout
+sostenido 20rps,filtrar,54.74,94672.71,94672.42,0.28,0,0,timeout
+sostenido 20rps,abrir ficha,54.767,94680.81,94680.52,0.29,0,0,timeout
+sostenido 20rps,listar libreta,54.799,94683.31,94682.92,0.39,0,0,timeout
+sostenido 20rps,listar libreta,54.805,94712.86,94711.4,1.46,0,0,timeout
+sostenido 20rps,listar libreta,54.982,94571.56,94570.79,0.77,0,0,timeout
+sostenido 20rps,resumen,55.03,94558.92,94558.45,0.47,0,0,timeout
+sostenido 20rps,resumen,55.044,94579.78,94579.26,0.52,0,0,timeout
+sostenido 20rps,abrir ficha,55.118,94540.35,94538.83,1.53,0,0,timeout
+sostenido 20rps,listar libreta,55.121,94572.13,94566.56,5.57,0,0,timeout
+sostenido 20rps,buscar por texto,55.174,94554.81,94554.5,0.3,0,0,timeout
+sostenido 20rps,etiquetas,55.265,94499.13,94498.09,1.04,0,0,timeout
+sostenido 20rps,listar libreta,55.358,94441.57,94440.35,1.22,0,0,timeout
+sostenido 20rps,abrir ficha,55.394,94439.98,94439.22,0.76,0,0,timeout
+sostenido 20rps,filtrar,55.472,94397.09,94396.41,0.68,0,0,timeout
+sostenido 20rps,resumen,55.501,94403.68,94403.44,0.24,0,0,timeout
+sostenido 20rps,etiquetas,55.502,94436.99,94430.57,6.42,0,0,timeout
+sostenido 20rps,listar libreta,55.622,94353.32,94352.62,0.7,0,0,timeout
+sostenido 20rps,abrir ficha,55.706,94304.9,94304.01,0.89,0,0,timeout
+sostenido 20rps,etiquetas,55.755,94291.33,94290.45,0.88,0,0,timeout
+sostenido 20rps,abrir ficha,55.762,94319.91,94317.14,2.77,0,0,timeout
+sostenido 20rps,listar libreta,55.767,94349.44,94344.2,5.24,0,0,timeout
+sostenido 20rps,buscar por texto,55.785,94367.08,94366.45,0.63,0,0,timeout
+sostenido 20rps,abrir ficha,55.788,94398.48,94386.88,11.59,0,0,timeout
+sostenido 20rps,resumen,55.824,94398.08,94396.94,1.13,0,0,timeout
+sostenido 20rps,abrir ficha,55.965,94292.27,94291.18,1.09,0,0,timeout
+sostenido 20rps,listar libreta,56.094,94197.76,94196.76,1.0,0,0,timeout
+sostenido 20rps,listar libreta,56.101,94225.57,94222.61,2.96,0,0,timeout
+sostenido 20rps,filtrar,56.123,94237.89,94237.39,0.5,0,0,timeout
+sostenido 20rps,resumen,56.152,94243.66,94242.62,1.04,0,0,timeout
+sostenido 20rps,buscar por texto,56.213,94216.99,94214.89,2.1,0,0,timeout
+sostenido 20rps,listar libreta,56.27,94194.35,94193.84,0.51,0,0,timeout
+sostenido 20rps,resumen,56.392,94106.17,94105.43,0.74,0,0,timeout
+sostenido 20rps,resumen,56.491,94042.17,94041.1,1.07,0,0,timeout
+sostenido 20rps,buscar por texto,56.502,94066.51,94065.58,0.94,0,0,timeout
+sostenido 20rps,listar libreta,56.541,94062.33,94061.95,0.38,0,0,timeout
+sostenido 20rps,listar libreta,56.581,94057.89,94057.27,0.62,0,0,timeout
+sostenido 20rps,resumen,56.608,94065.77,94063.97,1.8,0,0,timeout
+sostenido 20rps,resumen,56.635,94074.11,94072.97,1.14,0,0,timeout
+sostenido 20rps,listar libreta,56.697,94046.87,94046.56,0.3,0,0,timeout
+sostenido 20rps,abrir ficha,56.759,94018.63,94018.1,0.53,0,0,timeout
+sostenido 20rps,filtrar,56.801,94011.47,94011.26,0.2,0,0,timeout
+sostenido 20rps,abrir ficha,56.839,94007.81,94007.17,0.63,0,0,timeout
+sostenido 20rps,resumen,56.894,93986.8,93986.02,0.78,0,0,timeout
+sostenido 20rps,resumen,56.934,93981.34,93980.68,0.66,0,0,timeout
+sostenido 20rps,listar libreta,56.947,101550.32,101549.66,0.66,0,0,timeout
+sostenido 20rps,resumen,56.949,101569.5,101559.33,10.16,0,0,timeout
+sostenido 20rps,abrir ficha,57.079,101459.75,101458.85,0.9,0,0,timeout
+sostenido 20rps,resumen,57.112,101446.99,101446.5,0.49,0,0,timeout
+sostenido 20rps,abrir ficha,57.125,101455.66,101455.43,0.23,0,0,timeout
+sostenido 20rps,listar libreta,57.198,101402.9,101402.57,0.33,0,0,timeout
+sostenido 20rps,listar libreta,57.228,101393.51,101391.88,1.62,0,0,timeout
+sostenido 20rps,resumen,57.256,101386.87,101385.82,1.05,0,0,timeout
+sostenido 20rps,filtrar,57.346,101317.4,101316.35,1.05,0,0,timeout
+sostenido 20rps,resumen,57.443,101241.06,101240.51,0.55,0,0,timeout
+sostenido 20rps,listar libreta,57.472,101232.87,101232.55,0.32,0,0,timeout
+sostenido 20rps,etiquetas,57.474,101251.68,101241.8,9.88,0,0,timeout
+sostenido 20rps,listar libreta,57.498,101248.4,101247.37,1.03,0,0,timeout
+sostenido 20rps,buscar por texto,57.565,101203.04,101202.31,0.72,0,0,timeout
+sostenido 20rps,historial de la ficha,57.703,101085.58,101084.57,1.01,0,0,timeout
+sostenido 20rps,buscar por texto,57.749,101060.69,101059.62,1.07,0,0,timeout
+sostenido 20rps,abrir ficha,57.785,101045.84,101044.8,1.03,0,0,timeout
+sostenido 20rps,listar libreta,57.792,101060.32,101054.19,6.13,0,0,timeout
+sostenido 20rps,historial de la ficha,57.842,101043.76,101043.17,0.59,0,0,timeout
+sostenido 20rps,abrir ficha,57.846,101052.79,101044.55,8.24,0,0,timeout
+sostenido 20rps,resumen,57.863,101047.97,101045.38,2.58,0,0,timeout
+sostenido 20rps,listar libreta,57.912,101011.9,101010.99,0.91,0,0,timeout
+sostenido 20rps,listar libreta,58.189,100746.36,100745.06,1.3,0,0,timeout
+sostenido 20rps,resumen,58.267,100681.18,100680.01,1.18,0,0,timeout
+sostenido 20rps,abrir ficha,58.324,100638.42,100638.11,0.31,0,0,timeout
+sostenido 20rps,buscar por texto,58.34,100634.83,100634.52,0.31,0,0,timeout
+sostenido 20rps,etiquetas,58.35,100637.2,100633.86,3.34,0,0,timeout
+sostenido 20rps,resumen,58.401,100598.21,100596.63,1.58,0,0,timeout
+sostenido 20rps,abrir ficha,58.456,100556.0,100554.98,1.02,0,0,timeout
+sostenido 20rps,abrir ficha,58.502,100521.93,100521.72,0.22,0,0,timeout
+sostenido 20rps,abrir ficha,58.504,100532.46,100520.98,11.47,0,0,timeout
+sostenido 20rps,abrir ficha,58.51,100539.13,100520.54,18.59,0,0,timeout
+sostenido 20rps,listar libreta,58.573,100488.53,100487.93,0.6,0,0,timeout
+sostenido 20rps,filtrar,58.603,100470.14,100467.99,2.15,0,0,timeout
+sostenido 20rps,resumen,58.616,100470.39,100467.16,3.22,0,0,timeout
+sostenido 20rps,resumen,58.616,100481.79,100466.12,15.67,0,0,timeout
+sostenido 20rps,historial de la ficha,58.632,100478.94,100464.89,14.05,0,0,timeout
+sostenido 20rps,listar libreta,58.633,100490.22,100463.72,26.5,0,0,timeout
+sostenido 20rps,listar libreta,58.707,100428.9,100428.3,0.6,0,0,timeout
+sostenido 20rps,abrir ficha,58.734,100413.28,100412.62,0.66,0,0,timeout
+sostenido 20rps,listar libreta,58.76,100399.7,100398.93,0.77,0,0,timeout
+sostenido 20rps,listar libreta,58.781,100391.29,100390.98,0.31,0,0,timeout
+sostenido 20rps,buscar por texto,58.836,100348.82,100348.1,0.71,0,0,timeout
+sostenido 20rps,listar libreta,58.939,100258.01,100257.51,0.5,0,0,timeout
+sostenido 20rps,listar libreta,58.969,100240.97,100240.09,0.88,0,0,timeout
+sostenido 20rps,resumen,59.0,100222.43,100222.0,0.43,0,0,timeout
+sostenido 20rps,listar libreta,59.186,100047.97,100046.98,0.99,0,0,timeout
+sostenido 20rps,buscar por texto,59.187,100059.64,100044.63,15.01,0,0,timeout
+sostenido 20rps,resumen,59.253,100006.27,100005.59,0.68,0,0,timeout
+sostenido 20rps,filtrar,59.462,99809.75,99809.13,0.62,0,0,timeout
+sostenido 20rps,listar libreta,59.472,99811.65,99806.55,5.1,0,0,timeout
+sostenido 20rps,listar libreta,59.535,99760.57,99760.35,0.22,0,0,timeout
+sostenido 20rps,listar libreta,59.65,99657.95,99657.26,0.7,0,0,timeout
+sostenido 20rps,listar libreta,59.674,99646.47,99646.21,0.27,0,0,timeout
+sostenido 20rps,listar libreta,59.794,99539.39,99537.13,2.26,0,0,timeout
+sostenido 20rps,listar libreta,59.873,99472.81,99471.76,1.05,0,0,timeout
+sostenido 20rps,resumen,59.925,99433.22,99431.16,2.06,0,0,timeout
+sostenido 20rps,resumen,60.027,99342.89,99341.74,1.15,0,0,timeout
+sostenido 20rps,resumen,60.055,99327.12,99326.12,1.0,0,0,timeout
+sostenido 20rps,listar libreta,60.062,99332.8,99322.76,10.04,0,0,timeout
+sostenido 20rps,etiquetas,60.077,99330.61,99319.63,10.98,0,0,timeout
+sostenido 20rps,etiquetas,60.089,99330.23,99316.51,13.72,0,0,timeout
+sostenido 20rps,resumen,60.134,99297.96,99297.11,0.86,0,0,timeout
+sostenido 20rps,historial de la ficha,60.265,99179.62,99179.27,0.35,0,0,timeout
+sostenido 20rps,listar libreta,60.292,99164.65,99164.2,0.46,0,0,timeout
+sostenido 20rps,listar libreta,60.298,99171.48,99160.4,11.08,0,0,timeout
+sostenido 20rps,filtrar,60.299,99183.01,99156.97,26.04,0,0,timeout
+sostenido 20rps,abrir ficha,60.362,99132.07,99131.38,0.69,0,0,timeout
+sostenido 20rps,etiquetas,60.414,99092.78,99091.03,1.75,0,0,timeout
+sostenido 20rps,resumen,60.432,99087.48,99087.16,0.32,0,0,timeout
+sostenido 20rps,abrir ficha,60.53,99001.01,99000.18,0.83,0,0,timeout
+sostenido 20rps,resumen,60.546,98997.12,98995.77,1.35,0,0,timeout
+sostenido 20rps,etiquetas,60.613,98942.89,98942.62,0.27,0,0,timeout
+sostenido 20rps,listar libreta,60.623,98945.09,98938.22,6.87,0,0,timeout
+sostenido 20rps,abrir ficha,60.63,98950.6,98933.89,16.71,0,0,timeout
+sostenido 20rps,resumen,60.66,98932.47,98929.68,2.79,0,0,timeout
+sostenido 20rps,listar libreta,60.709,98895.89,98895.07,0.82,0,0,timeout
+sostenido 20rps,filtrar,60.71,98907.08,98889.89,17.2,0,0,timeout
+sostenido 20rps,listar libreta,60.739,98890.97,98885.44,5.53,0,0,timeout
+sostenido 20rps,abrir ficha,60.785,98857.11,98856.74,0.38,0,0,timeout
+sostenido 20rps,listar libreta,60.794,98860.76,98851.73,9.03,0,0,timeout
+sostenido 20rps,resumen,60.804,98863.4,98847.07,16.33,0,0,timeout
+sostenido 20rps,listar libreta,60.807,98872.95,98842.41,30.54,0,0,timeout
+sostenido 20rps,buscar por texto,60.854,98837.52,98836.53,0.99,0,0,timeout
+sostenido 20rps,abrir ficha,60.865,98839.19,98831.45,7.75,0,0,timeout
+sostenido 20rps,listar libreta,60.888,98828.9,98826.14,2.77,0,0,timeout
+sostenido 20rps,listar libreta,61.02,98708.53,98707.79,0.74,0,0,timeout
+sostenido 20rps,historial de la ficha,61.077,98664.79,98664.16,0.63,0,0,timeout
+sostenido 20rps,buscar por texto,61.232,30337.67,30336.52,1.15,0,0,timeout
+sostenido 20rps,resumen,61.281,30341.09,30340.32,0.77,0,0,timeout
+sostenido 20rps,resumen,61.295,30379.57,30373.86,5.71,0,0,timeout
+sostenido 20rps,listar libreta,61.311,30416.03,30407.86,8.17,0,0,timeout
+sostenido 20rps,buscar por texto,61.376,30508.73,30508.27,0.46,0,0,timeout
+sostenido 20rps,listar libreta,61.47,30736.16,30735.16,1.0,0,0,timeout
+sostenido 20rps,abrir ficha,61.555,30918.05,30916.89,1.16,0,0,timeout
+sostenido 20rps,listar libreta,61.623,30902.89,30901.96,0.93,0,0,timeout
+sostenido 20rps,resumen,61.639,30993.88,30989.73,4.15,0,0,timeout
+sostenido 20rps,resumen,61.646,31093.92,31077.86,16.06,0,0,timeout
+sostenido 20rps,etiquetas,61.646,31200.82,31166.2,34.62,0,0,timeout
+sostenido 20rps,listar libreta,61.662,31238.53,31198.92,39.61,0,0,timeout
+sostenido 20rps,etiquetas,61.736,31217.18,31216.15,1.03,0,0,timeout
+sostenido 20rps,listar libreta,61.775,31284.37,31284.06,0.31,0,0,timeout
+sostenido 20rps,etiquetas,61.86,31307.16,31306.47,0.69,0,0,timeout
+sostenido 20rps,buscar por texto,61.881,85623.91,85623.68,0.23,0,0,timeout
+sostenido 20rps,resumen,61.892,31388.27,31379.75,8.52,0,0,timeout
+sostenido 20rps,buscar por texto,61.9,31535.5,31515.58,19.92,0,0,timeout
+sostenido 20rps,resumen,61.948,31538.32,31537.11,1.21,0,0,timeout
+sostenido 20rps,listar libreta,61.974,31564.39,31563.73,0.66,0,0,timeout
+sostenido 20rps,buscar por texto,62.216,31841.88,31840.92,0.95,0,0,timeout
+sostenido 20rps,abrir ficha,62.333,31939.4,31938.76,0.64,0,0,timeout
+sostenido 20rps,resumen,62.499,32095.54,32094.33,1.21,0,0,timeout
+sostenido 20rps,buscar por texto,62.53,32176.06,32174.84,1.22,0,0,timeout
+sostenido 20rps,buscar por texto,62.581,32234.25,32233.79,0.46,0,0,timeout
+sostenido 20rps,listar libreta,62.676,32356.11,32355.55,0.57,0,0,timeout
+sostenido 20rps,etiquetas,62.719,32530.55,32530.18,0.37,0,0,timeout
+sostenido 20rps,abrir ficha,62.74,32563.24,32562.53,0.71,0,0,timeout
+sostenido 20rps,resumen,62.765,32648.76,32648.46,0.3,0,0,timeout
+sostenido 20rps,resumen,62.791,32786.29,32785.66,0.63,0,0,timeout
+sostenido 20rps,resumen,62.874,32871.26,32870.47,0.79,0,0,timeout
+sostenido 20rps,abrir ficha,62.958,32842.21,32841.13,1.08,0,0,timeout
+sostenido 20rps,resumen,63.033,32875.74,32874.75,0.99,0,0,timeout
+sostenido 20rps,listar libreta,63.11,32906.49,32905.53,0.96,0,0,timeout
+sostenido 20rps,resumen,63.189,32934.73,32933.99,0.74,0,0,timeout
+sostenido 20rps,buscar por texto,63.346,32941.38,32940.61,0.77,0,0,timeout
+sostenido 20rps,historial de la ficha,63.349,33045.17,33024.63,20.55,0,0,timeout
+sostenido 20rps,buscar por texto,63.374,33072.07,33056.0,16.07,0,0,timeout
+sostenido 20rps,resumen,63.388,33270.2,33246.59,23.61,0,0,timeout
+sostenido 20rps,filtrar,63.393,33318.18,33278.12,40.06,0,0,timeout
+sostenido 20rps,abrir ficha,63.48,33337.28,33335.55,1.73,0,0,timeout
+sostenido 20rps,buscar por texto,63.497,33373.42,33367.59,5.83,0,0,timeout
+sostenido 20rps,filtrar,63.552,33373.31,33373.03,0.28,0,0,timeout
+sostenido 20rps,abrir ficha,63.579,33401.71,33401.48,0.23,0,0,timeout
+sostenido 20rps,buscar por texto,63.59,33443.92,33433.9,10.02,0,0,timeout
+sostenido 20rps,listar libreta,63.595,33657.57,33630.77,26.81,0,0,timeout
+sostenido 20rps,listar libreta,63.603,33759.71,33718.69,41.02,0,0,timeout
+sostenido 20rps,filtrar,63.624,33902.63,33861.02,41.61,0,0,timeout
+sostenido 20rps,listar libreta,63.636,33944.29,33891.57,52.72,0,0,timeout
+sostenido 20rps,abrir ficha,63.685,33949.38,33923.62,25.77,0,0,timeout
+sostenido 20rps,listar libreta,63.75,33939.44,33938.99,0.45,0,0,timeout
+sostenido 20rps,resumen,63.78,33964.72,33964.41,0.32,0,0,timeout
+sostenido 20rps,listar libreta,63.799,33999.84,33995.51,4.33,0,0,timeout
+sostenido 20rps,etiquetas,63.817,34035.14,34025.83,9.31,0,0,timeout
+sostenido 20rps,buscar por texto,63.861,34044.9,34044.53,0.37,0,0,timeout
+sostenido 20rps,filtrar,63.897,34171.05,34169.83,1.22,0,0,timeout
+sostenido 20rps,abrir ficha,64.105,34235.4,34234.22,1.18,0,0,timeout
+sostenido 20rps,abrir ficha,64.125,34268.71,34264.6,4.11,0,0,timeout
+sostenido 20rps,resumen,64.145,34303.01,34295.36,7.65,0,0,timeout
+sostenido 20rps,buscar por texto,64.154,34402.24,34380.08,22.15,0,0,timeout
+sostenido 20rps,abrir ficha,64.163,34447.11,34410.67,36.45,0,0,timeout
+sostenido 20rps,resumen,64.178,34486.98,34441.93,45.04,0,0,timeout
+sostenido 20rps,resumen,64.203,34515.99,34473.07,42.92,0,0,timeout
+sostenido 20rps,listar libreta,64.221,34552.61,34504.25,48.36,0,0,timeout
+sostenido 20rps,buscar por texto,64.266,34560.34,34533.51,26.82,0,0,timeout
+sostenido 20rps,listar libreta,64.293,34585.64,34562.47,23.17,0,0,timeout
+sostenido 20rps,buscar por texto,64.301,34630.23,34590.88,39.35,0,0,timeout
+sostenido 20rps,buscar por texto,64.307,34727.59,34671.46,56.13,0,0,timeout
+sostenido 20rps,listar libreta,64.322,34764.86,34700.31,64.55,0,0,timeout
+sostenido 20rps,resumen,64.323,34815.91,34728.61,87.31,0,0,timeout
+sostenido 20rps,resumen,64.406,34784.97,34756.58,28.39,0,0,timeout
+sostenido 20rps,buscar por texto,64.444,34850.94,34836.87,14.07,0,0,timeout
+sostenido 20rps,abrir ficha,64.603,34849.15,34848.69,0.46,0,0,timeout
+sostenido 20rps,etiquetas,64.603,34952.68,34927.42,25.26,0,0,timeout
+sostenido 20rps,buscar por texto,64.702,35010.12,35009.09,1.04,0,0,timeout
+sostenido 20rps,historial de la ficha,64.736,35028.44,35027.65,0.79,0,0,timeout
+sostenido 20rps,abrir ficha,64.775,35147.85,35146.84,1.01,0,0,timeout
+sostenido 20rps,resumen,64.887,35195.41,35193.6,1.81,0,0,timeout
+sostenido 20rps,resumen,64.936,35199.78,35199.56,0.22,0,0,timeout
+sostenido 20rps,resumen,64.953,35289.69,35280.59,9.1,0,0,timeout
+sostenido 20rps,buscar por texto,64.992,35356.38,35355.49,0.89,0,0,timeout
+sostenido 20rps,listar libreta,65.008,35499.72,35489.57,10.15,0,0,timeout
+sostenido 20rps,listar libreta,65.045,35569.67,35569.02,0.66,0,0,timeout
+sostenido 20rps,filtrar,65.054,35613.38,35596.94,16.44,0,0,timeout
+sostenido 20rps,buscar por texto,65.054,35826.36,35784.51,41.84,0,0,timeout
+sostenido 20rps,listar libreta,65.058,35875.68,35812.33,63.35,0,0,timeout
+sostenido 20rps,listar libreta,65.17,35991.3,35990.65,0.66,0,0,timeout
+sostenido 20rps,buscar por texto,65.204,36010.65,36009.63,1.02,0,0,timeout
+sostenido 20rps,resumen,65.255,36172.81,36172.45,0.36,0,0,timeout
+sostenido 20rps,buscar por texto,65.317,36163.56,36162.39,1.17,0,0,timeout
+sostenido 20rps,listar libreta,65.385,36259.42,36258.97,0.45,0,0,timeout
+sostenido 20rps,listar libreta,65.421,36276.53,36276.07,0.47,0,0,timeout
+sostenido 20rps,buscar por texto,65.431,36373.99,36356.71,17.28,0,0,timeout
+sostenido 20rps,listar libreta,65.472,36389.14,36386.46,2.68,0,0,timeout
+sostenido 20rps,listar libreta,65.491,36475.8,36465.08,10.73,0,0,timeout
+sostenido 20rps,buscar por texto,65.518,36555.33,36544.84,10.49,0,0,timeout
+sostenido 20rps,buscar por texto,65.536,36589.6,36570.54,19.06,0,0,timeout
+sostenido 20rps,filtrar,65.651,36578.25,36577.34,0.91,0,0,timeout
+sostenido 20rps,resumen,65.664,36776.96,36761.25,15.72,0,0,timeout
+sostenido 20rps,listar libreta,65.689,36908.65,36892.03,16.62,0,0,timeout
+sostenido 20rps,buscar por texto,65.808,36950.11,36949.24,0.87,0,0,timeout
+sostenido 20rps,filtrar,65.822,36989.5,36974.42,15.09,0,0,timeout
+sostenido 20rps,buscar por texto,65.863,37054.34,37053.04,1.3,0,0,timeout
+sostenido 20rps,listar libreta,65.893,37133.08,37132.5,0.58,0,0,timeout
+sostenido 20rps,abrir ficha,65.928,37310.41,37310.0,0.41,0,0,timeout
+sostenido 20rps,listar libreta,65.935,37357.1,37335.74,21.36,0,0,timeout
+sostenido 20rps,resumen,66.002,37452.7,37452.02,0.67,0,0,timeout
+sostenido 20rps,filtrar,66.092,37523.31,37522.91,0.39,0,0,timeout
+sostenido 20rps,historial de la ficha,66.097,37627.17,37602.89,24.28,0,0,timeout
+sostenido 20rps,buscar por texto,66.161,37722.94,37722.64,0.3,0,0,timeout
+sostenido 20rps,listar libreta,66.181,37755.66,37747.71,7.95,0,0,timeout
+sostenido 20rps,buscar por texto,66.182,37809.93,37775.46,34.47,0,0,timeout
+sostenido 20rps,listar libreta,66.301,37797.76,37797.08,0.67,0,0,timeout
+sostenido 20rps,abrir ficha,66.349,37856.76,37855.82,0.95,0,0,timeout
+sostenido 20rps,resumen,66.405,37906.93,37906.16,0.77,0,0,timeout
+sostenido 20rps,buscar por texto,66.473,38000.76,38000.18,0.57,0,0,timeout
+sostenido 20rps,listar libreta,66.511,38072.5,38071.64,0.86,0,0,timeout
+sostenido 20rps,resumen,66.535,38102.93,38097.89,5.03,0,0,timeout
+sostenido 20rps,filtrar,66.57,38120.88,38120.73,0.15,0,0,timeout
+sostenido 20rps,buscar por texto,66.595,38149.43,38146.06,3.37,0,0,timeout
+sostenido 20rps,abrir ficha,66.802,38152.36,38151.31,1.05,0,0,timeout
+sostenido 20rps,etiquetas,66.804,38204.91,38175.21,29.7,0,0,timeout
+sostenido 20rps,listar libreta,66.815,38246.66,38198.49,48.17,0,0,timeout
+sostenido 20rps,filtrar,66.815,38298.29,38222.06,76.23,0,0,timeout
+sostenido 20rps,listar libreta,66.869,38348.72,38297.62,51.1,0,0,timeout
+sostenido 20rps,resumen,66.918,38351.46,38319.49,31.97,0,0,timeout
+sostenido 20rps,etiquetas,66.921,38400.88,38340.22,60.66,0,0,timeout
+sostenido 20rps,resumen,66.949,38480.48,38416.32,64.16,0,0,timeout
+sostenido 20rps,resumen,66.976,38609.52,38541.93,67.59,0,0,timeout
+sostenido 20rps,abrir ficha,67.017,38621.02,38564.26,56.76,0,0,timeout
+sostenido 20rps,resumen,67.189,38610.47,38609.78,0.69,0,0,timeout
+sostenido 20rps,resumen,67.298,38609.59,38608.49,1.1,0,0,timeout
+sostenido 20rps,listar libreta,67.395,38570.93,38570.37,0.56,0,0,timeout
+sostenido 20rps,listar libreta,67.437,38587.67,38586.7,0.97,0,0,timeout
+sostenido 20rps,abrir ficha,67.44,38638.27,38610.4,27.87,0,0,timeout
+sostenido 20rps,buscar por texto,67.44,38693.66,38636.38,57.27,0,0,timeout
+sostenido 20rps,buscar por texto,67.511,38728.96,38712.36,16.6,0,0,timeout
+sostenido 20rps,resumen,67.517,38776.7,38736.3,40.4,0,0,timeout
+sostenido 20rps,buscar por texto,67.546,38799.98,38758.51,41.47,0,0,timeout
+sostenido 20rps,resumen,67.602,39013.33,38998.44,14.89,0,0,timeout
+sostenido 20rps,listar libreta,67.633,39092.98,39078.9,14.08,0,0,timeout
+sostenido 20rps,resumen,67.788,39269.44,39268.21,1.23,0,0,timeout
+sostenido 20rps,abrir ficha,67.855,39363.6,39362.49,1.11,0,0,timeout
+sostenido 20rps,resumen,67.99,39393.13,39391.12,2.01,0,0,timeout
+sostenido 20rps,buscar por texto,68.087,39406.65,39405.43,1.21,0,0,timeout
+sostenido 20rps,buscar por texto,68.112,39437.18,39428.35,8.83,0,0,timeout
+sostenido 20rps,abrir ficha,68.134,39468.9,39449.39,19.5,0,0,timeout
+sostenido 20rps,listar libreta,68.147,39508.47,39470.64,37.82,0,0,timeout
+sostenido 20rps,etiquetas,68.224,39484.79,39483.67,1.11,0,0,timeout
+sostenido 20rps,resumen,68.298,39573.97,39572.94,1.02,0,0,timeout
+sostenido 20rps,abrir ficha,68.31,39616.84,39596.82,20.01,0,0,timeout
+sostenido 20rps,resumen,68.34,39641.85,39620.14,21.71,0,0,timeout
+sostenido 20rps,filtrar,68.694,39772.57,39771.83,0.74,0,0,timeout
+sostenido 20rps,resumen,68.701,39822.88,39797.36,25.52,0,0,timeout
+sostenido 20rps,historial de la ficha,68.883,39698.22,39697.52,0.7,0,0,timeout
+sostenido 20rps,abrir ficha,68.898,39853.24,39835.67,17.57,0,0,timeout
+sostenido 20rps,filtrar,68.923,39883.11,39858.57,24.54,0,0,timeout
+sostenido 20rps,listar libreta,68.991,39871.16,39870.65,0.51,0,0,timeout
+sostenido 20rps,abrir ficha,69.015,39954.79,39947.28,7.51,0,0,timeout
+sostenido 20rps,buscar por texto,69.08,40053.78,40053.42,0.36,0,0,timeout
+sostenido 20rps,buscar por texto,69.119,40068.67,40068.26,0.41,0,0,timeout
+sostenido 20rps,abrir ficha,69.173,40070.07,40069.85,0.22,0,0,timeout
+sostenido 20rps,listar libreta,69.233,40231.3,40230.87,0.43,0,0,timeout
+sostenido 20rps,resumen,69.306,40374.77,40374.06,0.72,0,0,timeout
+sostenido 20rps,buscar por texto,69.378,40521.13,40520.22,0.91,0,0,timeout
+sostenido 20rps,etiquetas,69.42,40588.88,40587.13,1.75,0,0,timeout
+sostenido 20rps,listar libreta,69.544,40685.25,40684.96,0.29,0,0,timeout
+sostenido 20rps,resumen,69.547,40793.35,40763.24,30.11,0,0,timeout
+sostenido 20rps,listar libreta,69.593,40858.08,40841.04,17.04,0,0,timeout
+sostenido 20rps,buscar por texto,69.615,40891.37,40864.14,27.23,0,0,timeout
+sostenido 20rps,listar libreta,69.755,40915.14,40914.06,1.07,0,0,timeout
+sostenido 20rps,buscar por texto,69.807,40917.75,40915.95,1.8,0,0,timeout
+sostenido 20rps,abrir ficha,69.824,40955.46,40937.47,18.0,0,0,timeout
+sostenido 20rps,abrir ficha,69.835,40999.87,40958.92,40.95,0,0,timeout
+sostenido 20rps,listar libreta,69.843,41046.73,40980.75,65.98,0,0,timeout
+sostenido 20rps,abrir ficha,69.909,41260.1,41226.62,33.48,0,0,timeout
+sostenido 20rps,resumen,70.035,41187.92,41186.51,1.41,0,0,timeout
+sostenido 20rps,filtrar,70.081,41249.38,41248.42,0.96,0,0,timeout
+sostenido 20rps,resumen,70.142,41243.06,41241.51,1.55,0,0,timeout
+sostenido 20rps,resumen,70.17,41268.29,41261.1,7.19,0,0,timeout
+sostenido 20rps,listar libreta,70.22,41271.23,41269.95,1.28,0,0,timeout
+sostenido 20rps,buscar por texto,70.243,41301.38,41288.37,13.01,0,0,timeout
+sostenido 20rps,listar libreta,70.277,41374.11,41359.69,14.42,0,0,timeout
+sostenido 20rps,abrir ficha,70.337,41422.35,41397.07,25.28,0,0,timeout
+sostenido 20rps,listar libreta,70.341,41525.76,41469.93,55.83,0,0,timeout
+sostenido 20rps,abrir ficha,70.402,41519.15,41487.37,31.78,0,0,timeout
+sostenido 20rps,buscar por texto,70.409,41565.06,41505.61,59.45,0,0,timeout
+sostenido 20rps,filtrar,70.427,41600.21,41523.21,77.01,0,0,timeout
+sostenido 20rps,listar libreta,70.473,41607.65,41540.08,67.57,0,0,timeout
+sostenido 20rps,abrir ficha,70.521,41614.49,41559.51,54.98,0,0,timeout
+sostenido 20rps,listar libreta,70.541,41757.3,41686.36,70.94,0,0,timeout
+sostenido 20rps,filtrar,70.554,41906.91,41812.87,94.05,0,0,timeout
+sostenido 20rps,listar libreta,70.613,41955.32,41847.89,107.42,0,0,timeout
+sostenido 20rps,listar libreta,70.747,41984.26,41974.39,9.87,0,0,timeout
+sostenido 20rps,abrir ficha,70.788,42105.54,42100.27,5.27,0,0,timeout
+sostenido 20rps,buscar por texto,70.85,42157.75,42140.95,16.8,0,0,timeout
+sostenido 20rps,resumen,70.909,42207.58,42140.61,66.96,0,0,timeout
+sostenido 20rps,buscar por texto,71.064,42384.73,42231.28,153.45,0,0,timeout
+sostenido 20rps,abrir ficha,71.08,42422.76,42250.9,171.87,0,0,timeout
+sostenido 20rps,listar libreta,71.099,42511.4,42323.34,188.06,0,0,timeout
+sostenido 20rps,abrir ficha,71.107,42557.63,42342.68,214.95,0,0,timeout
+sostenido 20rps,abrir ficha,71.116,42766.1,42454.5,311.6,0,0,timeout
+sostenido 20rps,listar libreta,71.125,42812.57,42472.54,340.03,0,0,timeout
+sostenido 20rps,resumen,71.243,42748.88,42491.77,257.11,0,0,timeout
+sostenido 20rps,filtrar,71.253,42793.99,42510.98,283.0,0,0,timeout
+sostenido 20rps,filtrar,71.313,42787.08,42530.25,256.82,0,0,timeout
+sostenido 20rps,abrir ficha,71.371,42837.44,42498.67,338.77,0,0,timeout
+sostenido 20rps,buscar por texto,71.372,42891.28,42518.86,372.42,0,0,timeout
+sostenido 20rps,resumen,71.373,42944.94,42539.25,405.7,0,0,timeout
+sostenido 20rps,listar libreta,71.435,42937.84,42560.26,377.58,0,0,timeout
+sostenido 20rps,filtrar,71.436,42990.09,42578.73,411.36,0,0,timeout
+sostenido 20rps,resumen,71.481,42997.17,42595.86,401.32,0,0,timeout
+sostenido 20rps,historial de la ficha,71.523,43007.94,42613.3,394.64,0,0,timeout
+sostenido 20rps,listar libreta,71.544,43039.3,42631.45,407.85,0,0,timeout
+sostenido 20rps,listar libreta,71.642,43207.8,42718.36,489.44,0,0,timeout
+sostenido 20rps,filtrar,71.678,43281.14,42792.62,488.52,0,0,timeout
+sostenido 20rps,resumen,71.76,43358.46,42917.35,441.11,0,0,timeout
+sostenido 20rps,listar libreta,71.809,43362.15,42936.13,426.02,0,0,timeout
+sostenido 20rps,resumen,71.898,43433.15,43061.02,372.13,0,0,timeout
+sostenido 20rps,abrir ficha,71.906,43532.97,43134.59,398.38,0,0,timeout
+sostenido 20rps,resumen,71.917,43575.83,43154.04,421.78,0,0,timeout
+sostenido 20rps,buscar por texto,72.204,43614.71,43303.59,311.11,0,0,timeout
+sostenido 20rps,listar libreta,72.215,43657.48,43322.43,335.04,0,0,timeout
+sostenido 20rps,buscar por texto,72.215,43712.15,43341.76,370.4,0,0,timeout
+sostenido 20rps,abrir ficha,72.232,43806.77,43417.98,388.79,0,0,timeout
+sostenido 20rps,buscar por texto,72.267,43893.07,43504.33,388.74,0,0,timeout
+sostenido 20rps,resumen,72.385,44433.15,43776.26,656.89,0,0,timeout
+sostenido 20rps,filtrar,72.415,44513.08,43852.12,660.96,0,0,timeout
+sostenido 20rps,etiquetas,72.451,44531.29,43872.26,659.04,0,0,timeout
+sostenido 20rps,abrir ficha,72.496,44541.73,43893.59,648.14,0,0,timeout
+sostenido 20rps,historial de la ficha,72.502,44645.46,43968.74,676.71,0,0,timeout
+sostenido 20rps,abrir ficha,72.524,44677.32,43989.38,687.95,0,0,timeout
+sostenido 20rps,buscar por texto,72.539,44775.29,44068.32,706.97,0,0,timeout
+sostenido 20rps,resumen,72.566,44804.87,44090.35,714.52,0,0,timeout
+sostenido 20rps,buscar por texto,72.631,44794.73,44111.18,683.55,0,0,timeout
+sostenido 20rps,resumen,72.74,44740.89,44123.35,617.54,0,0,timeout
+sostenido 20rps,etiquetas,72.8,118616.2,117818.39,797.81,0,0,timeout
+sostenido 20rps,buscar por texto,72.808,118608.71,117785.02,823.7,0,0,timeout
+sostenido 20rps,resumen,72.888,118528.15,117751.65,776.5,0,0,timeout
+sostenido 20rps,etiquetas,72.9,118516.41,117718.25,798.15,0,0,timeout
+sostenido 20rps,etiquetas,72.94,118477.06,117684.92,792.13,0,0,timeout
+sostenido 20rps,listar libreta,72.976,118441.51,117652.65,788.86,0,0,timeout
+sostenido 20rps,resumen,73.024,118393.34,117620.18,773.16,0,0,timeout
+sostenido 20rps,resumen,73.025,118392.37,117587.61,804.76,0,0,timeout
+sostenido 20rps,listar libreta,73.062,118355.77,117554.59,801.18,0,0,timeout
+sostenido 20rps,listar libreta,73.307,118110.73,117521.79,588.94,0,0,timeout
+sostenido 20rps,resumen,73.346,118072.1,117488.14,583.95,0,0,timeout
+sostenido 20rps,listar libreta,73.387,45359.14,44578.66,780.48,0,0,timeout
+sostenido 20rps,resumen,73.401,45561.33,44562.35,998.98,0,0,timeout
+sostenido 20rps,filtrar,73.427,45588.71,44583.25,1005.46,0,0,timeout
+sostenido 20rps,filtrar,73.506,45563.11,44604.14,958.97,0,0,timeout
+sostenido 20rps,abrir ficha,73.515,45659.95,44677.23,982.73,0,0,timeout
+sostenido 20rps,etiquetas,73.57,45657.72,44696.75,960.97,0,0,timeout
+sostenido 20rps,listar libreta,73.571,45762.18,44770.53,991.65,0,0,timeout
+sostenido 20rps,resumen,73.62,45765.81,44790.39,975.42,0,0,timeout
+sostenido 20rps,resumen,73.7,45739.08,44809.72,929.36,0,0,timeout
+sostenido 20rps,listar libreta,73.765,45726.08,44827.98,898.09,0,0,timeout
+sostenido 20rps,buscar por texto,73.79,45859.14,44952.83,906.31,0,0,timeout
+sostenido 20rps,resumen,73.831,45923.54,45024.97,898.57,0,0,timeout
+sostenido 20rps,etiquetas,73.862,45999.06,45096.84,902.21,0,0,timeout
+sostenido 20rps,listar libreta,73.863,46051.07,45115.98,935.09,0,0,timeout
+sostenido 20rps,resumen,73.902,46064.76,45135.49,929.27,0,0,timeout
+sostenido 20rps,listar libreta,73.912,46159.81,45206.3,953.51,0,0,timeout
+sostenido 20rps,filtrar,73.919,46366.89,45385.68,981.21,0,0,timeout
+sostenido 20rps,resumen,73.936,46456.99,45457.56,999.43,0,0,timeout
+sostenido 20rps,abrir ficha,73.991,46454.88,45434.83,1020.05,0,0,timeout
+sostenido 20rps,listar libreta,74.025,46474.52,45453.12,1021.4,0,0,timeout
+sostenido 20rps,resumen,74.031,46521.32,45472.77,1048.55,0,0,timeout
+sostenido 20rps,buscar por texto,74.037,46620.28,45543.11,1077.17,0,0,timeout
+sostenido 20rps,abrir ficha,74.038,46727.22,45617.0,1110.22,0,0,timeout
+sostenido 20rps,filtrar,74.112,46758.39,45686.61,1071.78,0,0,timeout
+sostenido 20rps,resumen,74.148,46877.48,45807.76,1069.72,0,0,timeout
+sostenido 20rps,listar libreta,74.185,46890.78,45825.22,1065.56,0,0,timeout
+sostenido 20rps,resumen,74.217,47539.17,46163.07,1376.1,0,0,timeout
+sostenido 20rps,listar libreta,74.224,47695.44,46292.6,1402.84,0,0,timeout
+sostenido 20rps,resumen,74.283,47743.42,46365.66,1377.76,0,0,timeout
+sostenido 20rps,listar libreta,74.419,47662.42,46386.86,1275.55,0,0,timeout
+sostenido 20rps,buscar por texto,74.451,47790.84,46513.83,1277.0,0,0,timeout
+sostenido 20rps,buscar por texto,74.458,47838.64,46534.19,1304.45,0,0,timeout
+sostenido 20rps,buscar por texto,74.508,47896.16,46608.15,1288.02,0,0,timeout
+sostenido 20rps,abrir ficha,74.509,48002.52,46681.38,1321.13,0,0,timeout
+sostenido 20rps,etiquetas,74.543,48074.31,46753.57,1320.74,0,0,timeout
+sostenido 20rps,listar libreta,74.552,48118.22,46772.62,1345.6,0,0,timeout
+sostenido 20rps,abrir ficha,74.555,48330.65,46954.07,1376.58,0,0,timeout
+sostenido 20rps,buscar por texto,74.645,48351.03,47029.13,1321.9,0,0,timeout
+sostenido 20rps,resumen,74.65,48399.33,47048.19,1351.14,0,0,timeout
+sostenido 20rps,historial de la ficha,74.686,48419.58,47068.52,1351.06,0,0,timeout
+sostenido 20rps,resumen,74.83,48436.28,47194.61,1241.66,0,0,timeout
+sostenido 20rps,filtrar,74.884,48436.43,47213.35,1223.08,0,0,timeout
+sostenido 20rps,listar libreta,74.937,48489.07,47286.09,1202.98,0,0,timeout
+sostenido 20rps,historial de la ficha,74.977,48725.38,47419.2,1306.18,0,0,timeout
+sostenido 20rps,resumen,75.024,48890.5,47597.33,1293.17,0,0,timeout
+sostenido 20rps,buscar por texto,75.062,48960.49,47672.27,1288.21,0,0,timeout
+sostenido 20rps,listar libreta,75.063,49011.67,47692.36,1319.31,0,0,timeout
+sostenido 20rps,listar libreta,75.11,49069.58,47764.95,1304.63,0,0,timeout
+sostenido 20rps,listar libreta,75.164,49068.28,47784.87,1283.42,0,0,timeout
+sostenido 20rps,buscar por texto,75.206,49079.92,47805.68,1274.24,0,0,timeout
+sostenido 20rps,etiquetas,75.233,49106.03,47822.65,1283.38,0,0,timeout
+sostenido 20rps,buscar por texto,75.239,49205.22,47895.23,1310.0,0,0,timeout
+sostenido 20rps,listar libreta,75.268,49229.91,47915.06,1314.84,0,0,timeout
+sostenido 20rps,listar libreta,75.287,50031.73,48197.53,1834.2,0,0,timeout
+sostenido 20rps,resumen,75.304,50069.91,48219.02,1850.89,0,0,timeout
+sostenido 20rps,buscar por texto,75.36,50068.14,48240.4,1827.74,0,0,timeout
+sostenido 20rps,listar libreta,75.406,50132.1,48316.97,1815.14,0,0,timeout
+sostenido 20rps,resumen,75.519,50129.02,48394.16,1734.86,0,0,timeout
+sostenido 20rps,buscar por texto,75.557,50199.8,48469.29,1730.52,0,0,timeout
+sostenido 20rps,buscar por texto,75.591,50276.05,48541.96,1734.09,0,0,timeout
+sostenido 20rps,resumen,75.651,50270.44,48562.41,1708.03,0,0,timeout
+sostenido 20rps,buscar por texto,75.695,50282.64,48584.43,1698.21,0,0,timeout
+sostenido 20rps,listar libreta,75.753,50279.15,48604.08,1675.08,0,0,timeout
+sostenido 20rps,buscar por texto,75.985,50111.84,48632.78,1479.06,0,0,timeout
+sostenido 20rps,resumen,75.992,50218.05,48711.61,1506.44,0,0,timeout
+sostenido 20rps,resumen,75.993,50270.35,48731.68,1538.67,0,0,timeout
+sostenido 20rps,buscar por texto,76.029,50344.61,48807.82,1536.79,0,0,timeout
+sostenido 20rps,resumen,76.04,50387.94,48827.75,1560.19,0,0,timeout
+sostenido 20rps,etiquetas,76.116,50421.12,48901.19,1519.93,0,0,timeout
+sostenido 20rps,listar libreta,76.224,50424.71,48826.54,1598.16,0,0,timeout
+sostenido 20rps,resumen,76.36,50451.89,48955.37,1496.52,0,0,timeout
+sostenido 20rps,resumen,76.407,50511.13,49029.71,1481.42,0,0,timeout
+sostenido 20rps,etiquetas,76.423,50550.19,49052.15,1498.04,0,0,timeout
+sostenido 20rps,listar libreta,76.475,50550.41,49072.31,1478.1,0,0,timeout
+sostenido 20rps,listar libreta,76.543,50643.02,49200.24,1442.79,0,0,timeout
+sostenido 20rps,resumen,76.548,50743.16,49272.87,1470.29,0,0,timeout
+sostenido 20rps,buscar por texto,76.591,50752.29,49293.08,1459.21,0,0,timeout
+sostenido 20rps,abrir ficha,76.606,50842.92,49364.59,1478.33,0,0,timeout
+sostenido 20rps,abrir ficha,76.643,51874.4,49727.15,2147.25,0,0,timeout
+sostenido 20rps,resumen,76.663,51910.42,49750.95,2159.47,0,0,timeout
+sostenido 20rps,listar libreta,76.705,51923.8,49774.43,2149.37,0,0,timeout
+sostenido 20rps,abrir ficha,76.802,51881.99,49797.52,2084.48,0,0,timeout
+sostenido 20rps,resumen,76.818,51922.68,49821.48,2101.2,0,0,timeout
+sostenido 20rps,listar libreta,76.835,52069.79,49952.95,2116.85,0,0,timeout
+sostenido 20rps,listar libreta,76.932,52028.57,49972.73,2055.84,0,0,timeout
+sostenido 20rps,etiquetas,76.974,52095.43,50049.3,2046.12,0,0,timeout
+sostenido 20rps,listar libreta,76.987,52138.54,50071.23,2067.31,0,0,timeout
+sostenido 20rps,listar libreta,77.002,52177.98,50092.55,2085.43,0,0,timeout
+sostenido 20rps,abrir ficha,77.094,52195.4,50168.21,2027.19,0,0,timeout
+sostenido 20rps,buscar por texto,77.111,52342.87,50298.88,2043.98,0,0,timeout
+sostenido 20rps,listar libreta,77.111,52451.06,50372.87,2078.18,0,0,timeout
+sostenido 20rps,filtrar,77.195,52421.47,50393.71,2027.75,0,0,timeout
+sostenido 20rps,buscar por texto,77.278,52449.77,50471.43,1978.34,0,0,timeout
+sostenido 20rps,filtrar,77.282,52500.38,50492.14,2008.24,0,0,timeout
+sostenido 20rps,listar libreta,77.294,52650.38,50620.53,2029.84,0,0,timeout
+sostenido 20rps,buscar por texto,77.469,52583.63,50687.95,1895.67,0,0,timeout
+sostenido 20rps,listar libreta,77.737,52533.88,50708.9,1824.98,0,0,timeout
+sostenido 20rps,resumen,77.769,52554.88,50725.12,1829.77,0,0,timeout
+sostenido 20rps,filtrar,77.772,52606.61,50747.16,1859.44,0,0,timeout
+sostenido 20rps,listar libreta,77.801,52631.26,50767.83,1863.43,0,0,timeout
+sostenido 20rps,abrir ficha,77.888,52651.96,50842.81,1809.16,0,0,timeout
+sostenido 20rps,abrir ficha,77.89,52757.67,50919.3,1838.37,0,0,timeout
+sostenido 20rps,resumen,77.902,52852.98,50994.17,1858.81,0,0,timeout
+sostenido 20rps,abrir ficha,77.966,52952.7,51124.43,1828.27,0,0,timeout
+sostenido 20rps,abrir ficha,78.006,53021.99,51200.77,1821.23,0,0,timeout
+sostenido 20rps,resumen,78.109,52974.81,51220.74,1754.07,0,0,timeout
+sostenido 20rps,listar libreta,78.235,53736.86,51460.32,2276.54,0,0,timeout
+sostenido 20rps,etiquetas,78.271,53756.22,51485.03,2271.19,0,0,timeout
+sostenido 20rps,listar libreta,78.271,53868.08,51567.02,2301.06,0,0,timeout
+sostenido 20rps,resumen,78.288,53961.69,51646.67,2315.02,0,0,timeout
+sostenido 20rps,resumen,78.382,53977.95,51725.93,2252.02,0,0,timeout
+sostenido 20rps,historial de la ficha,78.58,53835.86,51750.21,2085.65,0,0,timeout
+sostenido 20rps,buscar por texto,78.617,53856.75,51776.5,2080.25,0,0,timeout
+sostenido 20rps,resumen,78.621,53908.62,51801.76,2106.85,0,0,timeout
+sostenido 20rps,listar libreta,78.67,53971.27,51882.81,2088.46,0,0,timeout
+sostenido 20rps,listar libreta,78.704,54047.24,51961.62,2085.61,0,0,timeout
+sostenido 20rps,abrir ficha,78.724,54252.29,52155.58,2096.7,0,0,timeout
+sostenido 20rps,listar libreta,78.795,54237.61,52180.15,2057.46,0,0,timeout
+sostenido 20rps,filtrar,78.818,54272.03,52205.76,2066.27,0,0,timeout
+sostenido 20rps,abrir ficha,79.005,54194.71,52283.1,1911.61,0,0,timeout
+sostenido 20rps,filtrar,79.087,54221.38,52359.31,1862.07,0,0,timeout
+sostenido 20rps,resumen,79.11,54252.34,52378.02,1874.32,0,0,timeout
+sostenido 20rps,listar libreta,79.157,54260.48,52397.74,1862.74,0,0,timeout
+sostenido 20rps,buscar por texto,79.174,54297.31,52419.47,1877.84,0,0,timeout
+sostenido 20rps,abrir ficha,79.218,54416.98,52549.05,1867.93,0,0,timeout
+sostenido 20rps,listar libreta,79.224,54520.36,52625.18,1895.18,0,0,timeout
+sostenido 20rps,etiquetas,79.253,54546.54,52647.55,1898.98,0,0,timeout
+sostenido 20rps,resumen,79.288,54619.26,52722.24,1897.02,0,0,timeout
+sostenido 20rps,abrir ficha,79.3,54662.56,52744.22,1918.34,0,0,timeout
+sostenido 20rps,abrir ficha,79.33,54686.93,52764.77,1922.16,0,0,timeout
+sostenido 20rps,listar libreta,79.38,54803.99,52897.81,1906.18,0,0,timeout
+sostenido 20rps,buscar por texto,79.432,55082.87,52883.07,2199.8,0,0,timeout
+sostenido 20rps,buscar por texto,79.438,55133.33,52906.94,2226.39,0,0,timeout
+sostenido 20rps,listar libreta,79.79,54892.24,52987.04,1905.2,0,0,timeout
+sostenido 20rps,resumen,79.803,54935.54,53013.81,1921.74,0,0,timeout
+sostenido 20rps,buscar por texto,79.827,54968.04,53040.17,1927.86,0,0,timeout
+sostenido 20rps,listar libreta,79.931,55987.37,53338.77,2648.6,0,0,timeout
+sostenido 20rps,listar libreta,80.018,55957.06,53365.47,2591.59,0,0,timeout
+sostenido 20rps,resumen,80.136,55950.12,53448.42,2501.69,0,0,timeout
+sostenido 20rps,listar libreta,80.138,56119.85,53590.92,2528.93,0,0,timeout
+sostenido 20rps,buscar por texto,80.161,56152.8,53618.18,2534.62,0,0,timeout
+sostenido 20rps,resumen,80.215,56265.11,53754.4,2510.71,0,0,timeout
+sostenido 20rps,buscar por texto,80.238,56297.45,53780.61,2516.84,0,0,timeout
+sostenido 20rps,listar libreta,80.243,56347.98,53807.47,2540.52,0,0,timeout
+sostenido 20rps,listar libreta,80.369,56331.86,53887.92,2443.93,0,0,timeout
+sostenido 20rps,resumen,80.4,56521.93,54079.05,2442.88,0,0,timeout
+sostenido 20rps,resumen,80.402,56576.74,54104.68,2472.06,0,0,timeout
+sostenido 20rps,listar libreta,80.473,56560.51,54129.66,2430.85,0,0,timeout
+sostenido 20rps,abrir ficha,80.52,56569.29,54154.45,2414.84,0,0,timeout
+sostenido 20rps,historial de la ficha,80.615,56528.23,54178.46,2349.77,0,0,timeout
+sostenido 20rps,resumen,80.639,56675.38,54317.85,2357.53,0,0,timeout
+sostenido 20rps,listar libreta,80.651,56720.46,54344.65,2375.81,0,0,timeout
+sostenido 20rps,buscar por texto,80.743,56684.41,54370.32,2314.09,0,0,timeout
+sostenido 20rps,abrir ficha,80.822,56776.95,54511.05,2265.9,0,0,timeout
+sostenido 20rps,etiquetas,80.883,56829.18,54591.32,2237.86,0,0,timeout
+sostenido 20rps,resumen,81.069,56756.55,54673.66,2082.89,0,0,timeout
+sostenido 20rps,buscar por texto,81.106,56776.01,54699.52,2076.49,0,0,timeout
+sostenido 20rps,filtrar,81.317,56682.07,54785.66,1896.42,0,0,timeout
+sostenido 20rps,resumen,81.319,56793.52,54868.33,1925.19,0,0,timeout
+sostenido 20rps,buscar por texto,81.559,56950.89,54948.36,2002.53,0,0,timeout
+sostenido 20rps,buscar por texto,81.669,56897.79,54977.09,1920.7,0,0,timeout
+sostenido 20rps,listar libreta,81.732,56891.19,55006.78,1884.41,0,0,timeout
+sostenido 20rps,listar libreta,81.756,56924.45,55036.58,1887.87,0,0,timeout
+sostenido 20rps,etiquetas,81.769,56968.08,55065.66,1902.42,0,0,timeout
+sostenido 20rps,resumen,81.882,57659.71,55104.95,2554.76,0,0,timeout
+sostenido 20rps,etiquetas,81.897,57700.84,55133.93,2566.91,0,0,timeout
+sostenido 20rps,filtrar,81.898,57757.11,55163.59,2593.52,0,0,timeout
+sostenido 20rps,filtrar,81.921,57790.5,55192.81,2597.69,0,0,timeout
+sostenido 20rps,listar libreta,81.93,57893.61,55277.08,2616.53,0,0,timeout
+sostenido 20rps,abrir ficha,81.946,57933.38,55305.5,2627.88,0,0,timeout
+sostenido 20rps,filtrar,81.956,57979.1,55333.65,2645.45,0,0,timeout
+sostenido 20rps,abrir ficha,81.97,58020.51,55361.35,2659.16,0,0,timeout
+sostenido 20rps,buscar por texto,81.973,58184.01,55499.2,2684.81,0,0,timeout
+sostenido 20rps,listar libreta,82.045,58166.58,55525.59,2640.99,0,0,timeout
+sostenido 20rps,resumen,82.06,58262.24,55607.49,2654.75,0,0,timeout
+sostenido 20rps,listar libreta,82.082,58294.58,55634.48,2660.11,0,0,timeout
+sostenido 20rps,resumen,82.098,58446.2,55719.25,2726.95,0,0,timeout
+sostenido 20rps,etiquetas,82.172,58428.17,55745.79,2682.38,0,0,timeout
+sostenido 20rps,listar libreta,82.266,58391.53,55773.9,2617.63,0,0,timeout
+sostenido 20rps,listar libreta,82.268,58445.87,55801.1,2644.77,0,0,timeout
+sostenido 20rps,buscar por texto,82.285,58541.27,55884.33,2656.94,0,0,timeout
+sostenido 20rps,resumen,82.317,58735.18,56081.0,2654.18,0,0,timeout
+sostenido 20rps,abrir ficha,82.427,58793.83,56219.88,2573.95,0,0,timeout
+sostenido 20rps,abrir ficha,82.479,58856.97,56305.59,2551.38,0,0,timeout
+sostenido 20rps,abrir ficha,82.495,58897.78,56332.8,2564.98,0,0,timeout
+sostenido 20rps,resumen,82.569,58936.28,56415.84,2520.44,0,0,timeout
+sostenido 20rps,abrir ficha,82.582,58980.58,56443.72,2536.86,0,0,timeout
+sostenido 20rps,abrir ficha,82.71,58910.42,56470.92,2439.5,0,0,timeout
+sostenido 20rps,listar libreta,82.727,58953.34,56501.08,2452.26,0,0,timeout
+sostenido 20rps,buscar por texto,82.772,58965.01,56528.29,2436.72,0,0,timeout
+sostenido 20rps,resumen,82.887,58969.91,56617.77,2352.14,0,0,timeout
+sostenido 20rps,listar libreta,82.947,59025.72,56702.9,2322.82,0,0,timeout
+sostenido 20rps,abrir ficha,83.069,58961.87,56730.08,2231.79,0,0,timeout
+sostenido 20rps,listar libreta,83.106,59037.44,56813.17,2224.27,0,0,timeout
+sostenido 20rps,listar libreta,83.142,59114.95,56895.76,2219.19,0,0,timeout
+sostenido 20rps,filtrar,83.151,59161.98,56921.22,2240.76,0,0,timeout
+sostenido 20rps,filtrar,83.221,59261.07,57060.45,2200.63,0,0,timeout
+sostenido 20rps,buscar por texto,83.255,59284.0,57086.97,2197.03,0,0,timeout
+sostenido 20rps,abrir ficha,83.428,59224.78,57160.18,2064.6,0,0,timeout
+sostenido 20rps,abrir ficha,83.438,59271.68,57185.84,2085.84,0,0,timeout
+sostenido 20rps,buscar por texto,83.462,59305.22,57212.77,2092.45,0,0,timeout
+sostenido 20rps,listar libreta,83.604,59219.82,57238.95,1980.87,0,0,timeout
+sostenido 20rps,buscar por texto,83.702,59187.26,57250.87,1936.39,0,0,timeout
+sostenido 20rps,etiquetas,83.736,59210.56,57275.21,1935.35,0,0,timeout
+sostenido 20rps,resumen,84.001,59001.21,57298.73,1702.47,0,0,timeout
+sostenido 20rps,resumen,84.022,59035.71,57321.64,1714.07,0,0,timeout
+sostenido 20rps,etiquetas,84.034,59154.76,57420.51,1734.25,0,0,timeout
+sostenido 20rps,buscar por texto,84.038,59207.77,57445.6,1762.17,0,0,timeout
+sostenido 20rps,historial de la ficha,84.135,59222.89,57525.02,1697.87,0,0,timeout
+sostenido 20rps,resumen,84.174,59292.23,57600.62,1691.61,0,0,timeout
+sostenido 20rps,resumen,84.306,59213.77,57622.27,1591.5,0,0,timeout
+sostenido 20rps,resumen,84.331,59243.68,57644.1,1599.57,0,0,timeout
+sostenido 20rps,listar libreta,84.357,59271.95,57666.23,1605.72,0,0,timeout
+sostenido 20rps,resumen,84.539,59144.88,57687.1,1457.78,0,0,timeout
+sostenido 20rps,listar libreta,84.552,59186.8,57708.99,1477.8,0,0,timeout
+sostenido 20rps,etiquetas,84.621,59173.27,57730.46,1442.8,0,0,timeout
+sostenido 20rps,resumen,84.622,59226.07,57752.02,1474.05,0,0,timeout
+sostenido 20rps,listar libreta,84.654,59306.25,57831.28,1474.97,0,0,timeout
+sostenido 20rps,listar libreta,84.693,59380.35,57911.32,1469.02,0,0,timeout
+sostenido 20rps,buscar por texto,84.698,59430.99,57933.99,1497.0,0,0,timeout
+sostenido 20rps,resumen,84.713,59527.04,58011.84,1515.2,0,0,timeout
+sostenido 20rps,listar libreta,84.829,59629.61,58196.97,1432.64,0,0,timeout
+sostenido 20rps,listar libreta,84.867,59701.92,58273.91,1428.01,0,0,timeout
+sostenido 20rps,abrir ficha,85.013,59610.98,58294.91,1316.06,0,0,timeout
+sostenido 20rps,resumen,85.059,59676.32,58372.65,1303.67,0,0,timeout
+sostenido 20rps,buscar por texto,85.253,59598.74,58455.64,1143.1,0,0,timeout
+sostenido 20rps,listar libreta,85.298,59608.24,58477.33,1130.91,0,0,timeout
+sostenido 20rps,resumen,85.441,59630.11,58608.61,1021.5,0,0,timeout
+sostenido 20rps,etiquetas,85.472,59654.28,58630.17,1024.11,0,0,timeout
+sostenido 20rps,listar libreta,85.608,59574.54,58647.0,927.54,0,0,timeout
+sostenido 20rps,etiquetas,85.61,59627.04,58667.15,959.89,0,0,timeout
+sostenido 20rps,resumen,85.612,59842.51,58850.56,991.95,0,0,timeout
+sostenido 20rps,resumen,85.827,59799.16,58971.41,827.75,0,0,timeout
+sostenido 20rps,historial de la ficha,85.898,59838.14,59044.2,793.94,0,0,timeout
+sostenido 20rps,listar libreta,85.948,59907.16,59125.82,781.34,0,0,timeout
+sostenido 20rps,listar libreta,85.967,59944.6,59143.35,801.25,0,0,timeout
+sostenido 20rps,resumen,86.004,59963.24,59162.26,800.98,0,0,timeout
+sostenido 20rps,buscar por texto,86.055,60022.56,59234.59,787.97,0,0,timeout
+sostenido 20rps,resumen,86.099,60090.5,59308.76,781.74,0,0,timeout
+sostenido 20rps,etiquetas,86.111,60132.05,59325.09,806.96,0,0,timeout
+sostenido 20rps,resumen,86.137,60161.01,59341.64,819.38,0,0,timeout
+sostenido 20rps,etiquetas,86.143,60209.19,59358.12,851.07,0,0,timeout
+sostenido 20rps,resumen,86.214,60192.36,59373.49,818.87,0,0,timeout
+sostenido 20rps,resumen,86.215,60245.23,59388.53,856.7,0,0,timeout
+sostenido 20rps,abrir ficha,86.259,60309.69,59458.12,851.58,0,0,timeout
+sostenido 20rps,abrir ficha,86.261,60362.13,59472.44,889.69,0,0,timeout
+sostenido 20rps,listar libreta,86.288,60441.48,59540.98,900.5,0,0,timeout
+sostenido 20rps,buscar por texto,86.289,60551.91,59613.41,938.5,0,0,timeout
+sostenido 20rps,abrir ficha,86.353,60540.42,59627.37,913.05,0,0,timeout
+sostenido 20rps,resumen,86.422,60577.66,59695.11,882.54,0,0,timeout
+sostenido 20rps,etiquetas,86.428,60624.66,59710.03,914.63,0,0,timeout
+sostenido 20rps,filtrar,86.489,60670.71,59777.85,892.86,0,0,timeout
+sostenido 20rps,etiquetas,86.491,60777.19,59846.42,930.77,0,0,timeout
+sostenido 20rps,buscar por texto,86.546,60810.12,59886.99,923.13,0,0,timeout
+sostenido 20rps,resumen,86.624,60766.78,59880.91,885.87,0,0,timeout
+sostenido 20rps,etiquetas,86.697,104752.35,103884.22,868.13,0,0,timeout
+sostenido 20rps,abrir ficha,86.877,104572.32,103840.89,731.43,0,0,timeout
+sostenido 20rps,resumen,86.922,104527.88,103798.0,729.88,0,0,timeout
+sostenido 20rps,filtrar,86.964,104486.81,103754.89,731.91,0,0,timeout
+sostenido 20rps,resumen,86.973,104477.65,103711.76,765.88,0,0,timeout
+sostenido 20rps,buscar por texto,87.051,104400.58,103669.32,731.25,0,0,timeout
+sostenido 20rps,listar libreta,87.057,104394.83,103625.43,769.4,0,0,timeout
+sostenido 20rps,resumen,87.106,104346.61,103579.52,767.09,0,0,timeout
+sostenido 20rps,buscar por texto,87.14,104312.72,103532.31,780.41,0,0,timeout
+sostenido 20rps,buscar por texto,87.151,104301.98,103488.67,813.31,0,0,timeout
+sostenido 20rps,listar libreta,87.184,104269.2,103444.58,824.62,0,0,timeout
+sostenido 20rps,duplicados,87.236,134219.66,133403.9,815.76,0,0,timeout
+sostenido 20rps,filtrar,87.284,104169.41,103359.61,809.79,0,0,timeout
+sostenido 20rps,buscar por texto,87.467,103986.35,103312.71,673.63,0,0,timeout
+sostenido 20rps,abrir ficha,87.472,103983.39,103270.93,712.47,0,0,timeout
+sostenido 20rps,resumen,87.499,103956.42,103226.42,730.0,0,0,timeout
+sostenido 20rps,buscar por texto,87.522,103934.07,103182.38,751.69,0,0,timeout
+sostenido 20rps,resumen,87.565,103890.58,103130.93,759.65,0,0,timeout
+sostenido 20rps,resumen,87.606,103850.33,103083.96,766.38,0,0,timeout
+sostenido 20rps,resumen,87.629,103827.48,103037.01,790.47,0,0,timeout
+sostenido 20rps,abrir ficha,87.644,103812.31,102989.95,822.35,0,0,timeout
+sostenido 20rps,listar libreta,87.646,103812.09,102944.01,868.09,0,0,timeout
+sostenido 20rps,resumen,87.678,103780.59,102896.92,883.67,0,0,timeout
+sostenido 20rps,etiquetas,87.733,103725.01,102850.17,874.85,0,0,timeout
+sostenido 20rps,listar libreta,87.734,103724.82,102802.69,922.12,0,0,timeout
+sostenido 20rps,listar libreta,87.887,103573.29,102756.46,816.83,0,0,timeout
+sostenido 20rps,listar libreta,87.95,103510.45,102708.98,801.47,0,0,timeout
+sostenido 20rps,resumen,88.016,103444.6,102661.45,783.16,0,0,timeout
+sostenido 20rps,buscar por texto,88.031,103429.16,102613.71,815.45,0,0,timeout
+sostenido 20rps,listar libreta,88.182,103278.81,102562.49,716.32,0,0,timeout
+sostenido 20rps,listar libreta,88.191,103270.22,102514.61,755.6,0,0,timeout
+sostenido 20rps,buscar por texto,88.208,103253.28,102466.99,786.29,0,0,timeout
+sostenido 20rps,resumen,88.293,103168.73,102416.48,752.25,0,0,timeout
+sostenido 20rps,listar libreta,88.34,103121.64,102359.82,761.82,0,0,timeout
+sostenido 20rps,listar libreta,88.394,103067.52,102310.69,756.83,0,0,timeout
+sostenido 20rps,listar libreta,88.583,102878.55,102261.79,616.76,0,0,timeout
+sostenido 20rps,listar libreta,88.594,102871.2,102216.11,655.09,0,0,timeout
+sostenido 20rps,etiquetas,88.603,102862.23,102165.95,696.28,0,0,timeout
+sostenido 20rps,listar libreta,88.678,102787.3,102115.79,671.51,0,0,timeout
+sostenido 20rps,etiquetas,88.933,102532.76,102064.96,467.79,0,0,timeout
+sostenido 20rps,abrir ficha,89.065,102401.04,102015.08,385.96,0,0,timeout
+sostenido 20rps,filtrar,89.08,102389.55,101968.1,421.45,0,0,timeout
+sostenido 20rps,listar libreta,89.107,102363.02,101917.23,445.79,0,0,timeout
+sostenido 20rps,etiquetas,89.129,102340.57,101867.45,473.12,0,0,timeout
+sostenido 20rps,listar libreta,89.146,102324.39,101816.96,507.43,0,0,timeout
+sostenido 20rps,buscar por texto,89.148,102322.1,101766.77,555.33,0,0,timeout
+sostenido 20rps,filtrar,89.22,102250.59,101717.25,533.34,0,0,timeout
+sostenido 20rps,resumen,89.222,102249.23,101667.82,581.41,0,0,timeout
+sostenido 20rps,abrir ficha,89.224,102246.64,101617.73,628.91,0,0,timeout
+sostenido 20rps,listar libreta,89.241,102230.56,101567.65,662.91,0,0,timeout
+sostenido 20rps,filtrar,89.36,102111.08,101514.94,596.13,0,0,timeout
+sostenido 20rps,etiquetas,89.433,102038.74,101464.04,574.7,0,0,timeout
+sostenido 20rps,buscar por texto,89.493,101979.16,101414.06,565.1,0,0,timeout
+sostenido 20rps,resumen,89.611,101861.33,101363.2,498.12,0,0,timeout
+sostenido 20rps,buscar por texto,89.626,101846.35,101312.85,533.5,0,0,timeout
+sostenido 20rps,buscar por texto,89.693,101779.74,101261.49,518.24,0,0,timeout
+sostenido 20rps,buscar por texto,89.749,101723.54,101210.46,513.08,0,0,timeout
+sostenido 20rps,listar libreta,89.786,101686.61,101157.52,529.09,0,0,timeout
+sostenido 20rps,listar libreta,89.795,101677.66,101105.99,571.67,0,0,timeout
+sostenido 20rps,listar libreta,89.796,101677.3,101053.87,623.43,0,0,timeout
+sostenido 20rps,buscar por texto,89.801,101672.01,101002.4,669.61,0,0,timeout
+sostenido 20rps,resumen,89.802,101671.38,100950.78,720.6,0,0,timeout
+sostenido 20rps,abrir ficha,89.813,101660.7,100898.59,762.11,0,0,timeout
+sostenido 20rps,filtrar,89.897,101576.49,100846.78,729.71,0,0,timeout
+sostenido 20rps,listar libreta,90.105,101369.82,100794.75,575.07,0,0,timeout
+sostenido 20rps,listar libreta,90.129,101345.95,100741.37,604.58,0,0,timeout
+sostenido 20rps,resumen,90.137,101338.48,100688.78,649.71,0,0,timeout
+sostenido 20rps,buscar por texto,90.138,101337.2,100636.16,701.04,0,0,timeout
+sostenido 20rps,listar libreta,90.151,101324.09,100584.06,740.03,0,0,timeout
+sostenido 20rps,filtrar,90.204,101271.43,100532.63,738.8,0,0,timeout
+sostenido 20rps,resumen,90.358,101117.89,100481.01,636.88,0,0,timeout
+sostenido 20rps,resumen,90.447,101028.82,100429.61,599.21,0,0,timeout
+sostenido 20rps,abrir ficha,90.731,100745.48,100376.85,368.63,0,0,timeout
+sostenido 20rps,resumen,90.846,100630.13,100324.9,305.23,0,0,timeout
+sostenido 20rps,abrir ficha,91.019,100457.0,100273.4,183.61,0,0,timeout
+sostenido 20rps,resumen,91.055,100421.22,100221.57,199.64,0,0,timeout
+sostenido 20rps,listar libreta,91.058,100418.09,100168.42,249.67,0,0,timeout
+sostenido 20rps,abrir ficha,91.095,100381.79,100116.87,264.92,0,0,timeout
+sostenido 20rps,resumen,91.219,100257.52,100063.89,193.63,0,0,timeout
+sostenido 20rps,historial de la ficha,91.248,100229.31,100011.92,217.4,0,0,timeout
+sostenido 20rps,resumen,91.36,100116.8,99750.31,366.48,0,0,timeout
+sostenido 20rps,buscar por texto,91.383,100093.94,99698.81,395.12,0,0,timeout
+sostenido 20rps,listar libreta,91.419,100058.59,99431.31,627.28,0,0,timeout
+sostenido 20rps,buscar por texto,91.423,100054.71,99377.57,677.13,0,0,timeout
+sostenido 20rps,listar libreta,91.492,99985.57,99271.54,714.03,0,0,timeout
+sostenido 20rps,resumen,91.521,99956.38,99218.49,737.89,0,0,timeout
+sostenido 20rps,abrir ficha,91.555,99922.67,99164.62,758.05,0,0,timeout
+sostenido 20rps,etiquetas,91.565,99912.79,99111.59,801.2,0,0,timeout
+sostenido 20rps,resumen,91.651,99826.72,98952.06,874.66,0,0,timeout
+sostenido 20rps,buscar por texto,91.673,99804.86,98845.29,959.57,0,0,timeout
+sostenido 20rps,listar libreta,91.685,99793.65,98738.07,1055.58,0,0,timeout
+sostenido 20rps,listar libreta,91.769,99709.81,98525.31,1184.5,0,0,timeout
+sostenido 20rps,filtrar,91.826,99652.4,98419.26,1233.15,0,0,timeout
+sostenido 20rps,filtrar,91.923,99556.33,98198.76,1357.57,0,0,timeout
+sostenido 20rps,listar libreta,91.928,99551.39,98147.57,1403.82,0,0,timeout
+sostenido 20rps,etiquetas,92.007,60158.61,58627.18,1531.44,0,0,timeout
+sostenido 20rps,etiquetas,92.059,60140.51,58610.66,1529.85,0,0,timeout
+sostenido 20rps,listar libreta,92.085,60149.8,58594.26,1555.54,0,0,timeout
+sostenido 20rps,filtrar,92.104,60165.3,58577.25,1588.05,0,0,timeout
+sostenido 20rps,filtrar,92.121,60182.91,58559.49,1623.42,0,0,timeout
+sostenido 20rps,listar libreta,92.128,60209.55,58541.9,1667.64,0,0,timeout
+sostenido 20rps,resumen,92.198,60174.28,58524.82,1649.45,0,0,timeout
+sostenido 20rps,buscar por texto,92.206,60200.71,58507.19,1693.52,0,0,timeout
+sostenido 20rps,historial de la ficha,92.226,60215.67,58489.34,1726.33,0,0,timeout
+sostenido 20rps,buscar por texto,92.281,60194.47,58417.82,1776.65,0,0,timeout
+sostenido 20rps,buscar por texto,92.313,60196.88,58396.8,1800.07,0,0,timeout
+sostenido 20rps,historial de la ficha,92.313,60231.55,58379.35,1852.2,0,0,timeout
+sostenido 20rps,listar libreta,92.388,60192.02,58307.09,1884.93,0,0,timeout
+sostenido 20rps,listar libreta,92.4,60214.82,58288.1,1926.73,0,0,timeout
+sostenido 20rps,listar libreta,92.421,60227.36,58268.39,1958.97,0,0,timeout
+sostenido 20rps,buscar por texto,92.433,60250.61,58249.79,2000.82,0,0,timeout
+sostenido 20rps,listar libreta,92.51,60207.1,58230.17,1976.93,0,0,timeout
+sostenido 20rps,etiquetas,92.544,60207.32,58156.52,2050.8,0,0,timeout
+sostenido 20rps,buscar por texto,92.566,60219.33,58079.28,2140.05,0,0,timeout
+sostenido 20rps,listar libreta,92.605,60214.58,58004.23,2210.35,0,0,timeout
+sostenido 20rps,abrir ficha,92.608,60246.13,57983.62,2262.5,0,0,timeout
+sostenido 20rps,buscar por texto,92.666,60222.38,57964.37,2258.01,0,0,timeout
+sostenido 20rps,resumen,92.715,60208.4,57890.74,2317.66,0,0,timeout
+sostenido 20rps,abrir ficha,92.731,60228.26,57872.76,2355.5,0,0,timeout
+sostenido 20rps,buscar por texto,92.732,60261.4,57852.42,2408.98,0,0,timeout
+sostenido 20rps,buscar por texto,92.764,60263.61,57723.59,2540.02,0,0,timeout
+sostenido 20rps,listar libreta,92.792,60269.04,57647.27,2621.78,0,0,timeout
+sostenido 20rps,listar libreta,92.81,60284.89,57626.41,2658.48,0,0,timeout
+sostenido 20rps,resumen,92.863,60265.46,57550.76,2714.7,0,0,timeout
+sostenido 20rps,abrir ficha,92.867,60294.46,57528.43,2766.02,0,0,timeout
+sostenido 20rps,buscar por texto,93.005,60189.95,57395.01,2794.95,0,0,timeout
+sostenido 20rps,buscar por texto,93.127,60100.53,57319.14,2781.39,0,0,timeout
+sostenido 20rps,resumen,93.144,60117.66,57244.93,2872.73,0,0,timeout
+sostenido 20rps,listar libreta,93.272,60022.7,57169.53,2853.17,0,0,timeout
+sostenido 20rps,buscar por texto,93.336,59992.01,57149.12,2842.88,0,0,timeout
+sostenido 20rps,abrir ficha,93.381,59979.95,57073.0,2906.95,0,0,timeout
+sostenido 20rps,filtrar,93.421,59972.02,56946.57,3025.45,0,0,timeout
+sostenido 20rps,etiquetas,93.423,60002.39,56926.72,3075.67,0,0,timeout
+sostenido 20rps,resumen,93.433,60025.42,56906.17,3119.25,0,0,timeout
+sostenido 20rps,abrir ficha,93.466,60024.95,56779.57,3245.38,0,0,timeout
+sostenido 20rps,buscar por texto,93.635,59888.46,56488.76,3399.71,0,0,timeout
+sostenido 20rps,etiquetas,93.636,59919.96,56466.46,3453.51,0,0,timeout
+sostenido 20rps,resumen,93.636,59952.51,56443.88,3508.63,0,0,timeout
+sostenido 20rps,buscar por texto,93.651,59969.64,56368.11,3601.52,0,0,timeout
+sostenido 20rps,listar libreta,93.683,59970.52,56290.66,3679.86,0,0,timeout
+sostenido 20rps,resumen,93.685,60000.45,56268.65,3731.79,0,0,timeout
+sostenido 20rps,filtrar,93.902,59815.45,55811.75,4003.71,0,0,timeout
+sostenido 20rps,historial de la ficha,93.921,59828.78,55790.07,4038.71,0,0,timeout
+sostenido 20rps,buscar por texto,94.038,59744.94,55714.4,4030.54,0,0,timeout
+sostenido 20rps,listar libreta,94.096,59719.87,55691.6,4028.27,0,0,timeout
+sostenido 20rps,buscar por texto,94.105,59742.84,55669.97,4072.87,0,0,timeout
+sostenido 20rps,resumen,94.122,59757.16,55647.16,4110.0,0,0,timeout
+sostenido 20rps,listar libreta,94.182,59728.16,55461.88,4266.28,0,0,timeout
+sostenido 20rps,resumen,94.382,59559.16,55010.6,4548.56,0,0,timeout
+sostenido 20rps,listar libreta,94.46,59515.31,54784.14,4731.16,0,0,timeout
+sostenido 20rps,buscar por texto,94.531,59475.01,54711.34,4763.67,0,0,timeout
+sostenido 20rps,resumen,94.6,59437.19,54690.09,4747.1,0,0,timeout
+sostenido 20rps,listar libreta,94.641,59427.08,54616.32,4810.76,0,0,timeout
+sostenido 20rps,listar libreta,94.671,59428.48,54543.55,4884.93,0,0,timeout
+sostenido 20rps,resumen,94.69,59439.79,54522.18,4917.61,0,0,timeout
+sostenido 20rps,resumen,94.79,59371.2,54396.86,4974.33,0,0,timeout
+sostenido 20rps,resumen,94.795,59396.98,54374.7,5022.27,0,0,timeout
+sostenido 20rps,resumen,94.894,59327.81,54299.0,5028.81,0,0,timeout
+sostenido 20rps,filtrar,94.909,59343.2,54276.13,5067.06,0,0,timeout
+sostenido 20rps,listar libreta,94.981,59302.53,54147.32,5155.2,0,0,timeout
+sostenido 20rps,resumen,95.005,59309.03,54072.06,5236.98,0,0,timeout
+sostenido 20rps,buscar por texto,95.028,59316.86,53996.85,5320.01,0,0,timeout
+sostenido 20rps,filtrar,95.033,59342.21,53974.3,5367.91,0,0,timeout
+sostenido 20rps,filtrar,95.063,59343.2,53898.43,5444.77,0,0,timeout
+sostenido 20rps,buscar por texto,95.1,59336.31,53768.56,5567.76,0,0,timeout
+sostenido 20rps,resumen,95.102,59364.54,53746.08,5618.46,0,0,timeout
+sostenido 20rps,resumen,95.103,59394.5,53723.73,5670.77,0,0,timeout
+sostenido 20rps,resumen,95.156,59371.73,53593.93,5777.8,0,0,timeout
+sostenido 20rps,buscar por texto,95.164,59394.3,53571.41,5822.89,0,0,timeout
+sostenido 20rps,listar libreta,95.176,59412.38,53548.18,5864.21,0,0,timeout
+sostenido 20rps,resumen,95.234,59384.49,53403.89,5980.61,0,0,timeout
+sostenido 20rps,resumen,95.244,59404.43,53380.64,6023.79,0,0,timeout
+sostenido 20rps,listar libreta,95.252,59427.01,53357.94,6069.07,0,0,timeout
+sostenido 20rps,etiquetas,95.35,59359.04,53227.75,6131.29,0,0,timeout
+sostenido 20rps,resumen,95.361,59377.74,53204.79,6172.95,0,0,timeout
+sostenido 20rps,listar libreta,95.45,59318.48,53070.65,6247.83,0,0,timeout
+sostenido 20rps,resumen,95.525,59273.26,52936.6,6336.66,0,0,timeout
+sostenido 20rps,resumen,95.546,59281.07,52860.92,6420.15,0,0,timeout
+sostenido 20rps,duplicados,95.637,125850.54,119361.65,6488.89,0,0,timeout
+sostenido 20rps,buscar por texto,95.683,59174.35,52627.73,6546.62,0,0,timeout
+sostenido 20rps,resumen,95.685,59202.57,52605.63,6596.94,0,0,timeout
+sostenido 20rps,etiquetas,95.696,59222.38,52584.08,6638.29,0,0,timeout
+sostenido 20rps,abrir ficha,95.707,59241.03,52507.41,6733.62,0,0,timeout
+sostenido 20rps,abrir ficha,95.732,59247.59,52487.07,6760.51,0,0,timeout
+sostenido 20rps,resumen,95.815,59195.57,52412.12,6783.45,0,0,timeout
+sostenido 20rps,listar libreta,95.827,59213.54,52388.24,6825.3,0,0,timeout
+sostenido 20rps,etiquetas,95.867,59202.14,52257.88,6944.26,0,0,timeout
+sostenido 20rps,buscar por texto,95.901,59197.49,52181.06,7016.43,0,0,timeout
+sostenido 20rps,buscar por texto,95.936,59192.12,52101.76,7090.36,0,0,timeout
+sostenido 20rps,buscar por texto,95.941,59216.08,52077.72,7138.37,0,0,timeout
+sostenido 20rps,abrir ficha,95.947,59239.38,52053.77,7185.61,0,0,timeout
+sostenido 20rps,listar libreta,95.987,59228.3,51923.22,7305.09,0,0,timeout
+sostenido 20rps,listar libreta,96.02,59223.67,51898.75,7324.92,0,0,timeout
+sostenido 20rps,resumen,96.061,59212.38,51818.28,7394.1,0,0,timeout
+sostenido 20rps,buscar por texto,96.082,59219.9,51793.29,7426.61,0,0,timeout
+sostenido 20rps,buscar por texto,96.146,59185.43,51714.93,7470.5,0,0,timeout
+sostenido 20rps,etiquetas,96.151,59209.88,51637.43,7572.45,0,0,timeout
+sostenido 20rps,resumen,96.164,59227.62,51614.16,7613.47,0,0,timeout
+sostenido 20rps,resumen,96.301,59118.73,51428.42,7690.31,0,0,timeout
+sostenido 20rps,resumen,96.347,59101.59,51349.51,7752.08,0,0,timeout
+sostenido 20rps,resumen,96.414,59062.89,51271.22,7791.67,0,0,timeout
+sostenido 20rps,resumen,96.465,59040.96,51193.44,7847.52,0,0,timeout
+sostenido 20rps,buscar por texto,96.5,59034.83,51168.66,7866.17,0,0,timeout
+sostenido 20rps,buscar por texto,96.525,59037.53,51088.55,7948.98,0,0,timeout
+sostenido 20rps,resumen,96.708,58883.18,50846.47,8036.71,0,0,timeout
+sostenido 20rps,listar libreta,96.731,58888.35,50822.38,8065.98,0,0,timeout
+sostenido 20rps,listar libreta,96.762,58885.88,50798.22,8087.66,0,0,timeout
+sostenido 20rps,listar libreta,96.944,58731.56,50561.79,8169.78,0,0,timeout
+sostenido 20rps,etiquetas,97.03,58672.77,50381.14,8291.63,0,0,timeout
+sostenido 20rps,resumen,97.057,58674.81,50301.9,8372.91,0,0,timeout
+sostenido 20rps,listar libreta,97.059,58700.96,50278.02,8422.94,0,0,timeout
+sostenido 20rps,resumen,97.145,58642.68,50149.53,8493.15,0,0,timeout
+sostenido 20rps,abrir ficha,97.166,58649.42,50124.16,8525.26,0,0,timeout
+sostenido 20rps,buscar por texto,97.249,58594.54,50044.15,8550.39,0,0,timeout
+sostenido 20rps,abrir ficha,97.554,58316.98,49737.07,8579.91,0,0,timeout
+sostenido 20rps,resumen,97.621,58277.31,49552.66,8724.66,0,0,timeout
+sostenido 20rps,listar libreta,97.625,58300.98,49526.74,8774.24,0,0,timeout
+sostenido 20rps,etiquetas,97.63,58325.04,49500.2,8824.85,0,0,timeout
+sostenido 20rps,listar libreta,97.645,58338.67,49475.87,8862.8,0,0,timeout
+sostenido 20rps,listar libreta,97.663,58348.7,49395.53,8953.17,0,0,timeout
+sostenido 20rps,filtrar,97.681,58357.97,49312.74,9045.23,0,0,timeout
+sostenido 20rps,filtrar,97.705,58360.83,49286.09,9074.73,0,0,timeout
+sostenido 20rps,abrir ficha,97.709,58386.13,49257.59,9128.54,0,0,timeout
+sostenido 20rps,etiquetas,97.71,58413.62,49230.4,9183.22,0,0,timeout
+sostenido 20rps,resumen,97.784,58366.79,49203.62,9163.17,0,0,timeout
+sostenido 20rps,listar libreta,97.824,58353.74,49120.49,9233.25,0,0,timeout
+sostenido 20rps,abrir ficha,97.86,58344.35,49092.95,9251.4,0,0,timeout
+sostenido 20rps,resumen,97.936,58295.46,49012.69,9282.77,0,0,timeout
+sostenido 20rps,resumen,98.008,58250.24,48984.32,9265.92,0,0,timeout
+sostenido 20rps,resumen,98.086,58199.56,48901.95,9297.61,0,0,timeout
+sostenido 20rps,listar libreta,98.259,58053.45,48603.22,9450.23,0,0,timeout
+sostenido 20rps,listar libreta,98.261,58077.84,48576.33,9501.5,0,0,timeout
+sostenido 20rps,etiquetas,98.403,57962.46,48383.44,9579.02,0,0,timeout
+sostenido 20rps,abrir ficha,98.431,57961.09,48356.93,9604.17,0,0,timeout
+sostenido 20rps,historial de la ficha,98.457,57961.42,48327.44,9633.98,0,0,timeout
+sostenido 20rps,abrir ficha,98.549,57895.04,48301.09,9593.95,0,0,timeout
+sostenido 20rps,filtrar,98.576,57895.0,48273.6,9621.4,0,0,timeout
+sostenido 20rps,buscar por texto,98.629,57867.23,48245.98,9621.25,0,0,timeout
+sostenido 20rps,etiquetas,98.654,57868.18,48216.83,9651.34,0,0,timeout
+sostenido 20rps,buscar por texto,98.672,57877.27,48189.96,9687.31,0,0,timeout
+sostenido 20rps,resumen,98.935,57639.45,47993.34,9646.11,0,0,timeout
+sostenido 20rps,filtrar,98.944,57657.76,47962.95,9694.8,0,0,timeout
+sostenido 20rps,listar libreta,99.046,57581.41,47765.76,9815.65,0,0,timeout
+sostenido 20rps,resumen,99.067,57586.44,47683.1,9903.34,0,0,timeout
+sostenido 20rps,resumen,99.082,57597.18,47654.58,9942.59,0,0,timeout
+sostenido 20rps,listar libreta,99.25,57454.28,47460.73,9993.55,0,0,timeout
+sostenido 20rps,buscar por texto,99.26,57469.84,47430.22,10039.62,0,0,timeout
+sostenido 20rps,listar libreta,99.263,57491.85,47401.6,10090.24,0,0,timeout
+sostenido 20rps,resumen,99.271,57509.33,47316.4,10192.93,0,0,timeout
+sostenido 20rps,resumen,99.309,57496.67,47286.9,10209.77,0,0,timeout
+sostenido 20rps,abrir ficha,99.319,57511.22,47257.84,10253.38,0,0,timeout
+sostenido 20rps,buscar por texto,99.348,57507.45,47174.91,10332.54,0,0,timeout
+sostenido 20rps,etiquetas,99.366,57514.92,47145.62,10369.3,0,0,timeout
+sostenido 20rps,historial de la ficha,99.389,57517.41,47116.23,10401.18,0,0,timeout
+sostenido 20rps,buscar por texto,99.454,57477.76,47032.13,10445.63,0,0,timeout
+sostenido 20rps,abrir ficha,99.469,57490.28,46950.06,10540.21,0,0,timeout
+sostenido 20rps,resumen,99.52,57464.09,46919.59,10544.51,0,0,timeout
+sostenido 20rps,resumen,99.556,57452.81,46888.5,10564.31,0,0,timeout
+sostenido 20rps,listar libreta,99.609,57423.89,46804.04,10619.85,0,0,timeout
+sostenido 20rps,etiquetas,99.633,57424.3,46717.01,10707.29,0,0,timeout
+sostenido 20rps,listar libreta,99.722,57359.9,46574.86,10785.04,0,0,timeout
+sostenido 20rps,etiquetas,99.764,57341.4,46544.7,10796.7,0,0,timeout
+sostenido 20rps,listar libreta,99.95,57179.74,46240.38,10939.36,0,0,timeout
+sostenido 20rps,resumen,99.953,57200.86,46209.33,10991.53,0,0,timeout
+sostenido 20rps,listar libreta,99.975,57203.35,46175.13,11028.22,0,0,timeout
+sostenido 20rps,buscar por texto,99.976,57227.25,46143.64,11083.61,0,0,timeout
+sostenido 20rps,buscar por texto,100.08,57147.97,46005.25,11142.72,0,0,timeout
+sostenido 20rps,etiquetas,100.324,56928.78,45707.86,11220.92,0,0,timeout
+sostenido 20rps,resumen,100.375,56901.29,45624.86,11276.43,0,0,timeout
+sostenido 20rps,resumen,100.407,56892.26,45540.38,11351.88,0,0,timeout
+sostenido 20rps,buscar por texto,100.615,56708.54,45187.78,11520.76,0,0,timeout
+sostenido 20rps,resumen,100.627,56719.98,45157.78,11562.2,0,0,timeout
+sostenido 20rps,etiquetas,100.663,56708.57,45072.61,11635.96,0,0,timeout
+sostenido 20rps,buscar por texto,100.672,56723.26,45042.46,11680.79,0,0,timeout
+sostenido 20rps,resumen,100.692,56727.22,44958.13,11769.09,0,0,timeout
+sostenido 20rps,abrir ficha,100.772,56670.08,44873.64,11796.44,0,0,timeout
+sostenido 20rps,abrir ficha,100.785,56680.18,44843.09,11837.1,0,0,timeout
+sostenido 20rps,listar libreta,100.797,56691.07,44757.03,11934.05,0,0,timeout
+sostenido 20rps,listar libreta,100.802,56709.78,44724.72,11985.05,0,0,timeout
+sostenido 20rps,buscar por texto,100.839,56695.59,44641.01,12054.58,0,0,timeout
+sostenido 20rps,abrir ficha,100.955,56603.16,44550.29,12052.88,0,0,timeout
+sostenido 20rps,listar libreta,101.015,56566.62,44464.87,12101.74,0,0,timeout
+sostenido 20rps,buscar por texto,101.074,56530.76,44432.67,12098.09,0,0,timeout
+sostenido 20rps,resumen,101.113,56515.55,44400.56,12114.99,0,0,timeout
+sostenido 20rps,resumen,101.13,56522.36,44366.55,12155.81,0,0,timeout
+sostenido 20rps,listar libreta,101.136,56539.7,44335.61,12204.09,0,0,timeout
+sostenido 20rps,buscar por texto,101.288,56410.2,44196.01,12214.2,0,0,timeout
+sostenido 20rps,resumen,101.401,56320.22,44056.83,12263.39,0,0,timeout
+sostenido 20rps,buscar por texto,101.433,56310.63,44025.31,12285.33,0,0,timeout
+sostenido 20rps,buscar por texto,101.442,56324.93,43993.42,12331.51,0,0,timeout
+sostenido 20rps,resumen,101.664,56125.4,43688.44,12436.96,0,0,timeout
+sostenido 20rps,buscar por texto,102.046,55764.71,43227.42,12537.29,0,0,timeout
+sostenido 20rps,listar libreta,102.063,55770.83,43197.04,12573.79,0,0,timeout
+sostenido 20rps,etiquetas,102.088,55767.15,43163.95,12603.19,0,0,timeout
+sostenido 20rps,listar libreta,102.105,55774.58,43134.96,12639.62,0,0,timeout
+sostenido 20rps,listar libreta,102.186,55715.68,43051.78,12663.9,0,0,timeout
+sostenido 20rps,abrir ficha,102.229,55694.91,42964.99,12729.91,0,0,timeout
+sostenido 20rps,listar libreta,102.234,55712.07,42934.0,12778.07,0,0,timeout
+sostenido 20rps,resumen,102.279,55692.21,42799.15,12893.06,0,0,timeout
+sostenido 20rps,resumen,102.287,55706.2,42769.54,12936.67,0,0,timeout
+sostenido 20rps,filtrar,102.316,55700.33,42684.91,13015.41,0,0,timeout
+sostenido 20rps,resumen,102.435,55602.96,42544.52,13058.44,0,0,timeout
+sostenido 20rps,abrir ficha,102.435,55624.38,42511.96,13112.42,0,0,timeout
+sostenido 20rps,listar libreta,102.459,55622.46,42480.33,13142.12,0,0,timeout
+sostenido 20rps,abrir ficha,102.498,55605.54,42448.35,13157.19,0,0,timeout
+sostenido 20rps,abrir ficha,102.521,55604.48,42416.47,13188.01,0,0,timeout
+sostenido 20rps,buscar por texto,102.65,55496.82,42219.67,13277.15,0,0,timeout
+sostenido 20rps,abrir ficha,102.664,55504.75,42129.97,13374.79,0,0,timeout
+sostenido 20rps,listar libreta,102.726,55463.88,42029.13,13434.76,0,0,timeout
+sostenido 20rps,resumen,102.741,55470.32,41997.18,13473.14,0,0,timeout
+sostenido 20rps,listar libreta,102.781,55452.62,41964.68,13487.94,0,0,timeout
+sostenido 20rps,etiquetas,102.8,55455.06,41931.49,13523.58,0,0,timeout
+sostenido 20rps,listar libreta,102.891,55385.16,41898.91,13486.25,0,0,timeout
+sostenido 20rps,listar libreta,102.906,55391.56,41865.79,13525.77,0,0,timeout
+sostenido 20rps,abrir ficha,102.949,55369.75,41831.98,13537.78,0,0,timeout
+sostenido 20rps,filtrar,102.954,55385.69,41798.59,13587.1,0,0,timeout
+sostenido 20rps,historial de la ficha,103.023,55338.39,41764.06,13574.33,0,0,timeout
+sostenido 20rps,abrir ficha,103.026,55356.92,41729.75,13627.17,0,0,timeout
+sostenido 20rps,historial de la ficha,103.033,55370.87,41696.16,13674.71,0,0,timeout
+sostenido 20rps,filtrar,103.082,55342.73,41606.44,13736.28,0,0,timeout
+sostenido 20rps,resumen,103.182,55263.01,41406.95,13856.06,0,0,timeout
+sostenido 20rps,buscar por texto,103.262,55203.27,41263.72,13939.55,0,0,timeout
+sostenido 20rps,abrir ficha,103.534,56220.39,42270.69,13949.7,0,0,timeout
+sostenido 20rps,filtrar,103.582,56184.98,42228.23,13956.75,0,0,timeout
+sostenido 20rps,filtrar,103.712,56066.8,41607.13,14459.67,0,0,timeout
+sostenido 20rps,listar libreta,103.736,56054.68,41568.47,14486.21,0,0,timeout
+sostenido 20rps,listar libreta,103.807,55995.81,41530.13,14465.67,0,0,timeout
+sostenido 20rps,abrir ficha,103.915,55900.49,41490.59,14409.9,0,0,timeout
+sostenido 20rps,resumen,103.929,55899.91,41451.81,14448.1,0,0,timeout
+sostenido 20rps,listar libreta,103.972,55869.29,41411.96,14457.33,0,0,timeout
+sostenido 20rps,listar libreta,104.176,55677.52,41372.45,14305.07,0,0,timeout
+sostenido 20rps,listar libreta,104.181,55684.95,41331.46,14353.49,0,0,timeout
+sostenido 20rps,listar libreta,104.187,55691.25,41292.08,14399.17,0,0,timeout
+sostenido 20rps,etiquetas,104.188,55702.51,41250.39,14452.12,0,0,timeout
+sostenido 20rps,abrir ficha,104.323,55579.08,41156.45,14422.63,0,0,timeout
+sostenido 20rps,listar libreta,104.342,55572.82,41115.04,14457.77,0,0,timeout
+sostenido 20rps,resumen,104.424,55503.98,41074.5,14429.48,0,0,timeout
+sostenido 20rps,buscar por texto,104.502,55438.13,40871.0,14567.13,0,0,timeout
+sostenido 20rps,etiquetas,104.59,55365.25,40727.65,14637.6,0,0,timeout
+sostenido 20rps,resumen,104.698,55270.19,40476.56,14793.63,0,0,timeout
+sostenido 20rps,resumen,104.72,55260.32,40436.3,14824.02,0,0,timeout
+sostenido 20rps,abrir ficha,104.76,55232.41,40343.66,14888.75,0,0,timeout
+sostenido 20rps,resumen,104.785,55220.07,40250.73,14969.33,0,0,timeout
+sostenido 20rps,buscar por texto,104.87,55147.69,40050.6,15097.09,0,0,timeout
+sostenido 20rps,listar libreta,104.905,55125.6,39957.94,15167.66,0,0,timeout
+sostenido 20rps,etiquetas,104.91,55133.03,39916.57,15216.46,0,0,timeout
+sostenido 20rps,listar libreta,104.93,55125.29,39875.34,15249.96,0,0,timeout
+sostenido 20rps,listar libreta,104.959,55109.46,39781.96,15327.49,0,0,timeout
+sostenido 20rps,etiquetas,105.136,54944.54,39527.84,15416.71,0,0,timeout
+sostenido 20rps,buscar por texto,105.158,54935.86,39436.18,15499.68,0,0,timeout
+sostenido 20rps,resumen,105.195,54911.89,39341.56,15570.32,0,0,timeout
+sostenido 20rps,filtrar,105.228,54892.3,39250.04,15642.27,0,0,timeout
+sostenido 20rps,buscar por texto,105.24,54893.07,39211.01,15682.06,0,0,timeout
+sostenido 20rps,resumen,105.289,54857.09,39069.52,15787.57,0,0,timeout
+sostenido 20rps,resumen,105.381,54777.42,39031.23,15746.19,0,0,timeout
+sostenido 20rps,listar libreta,105.455,54716.45,38992.59,15723.85,0,0,timeout
+sostenido 20rps,resumen,105.492,54692.2,38953.17,15739.03,0,0,timeout
+sostenido 20rps,buscar por texto,105.52,54676.53,38914.45,15762.08,0,0,timeout
+sostenido 20rps,resumen,105.552,54657.93,38874.73,15783.19,0,0,timeout
+sostenido 20rps,listar libreta,105.602,54620.68,38835.73,15784.95,0,0,timeout
+sostenido 20rps,abrir ficha,105.609,54626.38,38795.91,15830.47,0,0,timeout
+sostenido 20rps,listar libreta,105.612,54635.95,38755.76,15880.19,0,0,timeout
+sostenido 20rps,abrir ficha,105.614,54646.52,38715.43,15931.1,0,0,timeout
+sostenido 20rps,resumen,105.617,54656.3,38675.18,15981.12,0,0,timeout
+sostenido 20rps,abrir ficha,105.62,54665.63,38635.04,16030.59,0,0,timeout
+sostenido 20rps,listar libreta,105.631,54667.23,38541.58,16125.65,0,0,timeout
+sostenido 20rps,resumen,105.639,54671.75,38500.21,16171.54,0,0,timeout
+sostenido 20rps,listar libreta,105.689,54634.01,38403.6,16230.41,0,0,timeout
+sostenido 20rps,filtrar,105.736,54599.6,38254.29,16345.31,0,0,timeout
+sostenido 20rps,historial de la ficha,105.737,54612.02,38213.68,16398.33,0,0,timeout
+sostenido 20rps,listar libreta,105.802,54558.98,38064.87,16494.11,0,0,timeout
+sostenido 20rps,resumen,105.844,54529.88,37969.96,16559.92,0,0,timeout
+sostenido 20rps,listar libreta,105.895,54491.89,37875.11,16616.78,0,0,timeout
+sostenido 20rps,resumen,105.935,54464.22,37728.41,16735.81,0,0,timeout
+sostenido 20rps,listar libreta,105.935,54476.6,37688.41,16788.19,0,0,timeout
+sostenido 20rps,abrir ficha,105.963,54460.65,37647.74,16812.91,0,0,timeout
+sostenido 20rps,resumen,105.989,54447.75,37550.52,16897.23,0,0,timeout
+sostenido 20rps,abrir ficha,106.071,54378.0,37344.05,17033.95,0,0,timeout
+sostenido 20rps,listar libreta,106.072,54390.65,37303.2,17087.45,0,0,timeout
+sostenido 20rps,buscar por texto,106.147,54328.02,37154.68,17173.34,0,0,timeout
+sostenido 20rps,etiquetas,106.192,54295.87,37060.59,17235.28,0,0,timeout
+sostenido 20rps,resumen,106.252,54248.38,37019.51,17228.86,0,0,timeout
+sostenido 20rps,resumen,106.255,54257.86,36979.18,17278.68,0,0,timeout
+sostenido 20rps,buscar por texto,106.292,54233.45,36936.94,17296.51,0,0,timeout
+sostenido 20rps,abrir ficha,106.33,54207.56,36835.56,17372.0,0,0,timeout
+sostenido 20rps,listar libreta,106.333,54217.78,36794.95,17422.83,0,0,timeout
+sostenido 20rps,listar libreta,106.335,54227.95,36754.8,17473.15,0,0,timeout
+sostenido 20rps,resumen,106.381,54194.89,36661.81,17533.08,0,0,timeout
+sostenido 20rps,buscar por texto,106.445,54143.64,36513.87,17629.77,0,0,timeout
+sostenido 20rps,filtrar,106.582,54019.06,36262.18,17756.88,0,0,timeout
+sostenido 20rps,buscar por texto,106.633,53980.94,36115.88,17865.05,0,0,timeout
+sostenido 20rps,abrir ficha,106.663,53963.74,36073.94,17889.8,0,0,timeout
+sostenido 20rps,listar libreta,106.796,53842.5,36034.19,17808.31,0,0,timeout
+sostenido 20rps,etiquetas,106.839,53812.34,35994.33,17818.02,0,0,timeout
+sostenido 20rps,resumen,106.865,53798.86,35952.92,17845.94,0,0,timeout
+sostenido 20rps,listar libreta,106.883,53793.45,35911.33,17882.13,0,0,timeout
+sostenido 20rps,filtrar,106.884,53804.54,35868.7,17935.84,0,0,timeout
+sostenido 20rps,listar libreta,106.947,53753.78,35826.53,17927.25,0,0,timeout
+sostenido 20rps,resumen,107.003,53709.53,35782.63,17926.9,0,0,timeout
+sostenido 20rps,abrir ficha,107.048,53676.11,35737.21,17938.9,0,0,timeout
+sostenido 20rps,etiquetas,107.065,53671.32,35694.64,17976.68,0,0,timeout
+sostenido 20rps,abrir ficha,107.099,53650.04,35650.82,17999.22,0,0,timeout
+sostenido 20rps,buscar por texto,107.104,53657.06,35606.84,18050.22,0,0,timeout
+sostenido 20rps,abrir ficha,107.105,53667.72,35563.94,18103.79,0,0,timeout
+sostenido 20rps,resumen,107.226,53558.38,35356.39,18201.99,0,0,timeout
+sostenido 20rps,listar libreta,107.284,53512.13,35258.38,18253.76,0,0,timeout
+sostenido 20rps,abrir ficha,107.293,53514.57,35159.32,18355.25,0,0,timeout
+sostenido 20rps,listar libreta,107.342,53477.12,35062.45,18414.67,0,0,timeout
+sostenido 20rps,buscar por texto,107.52,53311.82,34735.24,18576.58,0,0,timeout
+sostenido 20rps,resumen,107.568,53275.12,34580.08,18695.04,0,0,timeout
+sostenido 20rps,resumen,107.655,53199.88,34426.77,18773.11,0,0,timeout
+sostenido 20rps,etiquetas,107.713,53153.84,34327.71,18826.13,0,0,timeout
+sostenido 20rps,resumen,107.86,53018.33,34229.22,18789.11,0,0,timeout
+sostenido 20rps,listar libreta,107.885,53005.16,34185.39,18819.77,0,0,timeout
+sostenido 20rps,resumen,107.915,52986.5,34089.66,18896.83,0,0,timeout
+sostenido 20rps,listar libreta,107.991,52921.95,33887.17,19034.78,0,0,timeout
+sostenido 20rps,abrir ficha,107.999,52925.28,33843.25,19082.04,0,0,timeout
+sostenido 20rps,abrir ficha,108.05,52885.36,33748.94,19136.42,0,0,timeout
+sostenido 20rps,resumen,108.089,52857.61,33602.47,19255.14,0,0,timeout
+sostenido 20rps,resumen,108.122,52837.74,33510.78,19326.96,0,0,timeout
+sostenido 20rps,listar libreta,108.171,52799.81,33467.59,19332.22,0,0,timeout
+sostenido 20rps,resumen,108.262,52719.64,33425.25,19294.39,0,0,timeout
+sostenido 20rps,resumen,108.286,52706.68,33382.73,19323.95,0,0,timeout
+sostenido 20rps,buscar por texto,108.304,52699.72,33340.41,19359.32,0,0,timeout
+sostenido 20rps,listar libreta,108.31,52704.06,33295.98,19408.08,0,0,timeout
+sostenido 20rps,listar libreta,108.317,52708.1,33251.17,19456.92,0,0,timeout
+sostenido 20rps,listar libreta,108.323,52712.69,33207.53,19505.16,0,0,timeout
+sostenido 20rps,etiquetas,108.516,52530.26,33130.23,19400.03,0,0,timeout
+sostenido 20rps,buscar por texto,108.518,52539.87,33086.72,19453.15,0,0,timeout
+sostenido 20rps,resumen,108.549,52519.16,33043.28,19475.88,0,0,timeout
+sostenido 20rps,buscar por texto,108.563,52515.52,33000.16,19515.37,0,0,timeout
+sostenido 20rps,etiquetas,108.575,52514.58,32956.53,19558.05,0,0,timeout
+sostenido 20rps,etiquetas,108.619,52480.83,32911.95,19568.88,0,0,timeout
+sostenido 20rps,listar libreta,108.668,52441.5,32867.36,19574.14,0,0,timeout
+sostenido 20rps,filtrar,108.687,52433.1,32822.83,19610.27,0,0,timeout
+sostenido 20rps,listar libreta,108.695,52435.25,32778.41,19656.85,0,0,timeout
+sostenido 20rps,listar libreta,108.785,52355.31,32733.4,19621.91,0,0,timeout
+sostenido 20rps,resumen,108.965,52189.59,32413.84,19775.75,0,0,timeout
+sostenido 20rps,buscar por texto,108.973,52191.7,32369.26,19822.44,0,0,timeout
+sostenido 20rps,resumen,109.037,52147.09,32223.31,19923.78,0,0,timeout
+sostenido 20rps,buscar por texto,109.141,52052.87,32013.78,20039.08,0,0,timeout
+sostenido 20rps,buscar por texto,109.169,52035.52,31914.26,20121.26,0,0,timeout
+sostenido 20rps,historial de la ficha,109.181,52033.44,31869.56,20163.88,0,0,timeout
+sostenido 20rps,resumen,109.214,52010.54,31770.37,20240.17,0,0,timeout
+sostenido 20rps,filtrar,109.277,51956.72,31617.45,20339.27,0,0,timeout
+sostenido 20rps,etiquetas,109.336,51907.84,31461.14,20446.71,0,0,timeout
+sostenido 20rps,abrir ficha,109.347,51906.58,31417.26,20489.32,0,0,timeout
+sostenido 20rps,abrir ficha,109.399,51863.97,31318.59,20545.37,0,0,timeout
+sostenido 20rps,abrir ficha,109.431,51842.09,31219.47,20622.62,0,0,timeout
+sostenido 20rps,listar libreta,109.472,51810.26,31172.86,20637.4,0,0,timeout
+sostenido 20rps,resumen,109.492,51800.04,31128.63,20671.41,0,0,timeout
+sostenido 20rps,historial de la ficha,109.707,51594.28,30868.81,20725.47,0,0,timeout
+sostenido 20rps,buscar por texto,109.732,51578.74,30770.78,20807.96,0,0,timeout
+sostenido 20rps,listar libreta,109.777,51542.87,30671.99,20870.89,0,0,timeout
+sostenido 20rps,resumen,109.806,51523.1,30574.9,20948.2,0,0,timeout
+sostenido 20rps,etiquetas,109.819,51519.62,30529.3,20990.33,0,0,timeout
+sostenido 20rps,listar libreta,109.832,51515.54,30429.13,21086.42,0,0,timeout
+sostenido 20rps,resumen,109.896,51460.66,30273.3,21187.36,0,0,timeout
+sostenido 20rps,resumen,109.914,51465.73,30240.48,21225.25,0,0,timeout
+sostenido 20rps,resumen,109.931,51458.03,30195.3,21262.73,0,0,timeout
+sostenido 20rps,listar libreta,109.933,51466.22,30149.24,21316.98,0,0,timeout
+sostenido 20rps,listar libreta,109.934,51477.1,30106.37,21370.73,0,0,timeout
+sostenido 20rps,filtrar,110.014,51459.44,30112.93,21346.51,0,0,timeout
+sostenido 20rps,buscar por texto,110.057,51428.89,30071.84,21357.06,0,0,timeout
+sostenido 20rps,listar libreta,110.074,51464.25,30068.52,21395.73,0,0,timeout
+sostenido 20rps,buscar por texto,110.095,51499.36,30069.48,21429.89,0,0,timeout
+sostenido 20rps,resumen,110.098,51550.29,30068.67,21481.62,0,0,timeout
+sostenido 20rps,resumen,110.15,51554.21,30070.04,21484.17,0,0,timeout
+sostenido 20rps,abrir ficha,110.22,51541.45,30069.88,21471.57,0,0,timeout
+sostenido 20rps,resumen,110.263,51552.79,30068.48,21484.31,0,0,timeout
+sostenido 20rps,listar libreta,110.485,51386.74,30069.54,21317.2,0,0,timeout
+sostenido 20rps,resumen,110.503,51424.24,30069.69,21354.55,0,0,timeout
+sostenido 20rps,filtrar,110.582,51515.73,30070.58,21445.16,0,0,timeout
+sostenido 20rps,abrir ficha,110.615,51592.49,30068.4,21524.09,0,0,timeout
+sostenido 20rps,buscar por texto,110.653,51665.21,30068.05,21597.16,0,0,timeout
+sostenido 20rps,listar libreta,110.774,51826.57,30070.57,21756.0,0,0,timeout
+sostenido 20rps,resumen,110.803,51906.86,30068.19,21838.67,0,0,timeout
+sostenido 20rps,etiquetas,110.83,51989.19,30068.05,21921.13,0,0,timeout
+sostenido 20rps,resumen,110.838,52036.65,30068.39,21968.27,0,0,timeout
+sostenido 20rps,buscar por texto,110.85,52078.84,30067.58,22011.26,0,0,timeout
+sostenido 20rps,listar libreta,110.917,52241.6,30068.73,22172.87,0,0,timeout
+sostenido 20rps,listar libreta,110.953,52314.23,30067.22,22247.01,0,0,timeout
+sostenido 20rps,listar libreta,111.094,52449.75,30072.2,22377.55,0,0,timeout
+sostenido 20rps,listar libreta,111.11,52488.36,30073.15,22415.22,0,0,timeout
+sostenido 20rps,abrir ficha,111.148,52554.26,30066.84,22487.42,0,0,timeout
+sostenido 20rps,resumen,111.215,52651.38,30066.88,22584.5,0,0,timeout
+sostenido 20rps,abrir ficha,111.301,52785.01,30068.82,22716.19,0,0,timeout
+sostenido 20rps,filtrar,111.314,52825.06,30067.79,22757.27,0,0,timeout
+sostenido 20rps,abrir ficha,111.452,52800.65,30067.35,22733.3,0,0,timeout
+sostenido 20rps,resumen,111.497,52809.84,30067.21,22742.63,0,0,timeout
+sostenido 20rps,resumen,111.525,52837.18,30067.28,22769.9,0,0,timeout
+sostenido 20rps,resumen,111.562,52854.0,30066.59,22787.41,0,0,timeout
+sostenido 20rps,abrir ficha,111.59,52881.45,30067.04,22814.41,0,0,timeout
+sostenido 20rps,buscar por texto,111.713,52925.65,30067.23,22858.42,0,0,timeout
+sostenido 20rps,filtrar,111.804,53060.6,30067.4,22993.21,0,0,timeout
+sostenido 20rps,etiquetas,111.934,52986.02,30066.89,22919.13,0,0,timeout
+sostenido 20rps,resumen,111.963,53014.28,30069.39,22944.9,0,0,timeout
+sostenido 20rps,abrir ficha,112.012,53019.18,30066.65,22952.53,0,0,timeout
+sostenido 20rps,listar libreta,112.027,53059.87,30066.51,22993.35,0,0,timeout
+sostenido 20rps,abrir ficha,112.031,53113.17,30067.9,23045.27,0,0,timeout
+sostenido 20rps,buscar por texto,112.067,53134.24,30067.01,23067.24,0,0,timeout
+sostenido 20rps,listar libreta,112.162,53093.14,30065.89,23027.25,0,0,timeout
+sostenido 20rps,etiquetas,112.192,53119.08,30066.15,23052.92,0,0,timeout
+sostenido 20rps,resumen,112.25,53118.05,30067.49,23050.56,0,0,timeout
+sostenido 20rps,buscar por texto,112.255,53168.32,30066.34,23101.97,0,0,timeout
+sostenido 20rps,historial de la ficha,112.288,53191.71,30067.1,23124.61,0,0,timeout
+sostenido 20rps,listar libreta,112.298,53236.68,30066.59,23170.09,0,0,timeout
+sostenido 20rps,listar libreta,112.3,53292.74,30069.1,23223.64,0,0,timeout
+sostenido 20rps,listar libreta,112.312,53337.06,30067.38,23269.67,0,0,timeout
+sostenido 20rps,listar libreta,112.372,53333.22,30066.69,23266.53,0,0,timeout
+sostenido 20rps,resumen,112.372,53388.21,30065.89,23322.32,0,0,timeout
+sostenido 20rps,listar libreta,112.475,53342.2,30067.25,23274.95,0,0,timeout
+sostenido 20rps,resumen,112.531,53341.47,30065.97,23275.5,0,0,timeout
+sostenido 20rps,listar libreta,112.656,53385.15,30066.5,23318.64,0,0,timeout
+sostenido 20rps,resumen,112.676,53477.44,30066.66,23410.78,0,0,timeout
+sostenido 20rps,listar libreta,112.694,53516.9,30068.25,23448.64,0,0,timeout
+sostenido 20rps,resumen,112.731,53649.13,30065.82,23583.3,0,0,timeout
+sostenido 20rps,buscar por texto,112.737,53697.51,30065.24,23632.26,0,0,timeout
+sostenido 20rps,listar libreta,112.82,53836.06,30065.23,23770.84,0,0,timeout
+sostenido 20rps,resumen,112.849,53917.87,30065.44,23852.43,0,0,timeout
+sostenido 20rps,resumen,112.861,53960.9,30065.91,23894.99,0,0,timeout
+sostenido 20rps,listar libreta,112.868,54009.0,30064.85,23944.15,0,0,timeout
+sostenido 20rps,abrir ficha,113.015,54194.57,30065.94,24128.63,0,0,timeout
+sostenido 20rps,buscar por texto,113.025,54243.77,30068.96,24174.81,0,0,timeout
+sostenido 20rps,resumen,113.088,54407.44,30067.24,24340.21,0,0,timeout
+sostenido 20rps,resumen,113.097,54455.06,30067.74,24387.32,0,0,timeout
+sostenido 20rps,resumen,113.121,54544.79,30066.89,24477.9,0,0,timeout
+sostenido 20rps,buscar por texto,113.162,54616.82,30066.86,24549.96,0,0,timeout
+sostenido 20rps,resumen,113.241,54707.88,30066.9,24640.98,0,0,timeout
+sostenido 20rps,abrir ficha,113.247,54818.69,30066.19,24752.5,0,0,timeout
+sostenido 20rps,etiquetas,113.306,54873.23,30066.62,24806.61,0,0,timeout
+sostenido 20rps,resumen,113.348,54887.86,30066.74,24821.12,0,0,timeout
+sostenido 20rps,buscar por texto,113.389,54904.85,30067.67,24837.18,0,0,timeout
+sostenido 20rps,filtrar,113.492,54856.61,30065.09,24791.53,0,0,timeout
+sostenido 20rps,etiquetas,113.509,54894.56,30063.94,24830.61,0,0,timeout
+sostenido 20rps,listar libreta,113.577,54883.32,30064.51,24818.81,0,0,timeout
+sostenido 20rps,resumen,113.841,54973.51,30075.04,24898.47,0,0,timeout
+sostenido 20rps,resumen,113.886,54977.12,30065.6,24911.52,0,0,timeout
+sostenido 20rps,resumen,113.897,55023.2,30065.41,24957.79,0,0,timeout
+sostenido 20rps,resumen,113.946,55033.94,30067.9,24966.04,0,0,timeout
+sostenido 20rps,listar libreta,113.966,55070.53,30065.71,25004.82,0,0,timeout
+sostenido 20rps,listar libreta,114.023,55070.43,30065.19,25005.24,0,0,timeout
+sostenido 20rps,listar libreta,114.16,54989.53,30064.0,24925.52,0,0,timeout
+sostenido 20rps,etiquetas,114.251,54955.65,30064.88,24890.77,0,0,timeout
+sostenido 20rps,buscar por texto,114.315,54947.73,30064.76,24882.96,0,0,timeout
+sostenido 20rps,listar libreta,114.347,54973.24,30065.11,24908.13,0,0,timeout
+sostenido 20rps,resumen,114.381,54995.55,30064.24,24931.31,0,0,timeout
+sostenido 20rps,buscar por texto,114.395,55040.7,30066.19,24974.51,0,0,timeout
+sostenido 20rps,abrir ficha,114.41,55082.4,30064.59,25017.81,0,0,timeout
+sostenido 20rps,buscar por texto,114.565,55210.25,30063.75,25146.5,0,0,timeout
+sostenido 20rps,abrir ficha,114.67,55383.39,30062.95,25320.44,0,0,timeout
+sostenido 20rps,abrir ficha,114.68,55429.26,30062.92,25366.35,0,0,timeout
+sostenido 20rps,listar libreta,114.729,55544.93,30062.27,25482.66,0,0,timeout
+sostenido 20rps,listar libreta,114.823,55616.67,30062.62,25554.05,0,0,timeout
+sostenido 20rps,buscar por texto,114.833,55661.66,30062.24,25599.42,0,0,timeout
+sostenido 20rps,etiquetas,114.945,55833.28,30064.12,25769.15,0,0,timeout
+sostenido 20rps,buscar por texto,114.971,55918.41,30063.6,25854.81,0,0,timeout
+sostenido 20rps,etiquetas,114.98,55965.52,30063.53,25901.99,0,0,timeout
+sostenido 20rps,listar libreta,114.981,56022.46,30065.41,25957.05,0,0,timeout
+sostenido 20rps,buscar por texto,115.002,56112.79,30062.86,26049.93,0,0,timeout
+sostenido 20rps,resumen,115.018,56153.73,30063.6,26090.13,0,0,timeout
+sostenido 20rps,buscar por texto,115.052,56233.39,30064.41,26168.98,0,0,timeout
+sostenido 20rps,filtrar,115.104,56352.95,30063.97,26288.98,0,0,timeout
+sostenido 20rps,resumen,115.265,56542.62,30070.37,26472.25,0,0,timeout
+sostenido 20rps,buscar por texto,115.299,56622.39,30064.22,26558.18,0,0,timeout
+sostenido 20rps,etiquetas,115.337,56756.16,30063.09,26693.07,0,0,timeout
+sostenido 20rps,buscar por texto,115.376,56831.14,30062.87,26768.26,0,0,timeout
+sostenido 20rps,abrir ficha,115.426,56949.18,30062.3,26886.88,0,0,timeout
+sostenido 20rps,etiquetas,115.441,56993.1,30065.6,26927.5,0,0,timeout
+sostenido 20rps,abrir ficha,115.514,57089.51,30063.4,27026.11,0,0,timeout
+sostenido 20rps,resumen,115.78,57343.98,30066.2,27277.78,0,0,timeout
+sostenido 20rps,listar libreta,115.854,57452.94,30061.01,27391.93,0,0,timeout
+sostenido 20rps,resumen,115.893,57524.54,30059.93,27464.61,0,0,timeout
+sostenido 20rps,listar libreta,116.157,57752.8,30061.27,27691.54,0,0,timeout
+sostenido 20rps,listar libreta,116.194,57828.81,30062.02,27766.79,0,0,timeout
+sostenido 20rps,buscar por texto,116.252,57938.1,30061.25,27876.84,0,0,timeout
+sostenido 20rps,resumen,116.282,58018.79,30060.98,27957.81,0,0,timeout
+sostenido 20rps,abrir ficha,116.283,58073.34,30060.82,28012.52,0,0,timeout
+sostenido 20rps,historial de la ficha,116.284,58126.3,30060.57,28065.74,0,0,timeout
+sostenido 20rps,resumen,116.319,58200.57,30060.94,28139.63,0,0,timeout
+sostenido 20rps,resumen,116.382,58303.83,30061.44,28242.39,0,0,timeout
+sostenido 20rps,buscar por texto,116.407,58397.75,30069.68,28328.07,0,0,timeout
+sostenido 20rps,abrir ficha,116.476,58490.94,30060.26,28430.68,0,0,timeout
+sostenido 20rps,abrir ficha,116.492,58529.77,30060.11,28469.65,0,0,timeout
+sostenido 20rps,etiquetas,116.623,58673.64,30060.05,28613.59,0,0,timeout
+sostenido 20rps,resumen,116.631,58720.18,30059.77,28660.41,0,0,timeout
+sostenido 20rps,buscar por texto,116.634,58770.7,30059.04,28711.65,0,0,timeout
+sostenido 20rps,resumen,116.669,58851.01,30059.81,28791.2,0,0,timeout
+sostenido 20rps,resumen,116.674,58901.89,30060.35,28841.54,0,0,timeout
+sostenido 20rps,listar libreta,116.728,58958.73,30060.32,28898.41,0,0,timeout
+sostenido 20rps,listar libreta,116.759,59042.84,30065.55,28977.28,0,0,timeout
+sostenido 20rps,abrir ficha,116.857,59170.93,30060.21,29110.72,0,0,timeout
+sostenido 20rps,abrir ficha,116.902,59236.09,30060.67,29175.42,0,0,timeout
+sostenido 20rps,abrir ficha,117.137,59382.45,30059.73,29322.71,0,0,timeout
+sostenido 20rps,filtrar,117.211,59469.45,30058.19,29411.26,0,0,timeout
+sostenido 20rps,abrir ficha,117.254,59537.8,30062.61,29475.19,0,0,timeout
+sostenido 20rps,buscar por texto,117.329,59622.08,30057.53,29564.54,0,0,timeout
+sostenido 20rps,resumen,117.39,59722.07,30058.64,29663.43,0,0,timeout
+sostenido 20rps,resumen,117.433,59784.81,30058.19,29726.62,0,0,timeout
+sostenido 20rps,abrir ficha,117.485,59841.64,30046.38,29795.26,0,0,timeout
+sostenido 20rps,resumen,117.566,59871.09,30040.26,29830.83,0,0,timeout
+sostenido 20rps,listar libreta,117.581,59889.91,30039.38,29850.53,0,0,timeout
+sostenido 20rps,filtrar,117.656,63309.56,30041.12,33268.43,0,0,timeout
+sostenido 20rps,etiquetas,117.694,63302.14,30038.69,33263.44,0,0,timeout
+sostenido 20rps,resumen,117.727,63298.97,30035.27,33263.7,0,0,timeout
+sostenido 20rps,filtrar,117.829,63228.63,30035.28,33193.36,0,0,timeout
+sostenido 20rps,listar libreta,117.913,63176.73,30035.29,33141.44,0,0,timeout
+sostenido 20rps,abrir ficha,117.914,63208.82,30035.5,33173.32,0,0,timeout
+sostenido 20rps,filtrar,117.932,63222.04,30035.11,33186.93,0,0,timeout
+sostenido 20rps,resumen,117.959,63226.66,30034.86,33191.8,0,0,timeout
+sostenido 20rps,abrir ficha,117.989,63228.58,30034.8,33193.78,0,0,timeout
+sostenido 20rps,abrir ficha,118.037,63212.66,30035.51,33177.15,0,0,timeout
+sostenido 20rps,resumen,118.057,63224.88,30034.92,33189.96,0,0,timeout
+sostenido 20rps,buscar por texto,118.083,63231.82,30035.4,33196.42,0,0,timeout
+sostenido 20rps,resumen,118.123,63224.59,30036.14,33188.46,0,0,timeout
+sostenido 20rps,buscar por texto,118.145,63236.35,30035.7,33200.65,0,0,timeout
+sostenido 20rps,buscar por texto,118.22,63193.9,30035.6,33158.31,0,0,timeout
+sostenido 20rps,resumen,118.295,63152.24,30035.76,33116.47,0,0,timeout
+sostenido 20rps,listar libreta,118.714,62768.4,30035.06,32733.34,0,0,timeout
+sostenido 20rps,listar libreta,118.783,62732.79,30035.59,32697.2,0,0,timeout
+sostenido 20rps,buscar por texto,118.9,62649.14,30035.6,32613.54,0,0,timeout
+sostenido 20rps,buscar por texto,118.956,62626.6,30035.92,32590.68,0,0,timeout
+sostenido 20rps,buscar por texto,119.037,62577.48,30034.73,32542.75,0,0,timeout
+sostenido 20rps,resumen,119.056,62592.32,30035.79,32556.54,0,0,timeout
+sostenido 20rps,abrir ficha,119.059,62622.1,30035.41,32586.68,0,0,timeout
+sostenido 20rps,abrir ficha,119.092,62622.43,30035.37,32587.06,0,0,timeout
+sostenido 20rps,resumen,119.168,62587.99,30036.73,32551.27,0,0,timeout
+sostenido 20rps,etiquetas,119.225,62564.21,30035.87,32528.34,0,0,timeout
+sostenido 20rps,abrir ficha,119.25,62574.66,30036.37,32538.29,0,0,timeout
+sostenido 20rps,abrir ficha,119.368,62489.76,30035.72,32454.04,0,0,timeout
+sostenido 20rps,resumen,119.439,62452.83,30036.28,32416.55,0,0,timeout
+sostenido 20rps,listar libreta,119.462,62463.68,30035.67,32428.01,0,0,timeout
+sostenido 20rps,abrir ficha,119.709,62251.26,30036.06,32215.19,0,0,timeout
+sostenido 20rps,resumen,119.723,62271.74,30036.11,32235.63,0,0,timeout
+sostenido 20rps,listar libreta,119.756,62272.75,30035.76,32236.99,0,0,timeout
+sostenido 20rps,buscar por texto,119.765,62297.23,30035.23,32262.0,0,0,timeout
+sostenido 20rps,etiquetas,119.912,62185.7,30036.03,32149.67,0,0,timeout
+sostenido 20rps,resumen,119.947,62184.77,30036.11,32148.66,0,0,timeout
