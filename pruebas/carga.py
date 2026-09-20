@@ -44,6 +44,7 @@ class Peticion:
     archivos: Optional[Callable[[], Dict[str, Any]]] = None
     esperado: Sequence[int] = (200, 201, 204)
     timeout: float = 30.0
+    cabeceras: Optional[Dict[str, str]] = None   # solo para esta peticion
 
 
 @dataclass
@@ -135,8 +136,12 @@ class Generador:
     """Programa peticiones a una tasa fija y las lanza sin esperarse a si mismo."""
 
     def __init__(self, base: str, peticiones: Sequence[Peticion], *,
-                 semilla: int = 20260919, max_conexiones: int = 200):
+                 semilla: int = 20260919, max_conexiones: int = 200,
+                 cabeceras: Optional[Dict[str, str]] = None):
         self.base = base.rstrip("/")
+        # ContactHub pide "Authorization: Bearer ..." en todo salvo /health
+        # y /auth/*: se fija una vez aqui y viaja en cada peticion.
+        self.cabeceras = dict(cabeceras or {})
         self.peticiones = list(peticiones)
         self.total_peso = sum(p.peso for p in self.peticiones) or 1.0
         self.rnd = random.Random(semilla)
@@ -166,6 +171,8 @@ class Generador:
             if pet.archivos is not None:
                 kwargs["files"] = pet.archivos()
                 kwargs.pop("json", None)
+            if pet.cabeceras:
+                kwargs["headers"] = pet.cabeceras
             url = pet.url if pet.url.startswith("http") else self.base + pet.url
             r = await cliente.request(pet.metodo, url, **kwargs)
             cuerpo = r.content
@@ -188,7 +195,8 @@ class Generador:
         muestras: List[Muestra] = []
         inicio = time.perf_counter()
         tareas = []
-        async with httpx.AsyncClient(limits=limites, follow_redirects=True) as cliente:
+        async with httpx.AsyncClient(limits=limites, follow_redirects=True,
+                                     headers=self.cabeceras) as cliente:
             t = inicio
             fin_previsto = inicio + segundos
             while t < fin_previsto:
@@ -214,7 +222,8 @@ class Generador:
                                max_keepalive_connections=cuantas)
         muestras: List[Muestra] = []
         inicio = time.perf_counter()
-        async with httpx.AsyncClient(limits=limites, follow_redirects=True) as cliente:
+        async with httpx.AsyncClient(limits=limites, follow_redirects=True,
+                                     headers=self.cabeceras) as cliente:
             t = time.perf_counter()
             await asyncio.gather(*[
                 self._una(cliente, pet or self._elegir(), t, muestras)
@@ -256,9 +265,9 @@ def guardar_json(datos: Any, ruta) -> None:
 # operativo, uno por nucleo, y juntar despues las muestras.
 def _trabajador(args):
     """Corre una parte de la carga en su propio proceso. Devuelve filas planas."""
-    (peticiones_serializadas, rps, segundos, semilla, escenario) = args
+    (peticiones_serializadas, rps, segundos, semilla, escenario, cabeceras) = args
     peticiones = [Peticion(**p) for p in peticiones_serializadas]
-    gen = Generador("", peticiones, semilla=semilla)
+    gen = Generador("", peticiones, semilla=semilla, cabeceras=cabeceras)
     resultado = asyncio.run(gen.correr(rps=rps, segundos=segundos, escenario=escenario))
     return [(m.nombre, m.t_programado, m.t_inicio, m.t_fin, m.estado,
              m.bytes_recibidos, m.error) for m in resultado.muestras], \
@@ -266,15 +275,16 @@ def _trabajador(args):
 
 
 def correr_repartido(peticiones: Sequence[Peticion], *, rps: float, segundos: float,
-                     procesos: int, escenario: str = "carga") -> Resultado:
+                     procesos: int, escenario: str = "carga",
+                     cabeceras: Optional[Dict[str, str]] = None) -> Resultado:
     """Reparte `rps` entre `procesos` generadores independientes."""
     import multiprocessing as mp
 
     planas = [{"nombre": p.nombre, "metodo": p.metodo, "url": p.url, "peso": p.peso,
                "esperado": tuple(p.esperado), "timeout": p.timeout}
               for p in peticiones if p.datos is None and p.archivos is None]
-    tareas = [(planas, rps / procesos, segundos, 20260919 + i, escenario)
-              for i in range(procesos)]
+    tareas = [(planas, rps / procesos, segundos, 20260919 + i, escenario,
+               dict(cabeceras or {})) for i in range(procesos)]
     with mp.get_context("spawn").Pool(procesos) as pool:
         partes = pool.map(_trabajador, tareas)
 

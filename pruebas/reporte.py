@@ -74,8 +74,14 @@ def grafica_escalada(resumenes: List[Dict[str, Any]], ruta: Path,
     ax.axhline(1000, color=TEXTO_2, linestyle="--", linewidth=1, alpha=0.55)
     ax.text(x[0] * 1.15, 1250, "1 s: el limite de lo que se siente instantaneo",
             color=TEXTO_2, fontsize=8, ha="left")
-    ax.axvline(rps_nominal, color=ACENTO, linestyle=":", linewidth=1.4, alpha=0.85)
-    ax.text(rps_nominal * 1.15, 1.6, "hora pico real de la oficina\n(1,6 peticiones/s)",
+    # La demanda real cabe muy a la izquierda del grafico: si queda fuera del
+    # eje se dibuja pegada al borde, pero se dice el numero de todos modos.
+    dentro = rps_nominal >= min(x)
+    marca_x = rps_nominal if dentro else min(x)
+    ax.axvline(marca_x, color=ACENTO, linestyle=":", linewidth=1.4, alpha=0.85)
+    ax.text(marca_x * 1.15, 1.6,
+            f"hora punta real de la oficina\n({rps_nominal:.3f} peticiones/s"
+            + ("" if dentro else ", fuera del eje") + ")",
             color=ACENTO, fontsize=8, va="bottom")
 
     # marcar donde deja de aguantar
@@ -99,7 +105,7 @@ def grafica_escalada(resumenes: List[Dict[str, Any]], ruta: Path,
                     fontsize=8.5, loc="upper left")
     leg.get_frame().set_linewidth(0.8)
     _guardar(fig, ruta, "Cuanto se espera segun el caudal",
-             "La mezcla de trabajo de una hora pico real, multiplicada hasta que el sistema se dobla")
+             "La mezcla de trabajo de una hora punta real, multiplicada hasta que el sistema se dobla")
 
 
 def grafica_caudal(resumenes: List[Dict[str, Any]], ruta: Path) -> None:
@@ -130,7 +136,7 @@ def grafica_caudal(resumenes: List[Dict[str, Any]], ruta: Path) -> None:
 
 
 def grafica_errores(resumenes: List[Dict[str, Any]], ruta: Path) -> None:
-    x = [f"{r.get('factor', '')}x\n{r['rps']:.0f} rps" for r in resumenes]
+    x = [f"{r['rps_objetivo']:.0f}\npedidas" for r in resumenes]
     y = [r["tasa_error_pct"] for r in resumenes]
     fig, ax = _lienzo(9.6, 3.4)
     colores = [OK if v == 0 else (AVISO if v < 1 else CRITICO) for v in y]
