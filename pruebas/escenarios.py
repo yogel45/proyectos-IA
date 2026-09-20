@@ -33,7 +33,7 @@ from .contacthub import API, BASE
 # --------------------------------------------------------------------------
 PICO_LLAMADAS_HORA = 56       # hora mas cargada del historial de la centralita
 MEDIANA_LLAMADAS_HORA = 16    # hora tipica
-EMPLEADOS = 26                # personas en la hoja "Nomina" del biometrico
+EMPLEADOS = 25                # personas en la hoja "Nomina" del biometrico
 PANTALLAS_ABIERTAS = 6        # equipos con la libreta abierta a la vez
 REFRESCO_RESUMEN_MIN = 5      # cada cuanto se refresca el panel de resumen
 

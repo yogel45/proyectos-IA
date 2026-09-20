@@ -244,7 +244,14 @@ def _leer_nomina() -> List[Tuple[str, str, str]]:
         if len(partes) < 2:
             continue
         area = str(fila[col_area] or "").strip() if col_area is not None else ""
-        salida.append((partes[0].title(), " ".join(partes[1:]).title(), area or "Oficina"))
+        # Debajo de la tabla hay una nota al pie ("Hora Sabado", "8am - 14 pm")
+        # escrita en la columna de nombres. La segunda linea se cae sola por
+        # llevar digitos; la primera no, y durante varias sesiones "Hora
+        # Sabado" fue una empleada mas. Una fila de nomina de verdad tiene
+        # area: la nota no.
+        if not area:
+            continue
+        salida.append((partes[0].title(), " ".join(partes[1:]).title(), area))
     return salida
 
 

@@ -577,7 +577,7 @@ señalado como **no medido**, no como descartado.
 ## 7. Lo que falló en la propia prueba
 
 Una prueba de carga mal hecha no da un resultado malo: da un resultado **convincente y
-falso**. Estos siete fallos eran míos, no de ContactHub, y todos habrían producido
+falso**. Estos ocho fallos eran míos, no de ContactHub, y todos habrían producido
 cifras publicables y equivocadas.
 
 ### 7.1 Medir sobre la resaca del escenario anterior
@@ -703,6 +703,32 @@ sesión completa en 20 minutos en vez de 40.
 
 La lección general: **una prueba de carga que satura en todos sus escenarios no mide
 nada más que la saturación.** Para medir un escenario hay que dejarle sitio.
+
+### 7.8 Una empleada que era una nota al pie
+
+**Lo que pasó.** La hoja `Nomina` del biométrico tiene 25 empleados y, tres filas
+más abajo, una nota escrita en la columna de nombres: `Hora Sabado` y `8am - 14 pm`.
+El lector descartaba la segunda —lleva dígitos— pero no la primera. Durante varias
+sesiones **"Hora Sabado" fue la empleada número 26**: dio nombre a contactos
+sembrados y, peor, se coló en la constante `EMPLEADOS`, de la que salen dos de los
+once pesos de la mezcla de operaciones.
+
+**Por qué importa.** La carga nominal del despacho —el denominador de todos los
+"×N la hora punta" del informe— pasó de 325 a **321 peticiones en la hora punta**,
+de 0,090 a **0,089 peticiones/s**. El caudal sostenible de 15 pet./s no era 166
+veces la demanda real sino **168**. Es una corrección pequeña, pero es el número
+que encabeza el informe, y estaba mal.
+
+**Es el mismo error que ya había cometido.** En §7.3 la heurística vieja colaba
+encabezados como `Hora Entrada`; lo arreglé leyendo la hoja `Nomina` en vez de
+rastrear el libro, y di el problema por cerrado. No lo estaba: la nota al pie está
+*dentro* de esa hoja. Arreglar la causa que uno ve no es lo mismo que arreglar la
+clase de error.
+
+**Qué se hizo.** Una fila de nómina de verdad tiene área; la nota no tiene ninguna
+columna rellena salvo el nombre. Se descartan las filas sin área. Como dos de los
+once pesos de la mezcla salen de `EMPLEADOS`, la sesión se corrió entera otra vez
+con la mezcla corregida: las cifras de este documento son las de esa sesión.
 
 
 ---
