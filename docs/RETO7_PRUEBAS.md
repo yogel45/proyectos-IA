@@ -1,85 +1,109 @@
-# Pruebas de tráfico, carga y tolerancia a errores
+# Pruebas de tráfico, carga y actividad automatizada
 
-**Reto 7.** Diseño, implementación y ejecución de pruebas propias sobre la solución
-construida, con la medición y la interpretación de lo que arrojan.
+**Reto 7.** Diseño, implementación y ejecución de pruebas propias sobre la solución,
+con la medición y la interpretación de lo que arrojan.
 
-> Proyecto independiente: **este documento se lee solo**. El arnés de pruebas vive en
-> `pruebas/` y se lanza con `python run_pruebas.py`. Por la naturaleza del reto, es el
-> único que necesita a las demás aplicaciones: son el sistema al que se le aplica la
-> carga, y el propio comando las arranca.
+> **Proyecto independiente.** Este documento se lee solo y no depende de ningún otro
+> reto. El sistema que se pone a prueba es **ContactHub** (la agenda de contactos con
+> API REST, JWT y SQLite). El arnés vive en `pruebas/` y se lanza con
+> `python run_pruebas.py`.
 
 Entregables de este documento:
 
-1. Scripts y configuración de las pruebas, con instrucciones para reproducirlas (§2 y §3).
-2. Instrucciones de instalación, configuración y ejecución (§3).
-3. Descripción del escenario diseñado y su justificación (§1).
-4. Resultados ejecutados: métricas, gráficas y registros (§4 a §9).
+| Pedido en el reto | Dónde está |
+|---|---|
+| Scripts y configuración de las pruebas | §2 · `pruebas/`, `run_pruebas.py` |
+| Instrucciones para reproducirlas | §3 |
+| Instalación, configuración y ejecución | §3 |
+| Descripción del escenario y su justificación | §1 |
+| Resultados: registros, métricas, informes, gráficas | §4 a §10 · `docs/resultados/`, `docs/img/` |
 
 ---
 
 ## 1. El escenario, y por qué es ése
 
-Una prueba de carga sin un número detrás es teatro. El tamaño de la carga de este
-proyecto no se eligió: **se midió en los datos reales del despacho**.
-
 ### 1.1 De dónde sale la cifra
 
-En `sample_data/RingCentral_History.xlsx` hay **4 000 llamadas de 24 días**. Agrupadas
-por hora:
+La carga no se inventa. Sale de dos archivos reales de la oficina, que están en
+`sample_data/`:
 
-| Medida | Valor |
-|---|---|
-| Llamadas en la hora más cargada (23/08/2025, 09:00) | **56** |
-| Mediana de una hora con actividad | 16 |
-| Llamadas por día (mediana) | 170 |
-| Personas en nómina | 25 |
+* **`RingCentral_History.xlsx`** — el historial de la centralita. Su hora más cargada
+  del año tiene **56 llamadas entrantes**. Cada llamada entrante es una búsqueda en la
+  agenda: es literalmente para lo que se abre ContactHub cuando suena el teléfono.
+* **`Datos_Biometrico_2.xlsx`** — la nómina del reloj biométrico: **26 personas**.
 
-Esa hora pico de 56 llamadas es el techo real de la oficina. De ahí se deriva todo lo
-demás, contando lo que pasa **por cada llamada**:
+De ahí sale la mezcla de tráfico, operación por operación:
 
-| Origen del tráfico | Cómo se calcula | Peticiones/s |
-|---|---|---|
-| Búsqueda en el directorio al entrar una llamada | 56 / 3 600 | 0,016 |
-| Paneles de video abiertos refrescándose solos | 8 pantallas / 5 s | 1,600 |
-| Fichas que se abren tras la búsqueda | 60 % de las llamadas | 0,009 |
-| Documentos del lote de la mañana | 12 / hora | 0,003 |
-| **Carga nominal (1×)** | | **1,63** |
+| Operación | Veces en la hora punta | De dónde sale ese número |
+|---|---:|---|
+| Buscar por texto | 56 | una por llamada entrante |
+| Abrir una ficha | 39 | 7 de cada 10 búsquedas terminan abriendo la ficha |
+| Listar la agenda | 78 | 26 personas × 3 veces que abren la aplicación |
+| Resumen (`/stats`) | 72 | 6 pantallas abiertas, refresco cada 5 minutos |
+| Etiquetas del menú | 26 | una por apertura de la aplicación |
+| Filtrar por empresa o etiqueta | 20 | |
+| Historial de una ficha | 8 | |
+| Buscar duplicados | 1 | limpieza ocasional |
+| Alta de contacto | 9 | clientes nuevos del día, repartidos |
+| Editar contacto | 12 | correcciones sobre la marcha |
+| Acción en bloque | 4 | etiquetar varios de una vez |
+| **Total** | **325 peticiones / hora** | **= 0,090 peticiones por segundo** |
 
-La conclusión incómoda y honesta es que **la oficina real genera menos de 2 peticiones
-por segundo**. Por eso la prueba no se queda ahí: esa misma mezcla se multiplica ×5,
-×10, ×25, ×50, ×100 y ×200 hasta encontrar dónde se dobla el sistema. Medir sólo el caso
-cómodo no habría demostrado nada.
+Ese número —**nueve centésimas de petición por segundo**— es el resultado más útil de
+todo el reto y conviene decirlo antes que ningún otro: la demanda real de este despacho
+es diminuta. Todas las cifras de tres dígitos que aparecen más abajo no son la carga
+esperada; son **el margen que hay antes de que el sistema se rompa**, expresado también
+en "cuántas horas punta reales caben ahí dentro".
 
-### 1.2 Las siete pruebas y qué busca cada una
+### 1.2 Contra qué datos se mide
+
+Medir búsquedas sobre una agenda vacía no mide nada. Antes de cada sesión el arnés
+siembra la agenda con **2 000 contactos** construidos con los nombres y los puestos
+reales de la nómina y los teléfonos reales del historial de la centralita, combinando
+apellido paterno y materno para obtener 676 nombres completos distintos.
+
+La siembra **no escribe en la base de datos por detrás**: genera un CSV en formato Google
+Contacts y lo sube por el mismo endpoint de importación que usa una persona
+(`POST /api/v1/imports/google-csv`). Así la prueba entra por donde se entra de verdad, y
+de paso mide lo que tarda esa importación.
+
+Después, el arnés **pregunta al sistema** contra qué va a medir: lee identificadores,
+apellidos, empresas y etiquetas repartidos por toda la agenda. No los da por supuestos.
+Si la agenda estuviera vacía, lo dice y se planta, porque los 404 que saldrían entonces
+serían fallos de la prueba, no del sistema.
+
+### 1.3 Las ocho pruebas y qué busca cada una
 
 | # | Prueba | Qué pregunta responde |
 |---|---|---|
-| 0 | **Arranque en frío** | ¿Cuánto espera la primera persona del día en cada pantalla? |
-| 1 | **Escalada** | ¿A partir de qué caudal deja de sentirse instantáneo? |
-| 2 | **Ráfaga** | ¿Y si entran todas de golpe, desde reposo? |
-| 3 | **Escrituras concurrentes** | ¿Aguanta SQLite que varias personas escriban a la vez? |
-| 4 | **Resistencia** | ¿Se degrada o se le va la memoria si la carga no para? |
-| 5 | **Video en proceso** | ¿Sigue respondiendo mientras analiza un video? |
-| 6 | **Tolerancia a errores** | ¿Qué hace cuando la petición viene mal o es maliciosa? |
+| 1 | Arranque en frío | Qué espera la primera persona del día, pantalla por pantalla |
+| 2 | Escalada | ¿A partir de qué caudal deja de ir bien? |
+| 3 | Ráfaga | ¿Y si entran todas de golpe desde reposo? |
+| 4 | Escrituras concurrentes | ¿Varias personas escribiendo a la vez se pisan? |
+| 5 | Sólo consultas caras | ¿Cuál es la consulta que se rompe primero? |
+| 6 | Resistencia | ¿Se degrada o pierde memoria con el tiempo? |
+| 7 | Importación grande en marcha | ¿La agenda queda inservible mientras importa? |
+| 8 | Tolerancia a errores | ¿Cómo falla: defendiéndose (4xx) o roto (500)? |
 
-Y una comprobación final, la número 7: **¿los datos siguen intactos después de todo eso?**
+Y, al final, una comprobación de **integridad**: que la agenda sigue coherente después
+de la paliza.
 
-### 1.3 Dos decisiones de método que cambian lo que se mide
+### 1.4 Tres decisiones de método que cambian lo que se mide
 
-**Llegadas de Poisson, no un bucle cerrado.** Lo habitual —"N usuarios que piden, esperan
-la respuesta y vuelven a pedir"— esconde la saturación: si el servidor se frena, el
-generador también, y las latencias salen bonitas. Aquí las peticiones se programan a una
-tasa fija con intervalos exponenciales, como llega el tráfico real; si el servidor no da
-abasto, la cola crece y se ve.
+**Llegadas de Poisson, no un bucle cerrado.** Lo habitual —"N usuarios que piden,
+esperan la respuesta y vuelven a pedir"— esconde la saturación: si el servidor se frena,
+el generador también, y las latencias salen bonitas. Aquí las peticiones se programan a
+una tasa fija con intervalos exponenciales, como llega el tráfico real; si el servidor no
+da abasto, la cola crece y se ve.
 
 **Se mide la espera del usuario, no la del servidor.** El reloj arranca cuando la
 petición *debía* salir, no cuando sale. Esa diferencia se llama *coordinated omission* y
 es justo lo que se siente cuando un sistema empieza a ir mal. El informe guarda las dos:
 `latencia_ms` (lo que espera la persona) y `servicio_ms` (lo que tarda el servidor).
 
-**Consultas distintas en cada petición.** Las búsquedas rotan entre 15 consultas reales
-—teléfonos del historial, apellidos del expediente, números de caso, papeles procesales—.
-Repetir siempre la misma habría medido la caché del sistema operativo, no la búsqueda.
+**Consultas distintas en cada petición.** Las búsquedas rotan entre decenas de apellidos
+reales y las fichas que se abren se reparten entre 144 identificadores distintos.
+Repetir siempre la misma habría medido la caché, no la búsqueda.
 
 ---
 
@@ -87,22 +111,28 @@ Repetir siempre la misma habría medido la caché del sistema operativo, no la b
 
 | Archivo | Qué es |
 |---|---|
-| `run_pruebas.py` | El comando único: arranca, mide, vigila, dibuja y limpia |
-| `pruebas/carga.py` | Motor de carga: llegadas de Poisson, un proceso o varios, percentiles |
-| `pruebas/escenarios.py` | La mezcla de tráfico y los 26 casos borde, con su justificación en el código |
-| `pruebas/monitor.py` | Vigilancia de CPU, memoria, hilos y conexiones de cada servidor |
-| `pruebas/orquesta.py` | Ciclo de vida de los servidores y los siete escenarios |
+| `run_pruebas.py` | El comando único: arranca, entra, siembra, mide, vigila, dibuja y limpia |
+| `pruebas/contacthub.py` | Dónde está ContactHub, cómo se entra (JWT y su renovación) y con qué datos se siembra |
+| `pruebas/carga.py` | Motor de carga: llegadas de Poisson, uno o varios procesos, percentiles |
+| `pruebas/escenarios.py` | La mezcla de tráfico y la batería de casos borde, con su justificación en el código |
+| `pruebas/monitor.py` | Vigilancia de CPU, memoria, hilos y conexiones del servidor |
+| `pruebas/orquesta.py` | Ciclo de vida del servidor y los ocho escenarios |
 | `pruebas/reporte.py` | Las gráficas |
-| `data/pruebas/<fecha>/` | Datos en crudo: **una fila por petición**, más `informe.json` y los logs |
-| [`docs/resultados/carga-registro.txt`](resultados/carga-registro.txt) | **Transcripción completa** de una sesión: qué se ejecutó, en qué orden y con qué resultado |
-| [`docs/resultados/carga-peticiones-x245.csv`](resultados/carga-peticiones-x245.csv) | **Registro de peticiones** del nivel de 399 pet./s: 7 952 filas, una por petición |
-| `docs/resultados/carga-log-*.txt` | Salida de cada servidor durante la sesión |
-| `docs/resultados/carga-*.csv` | Medidas de recursos y de la prueba de resistencia |
-| `docs/img/carga-*.png` | Gráficas y capturas de pantalla bajo carga |
+| `data/pruebas/<fecha>/` | Datos en crudo: **una fila por petición**, más `informe.json` y el log del servidor |
+| [`docs/resultados/carga-registro.txt`](resultados/carga-registro.txt) | **Transcripción completa** de la sesión: qué se ejecutó, en qué orden y con qué resultado |
+| `docs/resultados/carga-peticiones-nivel-maximo.csv` | **Registro de peticiones** del nivel más alto ejecutado, una fila por petición |
+| [`docs/resultados/carga-log-contacthub.txt`](resultados/carga-log-contacthub.txt) | Salida del propio ContactHub durante la sesión, con sus trazas de error |
+| `docs/resultados/carga-*.csv` | Medidas de recursos, de resistencia y de escrituras |
+| `docs/img/carga-*.png` | Las gráficas |
 
 No hace falta ninguna herramienta externa —ni Locust, ni JMeter, ni k6—: se usa `httpx`,
-que ya viene con FastAPI, y `psutil`. Así la prueba se ejecuta con las mismas
-dependencias que el proyecto y no hay nada más que instalar ni configurar.
+que ya viene con FastAPI, más `psutil`, `matplotlib` y `openpyxl`. La prueba se ejecuta
+con las mismas dependencias del proyecto y no hay nada más que instalar ni configurar.
+
+**El arnés no toca ContactHub.** No importa su código, no abre su base de datos, no lee
+su `.env`. Habla con él sólo por HTTP, como cualquier cliente. Por eso las mismas
+pruebas valen igual si ContactHub se despliega en otra máquina: basta apuntar
+`CH_BASE` a su dirección.
 
 ---
 
@@ -112,482 +142,706 @@ dependencias que el proyecto y no hay nada más que instalar ni configurar.
 # 1) Dependencias (las mismas del proyecto)
 pip install -r requirements.txt
 
-# 2) Comprobar el entorno
+# 2) Comprobar el entorno: dice si encuentra ContactHub
 python run_pruebas.py --check
 
-# 3) La sesión completa (~10 minutos)
+# 3) La sesión completa
 python run_pruebas.py
 ```
 
-No hay que arrancar nada a mano: el propio script levanta las tres aplicaciones que no
-estén corriendo, y **respeta las que ya lo estén** (no las apaga al terminar).
+**Si ContactHub ya está arrancado** (con su `iniciar.bat`, por ejemplo), el arnés lo
+detecta, mide contra él y **no lo apaga al terminar**. Si no lo está, lo busca en las
+rutas habituales y lo arranca él mismo. Si no lo encuentra, se le dice dónde:
+
+```bash
+python run_pruebas.py --ruta "C:\Users\JOEL\Desktop\ContactHub-entrega\ContactHub"
+```
 
 Opciones útiles:
 
 ```bash
-python run_pruebas.py --rapido          # versión corta, ~90 s, para comprobar que va
-python run_pruebas.py --solo errores    # sólo la batería de casos borde
+python run_pruebas.py --rapido             # versión corta, ~2 min, para comprobar que va
+python run_pruebas.py --solo errores       # sólo la batería de casos borde
 python run_pruebas.py --solo escalada rafaga
-python run_pruebas.py --sin-video       # omitir la prueba más lenta
+python run_pruebas.py --sin-importacion    # omitir la prueba más lenta
+python run_pruebas.py --contactos 5000     # medir contra una agenda mayor
 ```
 
-**La prueba limpia lo que ensucia.** Todo lo que escriben los escenarios lleva una marca
-(`Prueba de carga`, `Carga Prueba …`) y se borra al terminar, para no tener que rehacer
-los datos de demostración después de cada ejecución. El informe dice cuántos registros
-retiró.
+Configuración por variables de entorno, si hace falta:
 
----
-
-## 4. El instrumento mentía: cómo se detectó y qué se hizo
-
-Ésta es la parte que más cambió el resultado, así que va antes que los datos.
-
-En la primera ejecución completa el sistema parecía **desplomarse a 326 peticiones/s**:
-p95 de 256 segundos y un 32 % de peticiones caducadas. La conclusión fácil habría sido
-"el techo son 166 peticiones/s". Pero el monitor decía otra cosa:
-
-> Durante el desplome, los tres servidores sumaban **11 % de CPU** de los 400 %
-> disponibles, y la máquina entera estaba al 27 %. **Nada estaba saturado.**
-
-Si nada está saturado y las latencias se disparan, el que se ahoga es el medidor. El
-generador era un único proceso de Python: su bucle de eventos y su pool de conexiones
-tocaban techo antes que el servidor. Se comprobó con una prueba A/B, misma carga contra
-el mismo sistema, cambiando sólo el número de procesos generadores:
-
-| Caudal ofrecido | 1 proceso generador | 4 procesos generadores |
+| Variable | Para qué | Por defecto |
 |---|---|---|
-| 200 pet./s | p50 **53 ms**, p95 **916 ms** | p50 5 ms, p95 13 ms |
-| 330 pet./s | p50 **15 371 ms**, sólo 105 servidas | p50 7 ms, **333 servidas** |
+| `CH_BASE` | Dirección de ContactHub | `http://127.0.0.1:8765` |
+| `CH_PUERTO` | Puerto, si sólo cambia eso | `8765` |
+| `CONTACTHUB_DIR` | Carpeta de ContactHub | se busca sola |
+| `CH_USUARIO` / `CH_CLAVE` | Cuenta de pruebas | `pruebas.carga@grupoilalo.com` |
 
-Queda demostrado: por encima de unas **200 peticiones/s un solo proceso generador
-distorsiona la medida**. El motor pasó a repartir la carga entre cuatro procesos del
-sistema operativo por encima de ese umbral (`TECHO_UN_PROCESO = 150` en
-`pruebas/orquesta.py`), y todos los números de §5 en adelante están tomados así.
+**La cuenta de pruebas es una cuenta normal**, creada por el endpoint público de
+registro. No se toca la base de datos ni se fabrican tokens: el arnés hace login como
+cualquiera y renueva el token cuando le quedan menos de dos minutos de vida, porque una
+sesión de pruebas dura más que los 15 minutos que dura un *access token* de ContactHub.
 
-**Segundo fallo del instrumento, también corregido.** El monitor daba 0 % de CPU para
-los procesos hijos. `psutil.cpu_percent()` mide *desde la llamada anterior sobre el mismo
-objeto*, y el monitor creaba los objetos de nuevo en cada muestra: todas las lecturas
-eran "la primera" y salían a cero. Ahora los objetos de los hijos se guardan y se
-reutilizan.
+**La prueba limpia lo que ensucia.** Todo lo que crean los escenarios de escritura lleva
+la empresa `Prueba de carga`, y al terminar se localiza con el mismo filtro público de la
+API y se borra en bloque. El informe dice cuántos registros retiró. Los 2 000 contactos
+sembrados **sí se quedan**: volver a sembrarlos en cada corrida tarda más que la propia
+prueba, y el arnés detecta que ya están.
+
+**Aislamiento.** Todo lo que hace la prueba ocurre bajo su propia cuenta. ContactHub
+separa los contactos por usuario, así que la agenda real de quien use la aplicación no se
+ve ni tocada ni contada.
 
 ---
 
-## 5. Resultados
+## 4. Todo el informe en una tabla
 
-Ejecución del 19/09/2026, **465 segundos**, sobre Linux con **4 núcleos y 16,9 GB**, con
-las tres aplicaciones y los generadores en la misma máquina. Datos en crudo en
-[`docs/resultados/carga-informe.json`](resultados/carga-informe.json).
-
-> Las tablas y gráficas de este apartado son de la **sesión 1**. La transcripción
-> (`carga-registro.txt`), el registro de peticiones y los logs de servidor que se
-> entregan son de la **sesión 2**, que repitió los mismos escenarios mientras se tomaban
-> las capturas de pantalla. Las dos se comparan en §5.9.
-
-### 5.1 Escalada: aguanta 245 veces la hora pico real
-
-![Latencia según el caudal](img/carga-escalada.png)
-
-| Nivel | Ofrecidas | Servidas | p50 | p95 | p99 | Errores |
-|---|---:|---:|---:|---:|---:|---:|
-| ×1 (hora pico real) | 1,6 | 2,0 | 6 ms | 9 ms | 11 ms | 0 % |
-| ×10 | 16 | 17 | 4 ms | 9 ms | 10 ms | 0 % |
-| ×50 | 81 | 78 | 4 ms | 10 ms | 14 ms | 0 % |
-| ×100 | 163 | 164 | 4 ms | 11 ms | 64 ms | 0 % |
-| ×150 | 244 | 245 | 5 ms | 14 ms | 126 ms | 0 % |
-| ×200 | 326 | 324 | 6 ms | 22 ms | 176 ms | 0 % |
-| **×245** | **399** | **396** | **8 ms** | **75 ms** | 312 ms | **0 %** |
-| ×300 | 489 | 247 | 11 896 ms | 29 445 ms | 33 930 ms | 0,04 % |
-
-**El techo medido es de ~400 peticiones por segundo**, que son **245 veces** la hora más
-cargada que ha tenido la oficina en 24 días de historial. Hasta ese punto ninguna
-petición falla y la espera se mantiene por debajo de una décima de segundo.
-
-![Ofrecidas frente a servidas](img/carga-caudal.png)
-
-Esta gráfica es la que de verdad define el límite: mientras la curva sigue a la diagonal
-el sistema va sobrado; donde se separa, ya no da más de sí. **Se separa a 400.**
-
-### 5.2 Qué es exactamente lo que se satura
-
-Entre 400 y 500 peticiones/s, con la atribución de CPU por proceso:
-
-| Caudal | Servidas | p95 | CPU pico de `video` | CPU total de la máquina |
-|---|---:|---:|---:|---:|
-| 400 | 396 | 158 ms | 68 % | de 400 % disponibles |
-| 450 | 382 | 5 282 ms | 74 % | |
-| 500 | 272 | 12 934 ms | **103 %** | |
-
-El patrón es inconfundible: **un proceso clavado en el 100 %, es decir un núcleo entero,
-mientras los otros tres están ociosos.** No es falta de máquina: es que cada aplicación
-corre con **un solo trabajador de uvicorn**, y un bucle de eventos vive en un único
-núcleo.
-
-La solución conocida es arrancar con varios trabajadores (`uvicorn --workers 4`), lo que
-multiplicaría el techo por cuatro. **No se ha hecho, y es una decisión consciente**: las
-tres aplicaciones guardan estado en el proceso —la sesión de cámara en vivo, la cola de
-trabajos de video, la conexión única a SQLite— y repartirlas entre procesos exigiría
-sacar ese estado fuera (Redis o similar). Para una oficina de 25 personas que genera 1,6
-peticiones/s, **gastar esa complejidad para pasar de 245× a 980× el pico real no tiene
-ninguna justificación.** Queda escrito por si algún día la tiene.
-
-### 5.3 Errores
-
-![Errores según el caudal](img/carga-errores.png)
-
-**Cero peticiones fallidas hasta 400 por segundo.** En el nivel de 489 —ya saturado— el
-0,04 % que falla lo hace por caducidad a los 30 segundos, no por error del servidor: el
-sistema encola en vez de romperse.
-
-### 5.4 Ráfaga: 500 de golpe, ninguna se cae
-
-| A la vez | p50 | p95 | Máxima | Errores |
-|---:|---:|---:|---:|---:|
-| 10 | 29 ms | 31 ms | 31 ms | 0 % |
-| 50 | 129 ms | 148 ms | 150 ms | 0 % |
-| 100 | 327 ms | 426 ms | 443 ms | 0 % |
-| 250 | 982 ms | 2 035 ms | 2 214 ms | 0 % |
-| 500 | 4 483 ms | 6 499 ms | 6 509 ms | 0 % |
-
-La espera crece de forma **lineal con la concurrencia** —el comportamiento de una cola
-sana— y **ninguna petición se pierde**, ni siquiera con 500 clientes simultáneos desde
-reposo. Un sistema que se rompiera devolvería 5xx o cerraría conexiones; éste hace
-esperar, que es lo correcto.
-
-### 5.5 Escrituras concurrentes: la prueba que más importaba
-
-![Coste de cada escritura](img/carga-escrituras.png)
-
-Es el escenario que pone a prueba la decisión de arquitectura más discutible del
-proyecto: **una sola conexión SQLite serializada con un cerrojo**. A 60 escrituras por
-segundo durante 25 segundos, con altas, notas y lecturas de firma mezcladas con
-búsquedas:
-
-| Operación | Peticiones | p50 | p95 | Errores |
-|---|---:|---:|---:|---:|
-| Alta de contacto | 322 | 4 ms | 13 ms | 0 % |
-| Anotar en una ficha | 431 | 4 ms | 9 ms | 0 % |
-| Leer una firma | 283 | 4 ms | 10 ms | 0 % |
-| Buscar mientras se escribe | 456 | 12 ms | 31 ms | 0 % |
-
-**Cero errores y p95 por debajo de 31 ms.** La decisión de serializar aguanta de sobra el
-uso real; el modo WAL permite que las lecturas no esperen a las escrituras, que es lo que
-se ve en la última fila.
-
-### 5.6 Resistencia: ni degradación ni fugas
-
-![Prueba de resistencia](img/carga-resistencia.png)
-
-120 segundos seguidos a 50 peticiones/s: **p95 de 10 ms, cero errores** y la línea plana
-de principio a fin. Sobre la memoria, que es la pregunta de verdad:
-
-| Aplicación | Memoria al empezar | Al terminar | Deriva |
-|---|---:|---:|---:|
-| video | 604,8 MB | 604,3 MB | **−0,5 MB** |
-| contactos | 83,3 MB | 83,3 MB | **0,0 MB** |
-| documentos | 55,7 MB | 55,7 MB | **0,0 MB** |
-
-**Ninguna fuga.** El salto de 583 a 890 MB que se ve en `video` durante toda la sesión no
-es una fuga: es el modelo YOLO11n cargándose cuando entra el primer trabajo de video, y
-se queda ahí a propósito para no recargarlo en cada trabajo.
-
-![Recursos durante toda la sesión](img/carga-recursos.png)
-
-Se leen los escalones de la escalada, el pico del trabajo de video a los 425 segundos
-(190 % de CPU, es decir dos núcleos) y las líneas de memoria planas de las otras dos
-aplicaciones.
-
-### 5.7 Video pesado mientras alguien consulta
-
-Se subió un video y, mientras el sistema lo analizaba cuadro a cuadro, se siguió pidiendo
-el panel en vivo, el estado del trabajo y búsquedas de contactos:
-
-| Medida | Valor |
+| Pregunta | Respuesta medida |
 |---|---|
-| Espera del panel durante el análisis | p50 **4,9 ms** · p95 **11,1 ms** · máxima 36,8 ms |
-| Errores | **0 de 205** |
-| CPU del proceso de video | hasta 190 % (dos núcleos) |
-| El trabajo terminó | 12 personas únicas, 45 eventos registrados |
+| ¿Cuánta carga tiene de verdad este despacho? | **0,090 peticiones/s** (325 en la hora punta) |
+| ¿Cuánto aguanta ContactHub de forma sostenida? | **14 peticiones/s** sin un solo error = **155× la demanda real** |
+| ¿Y en tramos cortos? | 20 pet./s durante 20 s van limpias… pero durante 120 s fallan el 100 % |
+| ¿Cuántas peticiones simultáneas soporta? | **50** de golpe sin errores; con 60 fallan 40 |
+| ¿Qué pasa al pasarse? | No se degrada: **se cae**, y tarda **~5 minutos** en volver |
+| ¿Por qué? | **15 conexiones a la base para 40 hilos** (§5) |
+| ¿Se arregla? | Sí, **una línea**: el punto de rotura pasa de 60 a >100 simultáneas (§5.7) |
+| ¿Aguanta trabajo pesado en segundo plano? | Sí: importando 3 000 contactos, la agenda responde en **352 ms, 0 errores** |
+| ¿Se defiende de peticiones maliciosas? | **43 de 43 casos correctos, 0 errores 500** |
+| ¿Se encontró algún defecto? | Sí: **dos altas simultáneas con la misma etiqueta nueva dan HTTP 500** (§8.8) |
+| ¿Perdió algún dato? | **Ninguno**: 25 de 25 fichas de referencia intactas |
+| ¿Cuántos fallos tuvo la propia prueba? | **Cinco**, todos documentados en §7 |
 
-El trabajo pesado **no bloquea la interfaz**: corre en un hilo aparte y las consultas
-siguen respondiendo en milisegundos. Era el riesgo principal del diseño de la aplicación
-de video y queda descartado.
+---
 
-### 5.8 Arranque en frío: lo que espera la primera persona del día
+## 5. El hallazgo principal: por qué se cae, exactamente
+
+Este apartado va antes que la tabla de resultados porque explica todos los números
+que vienen después. No es una hipótesis: está reproducido, medido y confirmado con
+el volcado de pila del propio ContactHub.
+
+### 5.1 El síntoma
+
+Por encima de cierto caudal, ContactHub no se ralentiza: se cae. Y se cae **con la
+CPU ociosa**, lo cual descarta de entrada que falte máquina.
+
+### 5.2 La traza
+
+El registro del propio servidor lo dice con todas las letras:
+
+```
+sqlalchemy.exc.TimeoutError: QueuePool limit of size 5 overflow 10 reached,
+connection timed out, timeout 30.00
+```
+
+`app/db.py` crea el motor así:
+
+```python
+def make_engine(url: str) -> Engine:
+    kwargs: dict = {"pool_pre_ping": True}
+    is_sqlite = url.startswith("sqlite")
+    if is_sqlite:
+        kwargs["connect_args"] = {"check_same_thread": False}
+        if url in ("sqlite://", "sqlite:///:memory:"):
+            kwargs["poolclass"] = StaticPool
+    engine = create_engine(url, **kwargs)
+```
+
+No se configura el pool, así que SQLAlchemy aplica el suyo por defecto: **5
+conexiones + 10 de desbordamiento = 15**, con 30 segundos de espera antes de
+rendirse.
+
+Enfrente, FastAPI atiende los endpoints **síncronos** (los de ContactHub lo son:
+`def`, no `async def`) en un grupo de **40 hilos**.
+
+**40 hilos contra 15 conexiones.** Ahí está todo.
+
+### 5.3 El mecanismo, paso a paso
+
+`get_current_user` consulta la base **en cada petición**, antes de llegar siquiera al
+endpoint: es la dependencia que valida el token y carga el usuario. Cuando entran más
+peticiones a la vez que conexiones hay:
+
+1. Los 40 hilos se llenan de peticiones paradas en `get_current_user` esperando una
+   conexión.
+2. Las que sí tienen conexión necesitan **otro turno de hilo** para ejecutar el
+   endpoint y cerrar la sesión. No hay ninguno libre.
+3. Cada espera caduca a los 30 segundos con un HTTP 500, y el hueco que deja lo
+   ocupa al instante la siguiente petición en cola.
+
+El volcado de pila durante la caída (con `py-spy`, sin tocar el proceso) lo confirma:
+
+```
+hilos: 48
+donde estan parados:
+   40  wait (threading.py:331)          <- esperando conexion a la base
+    7  wait (threading.py:327)          <- trabajadores ociosos
+    1  run (asyncio/runners.py:118)     <- el bucle principal
+
+dentro del codigo de ContactHub:
+   40  get_current_user (app/security/deps.py:54)
+```
+
+Y muestreado en el tiempo, **sin ninguna carga nueva entrando**, el número no baja:
+
+```
+  t+  0s  hilos esperando conexion a la base:  40 de 44 trabajadores
+  t+ 40s  hilos esperando conexion a la base:  40 de 43 trabajadores
+  t+ 90s  hilos esperando conexion a la base:  40 de 43 trabajadores
+```
+
+### 5.4 La confirmación aritmética
+
+La ráfaga de 60 peticiones simultáneas da **66,67 % de errores**. Eso es
+exactamente 40 de 60: fallan los 40 hilos que se quedan esperando conexión y pasan
+las 20 que sí la consiguen. La cifra se repitió al decimal en dos sesiones
+independientes (66,67 % y 66,67 %), lo que descarta que sea ruido.
+
+### 5.5 Lo caro que sale: 20 segundos de sobrecarga, minutos de servicio caído
+
+La consecuencia práctica es peor que la caída en sí. El atasco sólo drena a razón de
+unas **40 peticiones cada 30 segundos**, porque ése es el coste de cada espera
+caducada. Veinte segundos de sobrecarga a 40 peticiones/s generan unas 800
+peticiones; de ellas 741 caducaron en el cliente, y el servicio tardó **unos 6
+minutos** en volver a contestar.
+
+Eso obligó a rehacer el orden de la propia sesión de pruebas (§7.1).
+
+### 5.6 Lo que NO es
+
+Sospeché que las conexiones se filtraban cuando el cliente corta a mitad de
+petición. **Me equivocaba.** Lo probé: 40 peticiones abortadas a los 25 ms, y
+`/health` siguió respondiendo 200 durante y después, sin pérdida de capacidad.
+
+```
+antes de nada          -> /health 200
+tras  10 cortes        -> /health 200
+tras  20 cortes        -> /health 200
+tras  30 cortes        -> /health 200
+tras  40 cortes        -> /health 200
+```
+
+No hay fuga. Es congestión con un coste de 30 segundos por petición fallida.
+
+### 5.7 La corrección, probada
+
+Basta configurar el pool para que dé abasto a los hilos que hay. En una copia de
+trabajo de ContactHub, añadiendo una línea a `make_engine`:
+
+```python
+kwargs["connect_args"] = {"check_same_thread": False}
+kwargs.update(pool_size=48, max_overflow=16, pool_timeout=5)   # <- esta
+```
+
+| Peticiones simultáneas | Sin la línea | Con la línea |
+|---:|---|---|
+| 40 | 100 % bien · máx 1,3 s | 100 % bien · máx 1,5 s |
+| 60 | **67 % de errores** (40 HTTP 500 a los 30 s) | 100 % bien · máx 2,2 s |
+| 100 | — | **100 % bien** · máx 2,8 s |
+| 200 | — | 60 % de errores |
+
+El punto de rotura pasa de **60 a más de 100 peticiones simultáneas**: más del
+triple, con una línea y sin tocar nada más.
+
+`pool_timeout=5` importa tanto como el tamaño: convierte una espera de 30 segundos
+que acaba en 500 en un rechazo rápido, que es lo que un cliente puede reintentar sin
+tumbar el servicio.
+
+**Los números de §6 en adelante son los de ContactHub *sin* esa línea**, tal y como
+está. El archivo se restauró antes de medir.
+
+### 5.8 Un efecto colateral que importa para operar
+
+`/health` también consulta la base (`SELECT 1`). Bajo saturación, el chequeo de salud
+tarda lo mismo que todo lo demás y acaba caducando. Un supervisor, un balanceador o
+un script de arranque que reinicie según `/health` daría el servicio por muerto justo
+cuando sólo está ocupado, y lo reiniciaría en el peor momento posible. Un chequeo de
+vida no debería depender del recurso que se agota.
+
+---
+
+## 6. Resultados
+
+Todo lo de aquí viene de una sola sesión, ejecutada de principio a fin, cuya
+transcripción completa está en [`docs/resultados/carga-registro.txt`](resultados/carga-registro.txt).
+
+**Máquina:** Linux, 4 núcleos lógicos, 16,9 GB de RAM, Python 3.11.
+**Agenda:** 2 000 contactos al empezar, 5 000 al terminar (la importación añadió 3 000).
+**Duración:** 1 317 segundos.
+
+### 6.1 Arranque en frío: lo que espera la primera persona del día
 
 | Pantalla | Primera vez | Repetida |
 |---|---:|---:|
-| Contactos · buscar | 3 ms | 2 ms |
-| Documentos · bandeja | 3 ms | 2 ms |
-| Video · panel en vivo | 2 ms | 1 ms |
-| Contactos · métricas | 13 ms | 2 ms |
-| **Video · estado del sistema** | **1 086 ms** | 2 ms |
-| **Contactos · duplicados** | **647 ms** | **691 ms** |
+| Estado del servicio (`/health`) | 3 ms | 2 ms |
+| Quién soy (`/auth/me`) | 3 ms | 3 ms |
+| Resumen de la libreta (`/stats`) | 18 ms | 18 ms |
+| Primera pantalla de contactos | 21 ms | 21 ms |
+| Etiquetas del menú | 6 ms | 5 ms |
+| Buscar un apellido | 20 ms | 19 ms |
+| **Posibles duplicados** | **246 ms** | **218 ms** |
+| Mi perfil | 4 ms | 3 ms |
 
-Dos casos que sólo aparecen midiendo, y que son distintos entre sí:
+No hay penalización de arranque en frío: la primera llamada cuesta lo mismo que
+la segunda. La única pantalla cara es la de duplicados —doscientos y pico
+milisegundos sobre 2 000 contactos—, y se nota más adelante: es la consulta que
+tumba el sistema antes que ninguna otra.
 
-* **Estado del sistema, 1,1 s la primera vez y 2 ms después.** Sondear qué detectores hay
-  disponibles importa PyTorch. Ya estaba cacheado, pero **lo pagaba el primer usuario**.
-  Corregido: ahora el sondeo se lanza en segundo plano al arrancar el servidor. La medida
-  de 1 086 ms se tomó a menos de un segundo del arranque, es decir en el peor momento
-  posible; quien abra la pantalla unos segundos después ya no espera nada.
-* **Duplicados, 650 ms — y las dos veces.** Eso no es arranque en frío: es que el
-  detector compara cada ficha con todas las demás sobre 412 personas. Es el único punto
-  del sistema con coste cuadrático y está documentado como tal en §7.
+### 6.2 Escalada: dónde deja de ir bien
 
-### 5.9 Repetibilidad: la sesión se ejecutó dos veces
+![Escalada](img/carga-escalada.png)
 
-Las tablas y gráficas de arriba son de la **sesión 1** (`20260919_160448`). La sesión 2
-(`20260919_163348`) repitió exactamente los mismos escenarios, **con un navegador abierto
-tomando capturas al mismo tiempo**, para ver si los números aguantan:
+| Caudal ofrecido | × la hora punta real | p95 | Errores | Servidas |
+|---:|---:|---:|---:|---:|
+| 1 pet./s | 11× | 63 ms | 0,00 % | 1,4 |
+| 5 | 55× | 92 ms | 0,00 % | 5,7 |
+| 10 | 111× | 265 ms | 0,00 % | 10,3 |
+| **20** | **222×** | **346 ms** | **0,00 %** | 18,1 |
+| 25 | 277× | 30 004 ms | 22,66 % | 6,4 |
+| 30 | 332× | 54 149 ms | 40,13 % | 7,8 |
+| 33 | 366× | 56 366 ms | **100,00 %** | 5,4 |
 
-| Nivel | Servidas · sesión 1 | Servidas · sesión 2 | p95 · sesión 1 | p95 · sesión 2 |
-|---|---:|---:|---:|---:|
-| ×50 (81 pet./s) | 78,1 | 78,1 | 10 ms | 9 ms |
-| ×100 (163) | 164,2 | 164,8 | 11 ms | 14 ms |
-| ×150 (244) | 245,2 | 244,9 | 14 ms | 15 ms |
-| ×200 (326) | 323,7 | 322,0 | 22 ms | 22 ms |
-| **×245 (399)** | **395,6** | **395,0** | 75 ms | **232 ms** |
-| ×300 (489) | 247,4 | 258,2 | 29 445 ms | 28 613 ms |
+La escalada se detuvo sola al llegar al 100 % de errores: los niveles de 36, 40,
+50 y 65 peticiones/s no se ejecutaron porque no habrían añadido información y
+cada uno cuesta minutos de drenaje.
 
-**El caudal servido se repite con menos del 0,4 % de diferencia** en todos los niveles, y
-el punto de saturación es el mismo. El único número que se mueve de verdad es el p95 en
-el nivel de 399 pet./s: 75 ms frente a 232 ms. La explicación está en el propio diseño de
-la sesión 2 —un Chromium cargando páginas completas mientras se medía, compitiendo por los
-mismos 4 núcleos— y confirma lo que ya decía §5.2: **a partir de 400 pet./s la máquina
-manda**, y cualquier cosa que consuma CPU al lado se nota.
+**Lo que se ve:** no hay una degradación suave. Entre 20 y 25 peticiones/s el
+sistema pasa de 346 milisegundos y cero errores a treinta segundos y un 22 % de
+fallos. Es un acantilado, y la razón está en §5: por debajo de 15 peticiones
+simultáneas hay conexión para todas; por encima, no hay para ninguna.
 
-Lo mismo en el resto de escenarios: ráfagas y resistencia con cero errores en las dos, y
-**22 de 26 casos borde correctos en ambas**.
+![Caudal servido](img/carga-caudal.png)
+![Errores](img/carga-errores.png)
 
-### 5.10 Las pantallas, bajo carga
+### 6.3 Ráfaga: todas a la vez desde reposo
 
-Las capturas están tomadas **mientras las pruebas castigaban al sistema** a más de 160
-peticiones por segundo, no antes ni después.
+| Simultáneas | p95 | Máximo | Errores |
+|---:|---:|---:|---:|
+| 10 | 752 ms | 752 ms | 0,00 % |
+| 20 | 1 459 ms | 1 460 ms | 0,00 % |
+| 30 | 2 329 ms | 2 332 ms | 0,00 % |
+| 40 | 2 908 ms | 2 917 ms | 0,00 % |
+| **50** | **2 968 ms** | 2 978 ms | **0,00 %** |
+| 60 | 31 450 ms | 31 470 ms | **66,67 %** |
 
-![Panel de video bajo carga](img/carga-panel-video.png)
+Cincuenta peticiones de golpe: ninguna falla. Sesenta: fallan cuarenta, que son
+exactamente los cuarenta hilos que se quedan sin conexión (§5.4).
 
-El panel operativo responde y se dibuja entero mientras el generador lo bombardea: 147
-eventos, 39 personas seguidas, 4 zonas, las seis gráficas y las alertas críticas con su
-evidencia. Abajo a la derecha se ven las sesiones de análisis que dejaron las propias
-pruebas, incluidos los trabajos de video que se cancelaron al apagar los servidores entre
-escenarios.
+**Una ráfaga se recupera al instante; la carga sostenida, no.** Tras la ráfaga
+de 60 el servicio volvió en 0 segundos, porque son 60 peticiones y se acaban.
+Veinte segundos de carga sostenida generan cientos, y entonces la recuperación
+se mide en minutos.
 
-![Directorio bajo carga](img/carga-panel-contactos.png)
+### 6.4 Las consultas caras: el límite real es mucho más bajo
 
-El directorio, a la vez, muestra sus cifras subidas por las altas que la prueba estaba
-creando en ese momento (se retiran al terminar).
+Doce peticiones por segundo de consultas caras —texto libre con `limit=200`,
+paginación honda, ordenación por empresa y detección de duplicados— bastan para
+tumbarlo: **p95 de 120 segundos y 94,18 % de errores**.
 
-![Reportes bajo carga](img/carga-panel-reportes.png)
+![Coste de cada consulta](img/carga-consultas-caras.png)
 
----
+Es cuatro veces antes que la mezcla normal de oficina. El caudal que aguanta un
+sistema no es un número: depende de qué se le pide.
 
-## 6. Tolerancia a errores y seguridad
+### 6.5 Importación grande mientras la oficina sigue buscando
 
-26 peticiones mal formadas, inexistentes o abiertamente maliciosas. La regla del examen:
-**un error del cliente se contesta con 4xx y un mensaje; un 5xx significa que el servidor
-se rompió, y eso no es aceptable.**
+Éste es el mejor resultado de todo el informe.
 
-| Caso | Se esperaba | Se obtuvo |
-|---|---|---|
-| Ficha / expediente / documento inexistente | 404 | 404 ✓ |
-| Identificador no numérico | 422 | 422 ✓ |
-| Alta sin nombre | 400 | 400 ✓ |
-| **JSON malformado** | 400 | 400 ✓ *(era 500)* |
-| **Cuerpo vacío donde se espera JSON** | 400 | 400 ✓ *(era 500)* |
-| Nota vacía | 400 | 400 ✓ |
-| **Anotar en una ficha que no existe** | 404 | 404 ✓ *(era 500)* |
-| **Agregar un dato a una ficha que no existe** | 404 | 404 ✓ *(era 500)* |
-| **Vincular a un expediente una ficha que no existe** | 404 | 404 ✓ *(era 500)* |
-| **Editar una ficha que no existe** | 404 | 404 ✓ *(era 200 sin hacer nada)* |
-| Consulta de 200 000 caracteres | no romperse | 200, la procesa ✓ |
-| `'; DROP TABLE personas;--` | 200 sin efecto | 200, y la tabla sigue ahí ✓ |
-| Fusionar una ficha consigo misma | 400 | 400 ✓ |
-| Fusionar con ficha inexistente | 400 | 400 ✓ |
-| Deshacer una fusión que no existe | 400 | 400 ✓ |
-| Fuente de importación desconocida | 404 | 404 ✓ |
-| Subir un `.exe` | rechazo | 400 ✓ |
-| Subir un PDF corrupto | no romperse | 200, va a revisión ✓ |
-| **Nombre con `../../../../etc/passwd.pdf`** | no escribir fuera | 200, guardado como `passwd.pdf` ✓ |
-| Categoría sin código | 400 | 400 ✓ |
-| Zona con polígono inválido | 400 | 400 ✓ |
-| Trabajo de video inexistente | 404 | 404 ✓ |
-| **Cancelar un trabajo inexistente** | 404 | 404 ✓ *(era 200)* |
-| Parámetro negativo | no romperse | 200 ✓ |
+Con una importación de **3 000 contactos en marcha** en segundo plano —parsear
+el CSV, normalizar teléfonos y correos, buscar duplicados y escribir 3 000
+filas—, la agenda siguió respondiendo a 10 peticiones/s con **p95 de 352 ms y
+cero errores**. La importación terminó sin un solo fallo: 3 000 creados, 0
+errores.
 
-**26 de 26 correctos · 0 errores 500.**
+El trabajo pesado no bloquea la consulta. Es exactamente lo que se le pide a
+una aplicación así.
 
-Tres notas sobre seguridad, porque el resultado bueno tiene explicación:
+### 6.6 Integridad: no se perdió nada
 
-* **Inyección SQL:** todas las consultas usan parámetros (`?`), nunca concatenación de
-  cadenas. La cadena `'; DROP TABLE personas;--` se busca como texto literal y no
-  encuentra nada.
-* **Path traversal:** el nombre que manda el cliente se reduce con `Path(nombre).name`
-  antes de tocar el disco. Se comprobó dónde acabó el archivo: en
-  `data/documentos/entrada/e4bc6f31_passwd.pdf`, y de ahí, ya clasificado, en
-  `data/documentos/organizados/SIN-CLASIFICAR/2026/`. **No existe ningún
-  `/etc/passwd.pdf`** ni ningún archivo escrito fuera de `data/`.
-* **Lo que no se ha probado:** no hay autenticación en ninguna de las tres aplicaciones,
-  porque están pensadas para correr en `127.0.0.1`. Si alguna se expusiera a la red de la
-  oficina habría que añadirla, y entonces harían falta pruebas de autorización que aquí
-  no aplican.
-
-### Lo que se rompió, y cómo se arregló
-
-Las pruebas encontraron **cuatro defectos reales**. No estaban en el guion: salieron de
-ejecutarlas.
-
-| # | Qué se encontró | Cómo se encontró | Arreglo |
-|---|---|---|---|
-| 1 | **Sólo se podía escribir una nota por ficha.** La segunda devolvía 500 | Escrituras concurrentes: 70 de 71 notas fallaban | Un índice único trataba la referencia vacía `''` como un valor; ahora se guarda `NULL`, que SQLite sí permite repetir. Con migración de las filas antiguas |
-| 2 | **Un cuerpo JSON mal formado tiraba el endpoint con un 500** | Casos borde | Un lector común (`_cuerpo`) en las tres aplicaciones: si el JSON viene roto o no es un objeto, 400 con mensaje |
-| 3 | **Cancelar un trabajo inexistente devolvía 200** | Casos borde | 404, para distinguir "no existe" de "no se pudo cancelar" |
-| 4 | **El primer usuario pagaba 1,1 s** por sondear los detectores | Arranque en frío | El sondeo se lanza en segundo plano al arrancar |
-| 5 | **Escribir en una ficha que no existe devolvía 500** (anotar, agregar un dato, vincular a expediente) y **editarla devolvía 200 sin hacer nada** | Ejecución en la máquina del despacho, contra una base vacía | Una comprobación común antes de escribir: 404 con mensaje. Seis endpoints protegidos |
-
-El defecto 1 es el mejor argumento a favor de haber hecho estas pruebas: **pulsar el
-botón a mano nunca lo habría encontrado**, porque la primera nota siempre funcionaba.
-
----
-
-## 6.1 La ejecución en la máquina del despacho
-
-El arnés se llevó a la máquina donde de verdad va a correr esto —**Windows, con más
-núcleos que la de desarrollo**— y la primera ejecución allí encontró **dos defectos más**,
-uno de la aplicación y otro de las propias pruebas.
-
-### Lo que salió
-
-```
-oficina x25    … errores 0.36 %
-oficina x150   … errores 0.53 % · p95 1 172 ms
-oficina x245   … errores 0.59 % · p95 21 611 ms
-25s de escrituras concurrentes … errores 3.35 %
-```
-
-Un suelo constante de error donde en desarrollo había cero. El desglose:
-
-| Nivel | Errores |
+| | |
 |---|---|
-| ×25 a ×300 | `HTTP 404` (de 3 a 58), y a partir de ×150 entre 1 y 6 `RemoteProtocolError` |
-| Escrituras | **`HTTP 500`: 48**, más un `ReadError` y un `RemoteProtocolError` |
+| Contactos antes | 2 000 |
+| Contactos después | 5 000 (los 3 000 de la importación) |
+| En la papelera | 0 |
+| Fichas de referencia vivas | **25 de 25** |
+| El servicio responde | Sí |
 
-### Defecto 5, de la aplicación: escribir en una ficha que no existe
+Después de las ráfagas, las escrituras concurrentes, el caudal sostenido, la
+importación, la batería de casos maliciosos y una escalada hasta el colapso
+total, **la libreta quedó exactamente como debía**.
 
-Los 48 errores 500 eran reales. La base estaba vacía, así que las escrituras iban a una
-ficha inexistente y **saltaba la restricción de clave foránea de SQLite sin que nadie la
-atrapara**. Al reproducirlo aparecieron cuatro endpoints afectados, no uno:
+### 6.7 Recursos
 
-| Petición sobre una ficha inexistente | Antes | Ahora |
-|---|---|---|
-| Anotar algo | 500 | 404 |
-| Agregar un teléfono o correo | 500 | 404 |
-| Vincular a un expediente | 500 | 404 |
-| Editar la ficha | **200, sin hacer nada** | 404 |
-| Archivar la ficha | 200, sin hacer nada | 404 |
+![Recursos](img/carga-recursos.png)
 
-El cuarto era el más engañoso: la interfaz habría dicho "guardado" sobre algo que nunca
-se guardó. Se añadieron **cuatro casos borde nuevos** a la batería, que pasa de 22 a **26**.
-
-### Defecto 6, de las pruebas: daban por hechos los datos
-
-Los 404 de la escalada **no eran fallos del sistema, sino de la prueba**. El escenario
-pedía la ficha 26 y el expediente 1 porque estaban escritos a mano en el código; en una
-base vacía no existen, y el arnés los contaba como error. Un 0,6 % de error que nunca fue
-real.
-
-Arreglado en dos capas:
-
-* El arnés **consulta el sistema antes de medir** y elige la ficha con más historia y el
-  expediente con más partes, en vez de suponer identificadores.
-* Si el directorio está vacío, **se planta y lo dice** en lugar de producir un informe
-  que no mide nada:
-
-```
-[AVISO] el directorio esta vacio. Las busquedas no mediran nada util.
-        Para medir en condiciones, primero:  python scripts/contactos_demo.py --limpio
-```
-
-(Con `--igual` se puede forzar la medición de todos modos.)
-
-### Lo que queda sin explicar
-
-Los `RemoteProtocolError` y `ReadError` —entre 1 y 6 por nivel, sobre miles de
-peticiones— **no están diagnosticados**. Aparecen sólo en Windows y sólo por encima de
-150 peticiones/s. La hipótesis es agotamiento de puertos efímeros al abrir y cerrar
-miles de conexiones, que es un comportamiento conocido de la pila TCP de Windows, pero
-**no se ha comprobado** y no se va a afirmar sin medirlo.
-
-Tampoco está explicado del todo por qué esa máquina se degrada antes que la de
-desarrollo pese a tener más núcleos: a 244 peticiones/s su p95 fue de 1 172 ms frente a
-14 ms. Queda como pendiente, y es el siguiente sitio donde mirar.
-
----
-
-## 7. Integridad de los datos
-
-Después de la escalada, las ráfagas, 25 segundos de escrituras concurrentes, 120 de
-resistencia, un video completo y 26 peticiones maliciosas:
-
-| Comprobación | Resultado |
+| | |
 |---|---|
-| La ficha de referencia sigue intacta | ✓ |
-| El expediente de referencia conserva sus 5 partes | ✓ |
-| Tablas presentes tras el intento de inyección | ✓ |
-| Fichas creadas por la propia prueba | 320, retiradas al terminar |
-| Registros reales perdidos o corrompidos | **0** |
+| CPU media | 19,1 % |
+| CPU pico | 202,3 % (de 400 % disponibles) |
+| Memoria | 356 → 582 MB |
+
+La CPU nunca pasó de la mitad de la máquina, ni siquiera durante el colapso.
+Eso es lo que delata que el cuello no es de cálculo.
+
+Los 226 MB de crecimiento de memoria **no son una fuga**: la sesión importó
+3 000 contactos, y la memoria crece con la libreta. Para llamarlo fuga haría
+falta medir con la misma cantidad de datos al principio y al final, y esta
+sesión no lo hace. Queda señalado como no medido, no como descartado.
+
+### 6.8 El número que de verdad importa: 14 peticiones/s sostenidas
+
+La escalada de §6.2 mide tramos de 20 segundos, y eso **sobreestima**. Un sistema
+con un acantilado de concurrencia aguanta 20 segundos de un caudal que no
+aguantaría dos minutos: la cola no llega a acumularse.
+
+Se comprobó midiendo lo mismo con tramos de **120 segundos**:
+
+| Caudal sostenido | × la hora punta real | p95 | Errores |
+|---:|---:|---:|---:|
+| 3 pet./s | 33× | 87 ms | 0,00 % |
+| 6 | 66× | 187 ms | 0,00 % |
+| 10 | 111× | 313 ms | 0,00 % |
+| **14** | **155×** | **247 ms** | **0,00 %** |
+| 18 | 199× | 74 271 ms | **63,11 %** |
+
+Y la comparación directa que lo demuestra:
+
+| Caudal | 20 segundos | 120 segundos |
+|---:|---|---|
+| 20 pet./s | p95 346 ms · **0 % errores** | p95 97 732 ms · **100 % errores** |
+
+El mismo caudal, el mismo sistema, la misma máquina. Sólo cambia cuánto dura.
+
+**Conclusión operativa:** el techo de ContactHub tal y como está, en esta máquina,
+con una agenda de 2 000–5 000 contactos, es de **14 peticiones por segundo
+sostenidas**. Eso es 155 veces la hora punta real de este despacho, así que sobra
+margen —pero el número que hay que apuntar es 14, no 20 y desde luego no 33.
+
+### 6.9 Escrituras concurrentes
+
+La primera medida de este escenario dio 36,17 % de errores y era **culpa de la
+prueba**, no de ContactHub (§7.5). Repetida con el generador corregido, contra una
+agenda ya de 5 000 contactos:
+
+| Operación | Peticiones | p95 | Errores |
+|---|---:|---:|---:|
+| Alta de contacto | 225 | 30 005 ms | 29,33 % |
+| Editar contacto | 301 | 30 006 ms | 26,58 % |
+| Acción en bloque | 96 | 30 005 ms | 29,17 % |
+| **Total** | **622** | **30 006 ms** | **27,97 %** |
+
+Veinticinco escrituras por segundo exceden la capacidad, igual que las lecturas: es
+el mismo cuello del pool de conexiones, no nada propio de escribir.
+
+**Y hay una lección en la forma de los números.** Cuando el fallo era mío, los
+errores estaban **concentrados al 100 % en una sola operación** y las otras dos
+estaban a cero. Ahora se reparten por igual entre las tres (29,33 %, 26,58 %,
+29,17 %). Un reparto uniforme es la firma de la saturación; uno concentrado es la
+firma de un defecto en esa operación concreta. Mirar la distribución, y no sólo el
+total, es lo que distingue un diagnóstico de una corazonada.
 
 ---
 
-## 8. Conclusiones
+## 7. Lo que falló en la propia prueba
 
-1. **El sistema está sobradísimo para lo que se le va a pedir.** La oficina genera 1,6
-   peticiones/s en su hora más cargada de 24 días; el sistema sirve 400 sin fallar una.
-   Margen de **245×**.
-2. **El límite está identificado y tiene nombre:** un núcleo por aplicación, porque cada
-   una corre con un trabajador de uvicorn. Se sabe cómo subirlo y se sabe por qué no
-   merece la pena hoy.
-3. **Cuando satura, encola; no se rompe.** Ni 5xx, ni conexiones cerradas, ni datos
-   corrompidos. Con 500 clientes simultáneos desde reposo, cero pérdidas.
-4. **SQLite serializado aguanta.** La decisión más discutible del proyecto resiste 60
-   escrituras/s con p95 de 31 ms y cero errores.
-5. **No hay fugas de memoria.** 120 segundos de carga sostenida con deriva de 0 MB en las
-   tres aplicaciones.
-6. **El trabajo pesado no bloquea la interfaz.** Con un video analizándose, el panel
-   responde en 5 ms.
-7. **Las pruebas encontraron cuatro fallos reales** y los cuatro están corregidos y
-   verificados.
-8. **Y encontraron un fallo en sí mismas**, que era el más peligroso: el primer intento
-   habría publicado un techo de 166 peticiones/s, 2,4 veces por debajo del real.
+Una prueba de carga mal hecha no da un resultado malo: da un resultado **convincente y
+falso**. Estos tres fallos eran míos, no de ContactHub, y los tres habrían producido
+cifras publicables y equivocadas.
+
+### 7.1 Medir sobre la resaca del escenario anterior
+
+**Lo que pasó.** La escalada iba la segunda de la sesión. Tumbaba ContactHub y, como
+el servicio tarda minutos en volver (§5.5), todo lo que venía detrás se medía sobre
+esa cola. Las ráfagas salieron con un **100 % de errores** en todos los tamaños,
+incluso en la de 10 simultáneas, que en realidad va sobrada.
+
+**Por qué es grave.** Ese 100 % era publicable. "ContactHub falla en todas las ráfagas"
+es una frase que se sostiene sola en un informe y que es rotundamente falsa: la
+ráfaga de 50 da **0 % de errores** cuando se mide sobre un sistema sano.
+
+**Qué se hizo.** Dos cosas. La escalada pasó a ser el **último** escenario, porque es
+el único que destruye el servicio a propósito. Y cada escenario llama ahora a
+`orq.en_pie()` antes de medir: si `/health` no contesta, espera, y deja escrito
+cuánto tuvo que esperar. Eso se ve funcionando en el registro de la sesión:
+
+```
+5. Resistencia: caudal sostenido
+    [resistencia] el servicio viene tocado del escenario anterior;
+                  esperando a que vuelva … listo en 25s
+    120s seguidos a 20 peticiones/s … 
+```
+
+Sin esa línea, ese número habría sido "la resistencia de ContactHub".
+
+### 7.2 Buscar 2 000 veces el mismo apellido
+
+**Lo que pasó.** El arnés lee de la propia agenda los apellidos con los que va a
+buscar, para no inventárselos. Los leía de la **primera página ordenada por nombre**.
+De 2 000 contactos salían **dos apellidos distintos**.
+
+**Por qué es grave.** Todas las búsquedas de la prueba caían sobre la misma fila. Eso
+no mide una búsqueda: mide la caché. El sistema habría parecido más rápido de lo que
+es, y el número habría sido más bonito y menos cierto.
+
+**Qué se hizo.** El inventario muestrea doce páginas repartidas por toda la agenda.
+Ahora salen 25 apellidos distintos y 144 fichas distintas, y el peso de cada operación
+se reparte entre todos.
+
+### 7.3 Aritmética modular: 676 nombres que eran 26
+
+**Lo que pasó.** Los contactos sembrados combinan apellido paterno y materno para
+generar nombres distintos. El segundo apellido se elegía con `(i * 13) % 26`.
+
+13 y 26 no son primos entre sí: esa expresión sólo toma **dos valores**. Los 2 000
+contactos se apellidaban todos "… Sánchez" o "… Vega".
+
+**Por qué es grave.** Es la causa del fallo anterior, y además falsea la detección de
+duplicados: con dos apellidos maternos, medio directorio parece duplicado del otro
+medio, y `/contacts/duplicates` habría medido un caso patológico en vez de uno real.
+
+**Qué se hizo.** El segundo apellido avanza ahora según la vuelta que lleva la lista
+(`(i + i // len(nombres)) % len(nombres)`), lo que da **676 nombres completos
+distintos** con 26 nombres de partida. Comprobado contando:
+
+```
+nombres completos distintos: 676 · segundos apellidos: 26
+```
+
+### 7.4 Una hipótesis mía que era falsa
+
+Al ver que el servicio no volvía, supuse que ContactHub se quedaba las conexiones
+cuando el cliente corta a mitad de petición. Lo di por bueno mentalmente antes de
+comprobarlo.
+
+Lo comprobé y era falso (§5.6). No hay fuga. La explicación buena —congestión con 30
+segundos de coste por fallo— tardó más en aparecer y obligó a un volcado de pila,
+pero es la que aguanta la evidencia.
+
+Queda escrito aquí porque el informe sería peor sin ello: la hipótesis elegante y
+equivocada habría llevado a "arreglar" una fuga que no existe.
+
+### 7.5 Culpar al sistema de un fallo de la prueba
+
+Cuatro casos, los cuatro con cifras publicables y falsas. Van juntos porque la
+lección es la misma: **antes de escribir que un sistema falla, comprobar que lo
+que falla no es la prueba.**
+
+| Lo que decía la prueba | Lo que pasaba de verdad |
+|---|---|
+| «El 36 % de las escrituras falla» | Fallaban **las 225 altas y sólo las altas**: usaban correos `@ejemplo.test`, y `email-validator` rechaza los dominios de uso especial. ContactHub devolvía 422 con toda la razón. 36,17 % es exactamente el peso de esa operación en la mezcla (9 de 25) |
+| «No bloquea tras varios intentos fallidos» | **Sí bloquea**: `[401 401 401 401 401 429 429]`, corta al sexto intento, que son los cinco configurados. Mis intentos morían en validación por el mismo dominio y nunca llegaban al limitador |
+| «Un Bearer vacío no da 401» | `httpx` se niega a enviar una cabecera acabada en espacio; la petición no salía del cliente |
+| «Una búsqueda de 200 000 caracteres falla» | `httpx` abortaba con «URL too long». Con 20 000 sí llega, y ContactHub responde 422 |
+
+El primero se detectó por la aritmética: **36,17 % no es un número de saturación,
+es 9/25 exacto**. Un porcentaje que coincide al decimal con el peso de una
+operación no es azar.
 
 ---
 
-## 9. Límites de estas pruebas
+## 8. Tolerancia a errores y seguridad
 
-Escrito aquí porque un informe de rendimiento sin esta sección no es creíble.
+43 casos, uno a uno, cada uno con el código que debería devolver.
 
-* **Dos plataformas, no muchas.** Se midió en Linux con 4 núcleos (desarrollo) y en
-  Windows con más núcleos (la máquina del despacho, §6.1). Los resultados difieren de
-  forma que todavía no está explicada del todo.
-* **Todo corre en la misma máquina.** Generadores y servidores comparten 4 núcleos. A
-  partir de 400 peticiones/s esa convivencia influye; se acotó midiendo la CPU de cada
-  proceso por separado (los generadores no pasaron del 4 %), pero no es lo mismo que
-  medir desde otra máquina por red.
-* **Sin latencia de red.** Todo va por `127.0.0.1`. En una red de oficina hay que sumar
-  entre 1 y 5 ms por petición, lo que cambia poco el p95 pero sí la sensación con
-  conexiones malas.
-* **Base de datos pequeña.** 412 personas, 4 400 hitos, 14 documentos. Las consultas
-  lineales seguirán bien con diez veces más datos; **la detección de duplicados no**: es
-  cuadrática y ya cuesta 650 ms con 412 fichas, así que con 4 000 costaría minutos. Es el
-  primer sitio donde habría que trabajar si la base crece, y la forma de arreglarlo es
-  conocida (agrupar candidatos por teléfono y por expediente antes de comparar, en vez de
-  comparar todos contra todos).
-* **Un solo video, de un minuto.** No se ha probado con varios trabajos de video a la
-  vez, ni con una cámara IP durante horas.
-* **Sin pruebas del WebSocket en vivo.** La cámara en vivo empuja cuadros por WebSocket y
-  esa ruta no entra en estos escenarios: medirla bien exige simular cámaras, no clientes
-  HTTP.
-* **Dos ejecuciones, no diez.** La sesión completa se corrió dos veces (§5.9) y el caudal
-  servido se repite con menos del 0,4 % de diferencia, pero el p95 en el nivel de
-  saturación sí se mueve con lo que esté haciendo la máquina. Para decisiones finas de
-  rendimiento habría que repetir cada nivel tres veces y quedarse con la mediana.
-* **Sin pruebas de autenticación ni de autorización**, porque no hay (§6).
+**Resultado: 43 de 43 correctos y cero errores 500.** Ninguna petición mal formada,
+sin permiso o maliciosa consigue romper ContactHub.
+
+Con un matiz que importa: estos 43 casos son peticiones **de una en una**. Hay un
+caso que sí devuelve 500, y necesita dos peticiones a la vez para salir — §8.8.
+
+### 8.1 La puerta de entrada
+
+| Caso | Esperado | Obtenido |
+|---|---|---|
+| Sin token | 401/403 | ✅ |
+| Token inventado (JWT con otra firma) | 401 | ✅ |
+| `Bearer` sin token | 401/403 | ✅ |
+| Esquema equivocado (`Basic` con un token válido) | 401/403 | ✅ |
+| Token en la URL en vez de la cabecera | 401/403 | ✅ |
+| `refresh` con un token que no es de refresco | 401/422 | ✅ |
+| `/admin/users` desde una cuenta normal | 403 | ✅ |
+
+Los dos últimos merecen mención. Pasar el token por la URL **no funciona**, que es
+lo correcto: los parámetros de consulta acaban en los registros del servidor, en el
+historial del navegador y en la cabecera `Referer`. Y un *refresh token* y un
+*access token* no son intercambiables, aunque ambos sean JWT firmados por el mismo
+servicio.
+
+### 8.2 El cerrojo por intentos fallidos
+
+```
+intento 1 → 401    intento 5 → 401
+intento 2 → 401    intento 6 → 429  ← cierra
+intento 3 → 401    intento 7 → 429
+intento 4 → 401
+```
+
+Cinco intentos fallidos y la clave «IP + correo» queda bloqueada 15 minutos. La
+ventana es deslizante y un acierto la limpia, así que un usuario que se equivoca
+tres veces y acierta a la cuarta no arrastra penalización.
+
+### 8.3 Validación de datos
+
+Correo inválido, teléfono inválido, cumpleaños imposible (`1990-02-31`), campo
+desconocido en el esquema, `photo_url` apuntando a `file:///etc/passwd`, nota de
+200 000 caracteres, 51 etiquetas, contacto sin ningún dato identificativo: **los
+nueve rechazados con 422**.
+
+El de `photo_url` importa más de lo que parece: aceptar `file://` en un campo que
+luego se descarga sería una lectura de archivos del servidor.
+
+### 8.4 Parámetros y operaciones
+
+`limit=0`, `limit=5000`, `offset=-1`, `sort=loquesea`, `updated_since=ayer`,
+búsqueda de 20 000 caracteres: **todos 422**. Fusionar un contacto consigo mismo,
+fusionar con uno inexistente, acción en bloque sin ids, etiquetar sin decir qué
+etiqueta, acción inventada: **todos rechazados**.
+
+Y el de concurrencia optimista: editar enviando una versión vieja devuelve **409**,
+que es exactamente para lo que existe ese mecanismo.
+
+### 8.5 Inyección
+
+```
+GET /api/v1/contacts?q=' OR 1=1; DROP TABLE contacts;--   →  200, sin resultados
+```
+
+Doscientos. La consulta se trata como texto, se busca ese literal, no aparece
+nadie. La tabla sigue ahí — lo confirma la comprobación de integridad de §6.6.
+
+### 8.6 Archivos
+
+Subir como foto algo que no es una imagen, importar un CSV que no es de Google
+Contacts, importar un `.vcf` vacío: rechazados. Y un nombre de archivo con
+`../../../../etc/passwd.vcf` se acepta como importación **pero el nombre sólo se
+guarda como informativo**, nunca se usa como ruta — está escrito así en el código
+de ContactHub y la prueba lo confirma.
+
+### 8.7 Lo único que llama la atención
+
+Restaurar un contacto que **no** está en la papelera devuelve 200 en vez de 400.
+Es defendible —la operación es idempotente—, pero tiene un efecto que quizá no se
+quería: **sube la versión del contacto** (de 1 a 2 en la comprobación), así que un
+cliente que tuviera la versión anterior se encontrará un 409 inesperado en su
+siguiente edición. No es un fallo de seguridad ni de integridad; es una arista.
+
+### 8.8 El defecto real: dos personas creando la misma etiqueta a la vez
+
+Éste no salió de la batería de casos borde. Salió del **registro del servidor**
+después de las escrituras concurrentes, y es el defecto más serio que encontraron
+estas pruebas.
+
+```
+sqlite3.IntegrityError: UNIQUE constraint failed: labels.owner_id, labels.name_key
+```
+
+**La causa**, en `app/services/contacts.py`:
+
+```python
+def _set_labels(self, contact: Contact, names: list[str]) -> None:
+    cache = self._label_cache(contact.owner_id)
+    for name in names:
+        key = name.strip().casefold()
+        label = cache.get(key)          # ¿existe ya esta etiqueta?
+        if label is None:               # no
+            label = Label(id=uuid.uuid4(), owner_id=..., name_key=key)
+            self.db.add(label)          # → la creo
+```
+
+Mirar y después crear, sin nada en medio que impida que otra petición haga lo
+mismo. La caché es de la petición, no compartida. Dos altas simultáneas con una
+etiqueta que todavía no existe: las dos miran, las dos ven que no está, las dos la
+insertan. El índice único rechaza a la segunda y eso llega al usuario como **HTTP
+500**.
+
+**Reproducido deliberadamente**, N altas a la vez con una etiqueta nueva:
+
+| Altas simultáneas | Resultado |
+|---:|---|
+| **2** | 1 creada · **1 error 500** |
+| 5 | 1 creada · **4 errores 500** |
+| 10 | 1 creada · **9 errores 500** |
+| 20 | 6 creadas · **14 errores 500** |
+
+**Bastan dos.** No hace falta carga: hacen falta dos personas etiquetando a la vez
+con una etiqueta nueva, que en una oficina es cuestión de tiempo. Y el usuario no
+ve un mensaje útil, ve un error del servidor y su contacto sin guardar.
+
+**Se arregla** insertando la etiqueta y capturando el choque, en vez de mirar
+antes: intentar el `INSERT`, y si el índice único lo rechaza, hacer `rollback`,
+volver a leer la etiqueta que acaba de crear la otra petición y seguir. Es el
+patrón habitual («pedir perdón, no permiso») y en SQLite también vale
+`INSERT ... ON CONFLICT DO NOTHING` seguido de un `SELECT`.
+
+**Cómo apareció.** No lo encontró ningún caso borde: los 43 casos de §8 son
+peticiones de una en una, y este defecto necesita dos a la vez. Lo encontró el
+escenario de escrituras concurrentes, y sólo se vio **leyendo el registro del
+servidor**, porque la prueba de carga contaba ese 500 dentro de su porcentaje de
+errores sin distinguirlo de los demás. Los registros no son un entregable de
+adorno.
+
+---
+
+## 9. Conclusiones
+
+**Para el despacho.** ContactHub va sobrado. La hora punta real son 0,090
+peticiones por segundo y el sistema sostiene 14 sin un solo error: **155 veces la
+demanda**. No hay ningún motivo de rendimiento para no usarlo tal cual.
+
+**Para quien lo mantenga.** Hay un cambio de una línea que triplica el margen:
+
+```python
+# app/db.py, en make_engine
+kwargs.update(pool_size=48, max_overflow=16, pool_timeout=5)
+```
+
+Sin él, 15 conexiones tienen que dar servicio a 40 hilos, y el sistema no se
+degrada: se cae, y tarda minutos en volver. Con él, el punto de rotura pasa de 60 a
+más de 100 peticiones simultáneas.
+
+Y dos cosas más que conviene saber antes de que pasen:
+
+* `/health` consulta la base de datos, así que **falla justo cuando el servicio
+  sólo está ocupado**. Un supervisor que reinicie según `/health` reiniciaría en el
+  peor momento. Un chequeo de vida no debería depender del recurso que se agota.
+* Las consultas caras (paginación honda, duplicados) saturan a **12 peticiones/s**,
+  cuatro veces antes que el resto. Si alguna vez hay que poner un límite de
+  velocidad, ése es el sitio.
+* **Hay un defecto que arreglar, y no espera a tener carga:** dos personas
+  creando la misma etiqueta nueva a la vez producen un HTTP 500 (§8.8). Bastan
+  dos peticiones simultáneas.
+
+**Lo que ContactHub hace muy bien.** Importar 3 000 contactos en segundo plano sin
+que la agenda deje de responder (p95 352 ms, cero errores). Defenderse de 43 casos
+mal formados, sin permiso o maliciosos sin un solo 500. Y sobrevivir a una sesión
+entera de maltrato con la libreta intacta: 25 de 25 fichas de referencia vivas,
+nada en la papelera, ni un dato perdido.
+
+**Y una advertencia sobre este informe.** El defecto de §8.8 no lo encontró ningún
+escenario de carga ni ninguna batería de casos: lo encontró leer el registro del
+servidor línea a línea. Las 29 veces que ocurrió estaban contadas dentro de
+porcentajes de error que se explicaban por otra cosa. Si estas pruebas se hubieran
+quedado en las gráficas, ese defecto seguiría ahí, sin encontrar.
+
+---
+
+## 10. Límites de estas pruebas
+
+Lo que **no** se midió, dicho para que nadie lo dé por hecho:
+
+* **Una sola máquina, un solo proceso.** Linux, 4 núcleos, uvicorn sin `--workers`.
+  Con varios procesos los números serían otros —y el limitador de intentos, que
+  vive en memoria, dejaría de funcionar bien: está escrito en el propio código de
+  ContactHub que eso pediría Redis.
+* **Una sola cuenta.** Todo el tráfico va bajo un usuario. Con cientos de usuarios
+  concurrentes, el reparto de contactos por `owner_id` podría comportarse distinto.
+* **Fugas de memoria: no descartadas.** La memoria creció 226 MB, pero la sesión
+  también metió 3 000 contactos. Para hablar de fuga habría que medir con la misma
+  cantidad de datos al principio y al final. No se hizo.
+* **Agenda de 2 000–5 000 contactos.** Con 50 000 la detección de duplicados —que
+  ya es la consulta más cara— sería otra historia.
+* **Sin red real.** Cliente y servidor en la misma máquina: no hay latencia de red,
+  ni pérdida de paquetes, ni TLS.
+* **No se probó Google.** La sincronización con Google People necesita credenciales
+  reales de OAuth; el escenario de importación usa el CSV, que es el mismo camino
+  de código a partir del parseo.
+* **No se probó el cliente web.** Sólo la API. El frontend de ContactHub
+  (`ContactHub-cliente`) queda fuera.
