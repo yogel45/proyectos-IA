@@ -72,21 +72,25 @@ apellidos, empresas y etiquetas repartidos por toda la agenda. No los da por sup
 Si la agenda estuviera vacía, lo dice y se planta, porque los 404 que saldrían entonces
 serían fallos de la prueba, no del sistema.
 
-### 1.3 Las ocho pruebas y qué busca cada una
+### 1.3 Las diez pruebas y qué busca cada una
 
 | # | Prueba | Qué pregunta responde |
 |---|---|---|
 | 1 | Arranque en frío | Qué espera la primera persona del día, pantalla por pantalla |
-| 2 | Escalada | ¿A partir de qué caudal deja de ir bien? |
-| 3 | Ráfaga | ¿Y si entran todas de golpe desde reposo? |
-| 4 | Escrituras concurrentes | ¿Varias personas escribiendo a la vez se pisan? |
-| 5 | Sólo consultas caras | ¿Cuál es la consulta que se rompe primero? |
-| 6 | Resistencia | ¿Se degrada o pierde memoria con el tiempo? |
-| 7 | Importación grande en marcha | ¿La agenda queda inservible mientras importa? |
-| 8 | Tolerancia a errores | ¿Cómo falla: defendiéndose (4xx) o roto (500)? |
+| 2 | Ráfaga | ¿Y si entran todas de golpe desde reposo? |
+| 3 | Escrituras concurrentes | ¿Varias personas escribiendo a la vez se pisan? |
+| 4 | Sólo consultas caras | ¿Cuál es la consulta que se rompe primero? |
+| 5 | Resistencia | ¿Se degrada o pierde memoria con el tiempo? |
+| 6 | Importación grande en marcha | ¿La agenda queda inservible mientras importa? |
+| 7 | Tolerancia a errores | ¿Cómo falla: defendiéndose (4xx) o roto (500)? |
+| 8 | Integridad | ¿Sigue la agenda coherente después de la paliza? |
+| 9 | **Caudal sostenible** | ¿Cuánto aguanta **de verdad**, en tramos de dos minutos? |
+| 10 | Escalada | ¿A partir de qué caudal se cae, y cuánto tarda en volver? |
 
-Y, al final, una comprobación de **integridad**: que la agenda sigue coherente después
-de la paliza.
+**El orden no es casual.** Las dos últimas tumban el servicio a propósito, y después
+de tumbarlo tarda minutos en volver (§5.5). Si fueran antes, todo lo demás se
+mediría sobre la cola de su caída — que es justo lo que pasó en un intento previo y
+produjo un 100 % de errores que no era de nadie (§7.1).
 
 ### 1.4 Tres decisiones de método que cambian lo que se mide
 
@@ -118,7 +122,9 @@ Repetir siempre la misma habría medido la caché, no la búsqueda.
 | `pruebas/monitor.py` | Vigilancia de CPU, memoria, hilos y conexiones del servidor |
 | `pruebas/orquesta.py` | Ciclo de vida del servidor y los ocho escenarios |
 | `pruebas/reporte.py` | Las gráficas |
+| `pruebas/informe_html.py` | El informe HTML: una página que se abre con doble clic |
 | `iniciar-pruebas.bat` | Lanzador para Windows: comprueba el entorno y ejecuta la sesión |
+| `data/pruebas/<fecha>/informe.html` | **El informe para leer**: resumen, tablas y gráficas en una sola página |
 | `data/pruebas/<fecha>/` | Datos en crudo: **una fila por petición**, más `informe.json` y el log del servidor |
 | [`docs/resultados/carga-registro.txt`](resultados/carga-registro.txt) | **Transcripción completa** de la sesión: qué se ejecutó, en qué orden y con qué resultado |
 | `docs/resultados/carga-peticiones-nivel-maximo.csv` | **Registro de peticiones** del nivel más alto ejecutado, una fila por petición |
@@ -164,12 +170,31 @@ rutas habituales y lo arranca él mismo. Si no lo encuentra, se le dice dónde:
 python run_pruebas.py --ruta "C:\Users\JOEL\Desktop\ContactHub-entrega\ContactHub"
 ```
 
+### El informe HTML
+
+Al terminar, la sesión deja un **`informe.html`** junto al resto de resultados. Se
+abre con doble clic y lleva **las gráficas incrustadas dentro del propio archivo**:
+no hay carpetas que acompañar ni enlaces que se rompan al moverlo, así que se puede
+enviar por correo o imprimir tal cual. Se adapta al móvil y tiene hoja de estilos de
+impresión.
+
+Si ya ejecutaste una sesión y quieres rehacer sólo el informe —por ejemplo tras
+cambiar algo del formato— no hace falta volver a medir:
+
+```bash
+python run_pruebas.py --html data/pruebas/20260920_011911
+```
+
+Una copia del informe de la última sesión completa queda además en
+[`docs/resultados/carga-informe.html`](resultados/carga-informe.html).
+
 Opciones útiles:
 
 ```bash
 python run_pruebas.py --rapido             # versión corta, ~2 min, para comprobar que va
 python run_pruebas.py --solo errores       # sólo la batería de casos borde
 python run_pruebas.py --solo escalada rafaga
+python run_pruebas.py --solo sostenible   # sólo la escalera de caudal sostenible
 python run_pruebas.py --sin-importacion    # omitir la prueba más lenta
 python run_pruebas.py --contactos 5000     # medir contra una agenda mayor
 ```

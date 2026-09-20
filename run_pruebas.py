@@ -6,12 +6,14 @@
     python run_pruebas.py --solo errores   # solo la bateria de casos borde
     python run_pruebas.py --check          # comprobar el entorno y salir
     python run_pruebas.py --ruta C:\\ruta\\a\\ContactHub
+    python run_pruebas.py --html data/pruebas/20260920_011911   # rehacer el informe
 
 Arranca ContactHub si no estaba corriendo, abre sesion con una cuenta de
 pruebas, siembra la libreta con contactos sacados de los archivos reales de
 la oficina, le aplica los escenarios, vigila CPU y memoria del servidor, y
 deja en data/pruebas/<fecha>/ los datos en crudo (una fila por peticion), el
-resumen en JSON, el registro completo de la sesion y las graficas.
+resumen en JSON, el registro completo de la sesion, las graficas y un
+**informe.html** que se abre con doble clic y lleva las graficas dentro.
 
 No hace falta ninguna herramienta externa: se usa httpx (que ya instala
 FastAPI), psutil y matplotlib. El detalle del escenario y su justificacion
@@ -107,6 +109,7 @@ async def sesion(args) -> int:
     from pruebas import contacthub as ch
     from pruebas import escenarios as esc
     from pruebas import orquesta as orq
+    from pruebas import informe_html
     from pruebas import reporte as rep
     from pruebas.carga import guardar_json, guardar_muestras
     from pruebas.monitor import Monitor
@@ -245,7 +248,10 @@ async def sesion(args) -> int:
             _titulo("5. Resistencia: caudal sostenido")
             informe.setdefault("esperas", {})["resistencia"] = await orq.en_pie("resistencia")
             marca("resistencia")
-            r = await orq.resistencia(rps=20, segundos=20 if args.rapido else 120,
+            # 10 y no 20: a 20 sostenidas el sistema se cae, y este escenario
+            # busca degradacion lenta y deriva de memoria, no el acantilado.
+            # El acantilado lo mide la escalera de caudal sostenible (#9).
+            r = await orq.resistencia(rps=10, segundos=20 if args.rapido else 120,
                                       sesion=acceso, inv=inv)
             guardar_muestras(r, salida / "muestras_resistencia.csv")
             informe["resistencia"] = r.resumen()
@@ -287,13 +293,32 @@ async def sesion(args) -> int:
         for k, v in informe["integridad"].items():
             print(f"    {k:<32} {v}")
 
+        if not solo or "sostenible" in solo:
+            _titulo("9. Caudal sostenible: lo mismo, pero durante dos minutos")
+            print("    La escalada mide tramos de 20 s y eso sobreestima. Aqui")
+            print("    cada nivel dura 120 s, que es cuando la cola se acumula.\n")
+            marca("sostenible")
+            niveles = [5, 15] if args.rapido else [5, 10, 15, 20, 25]
+            segundos = 30 if args.rapido else 120
+            resultados = await orq.sostenible(niveles, segundos, acceso, inv)
+            resumenes = []
+            for r in resultados:
+                guardar_muestras(r, salida / f"muestras_{r.escenario.replace(' ', '_')}.csv")
+                resumenes.append({**r.resumen(), **r.notas})
+            informe["sostenible"] = resumenes
+            limpios = [x["rps_objetivo"] for x in resumenes
+                       if x["tasa_error_pct"] < orq.UMBRAL_SOSTENIBLE_PCT]
+            if limpios:
+                print(f"\n    Caudal sostenible: {max(limpios):g} peticiones/s "
+                      f"= {esc.multiplo(max(limpios)):.0f} veces la hora punta real")
+
         # La escalada va la ULTIMA a proposito. Tumba el servicio, y despues
         # de tumbarlo tarda minutos en volver: medir cualquier otra cosa
         # encima de esa cola no mediria el sistema, mediria la caida
         # anterior. Se comprobo por las malas — en una corrida previa las
         # rafagas salieron con un 100 % de errores que no eran suyos.
         if not solo or "escalada" in solo:
-            _titulo("9. Escalada: la hora punta real, multiplicada, hasta que se cae")
+            _titulo("10. Escalada: la hora punta real, multiplicada, hasta que se cae")
             print(f"    la hora punta real de esta oficina son "
                   f"{sum(esc.HORA_PUNTA.values())} peticiones en 60 minutos "
                   f"= {esc.RPS_NOMINAL:.3f} peticiones/s\n")
@@ -340,6 +365,11 @@ async def sesion(args) -> int:
         except Exception as exc:
             print(f"  [aviso] no se pudo limpiar lo que escribio la prueba: {exc}")
         guardar_json(informe, salida / "informe.json")
+        try:
+            ruta_html = informe_html.generar(informe, img, salida / "informe.html")
+            print(f"\n  Informe HTML: {ruta_html}")
+        except Exception as exc:
+            print(f"  [aviso] no se pudo escribir el informe HTML: {exc}")
         orq.detener(estado)
 
     _titulo("Resultado")
@@ -350,6 +380,7 @@ async def sesion(args) -> int:
               f"(deriva {r.get('deriva_memoria_mb', 0):+.1f} MB)")
     print(f"\n    Datos en crudo y resumen : {salida}")
     print(f"    Graficas                 : {img / 'carga-*.png'}")
+    print(f"    Informe para leer        : {salida / 'informe.html'}")
     print(f"    Duracion total           : {informe['duracion_total_s']:.0f} s")
 
     # Copia estable para la documentacion. Solo una sesion COMPLETA la
@@ -367,6 +398,7 @@ async def sesion(args) -> int:
               (salida / "muestras_escrituras.csv", "carga-escrituras.csv"),
               (salida / "informe.json", "carga-informe.json"),
               (salida / "registro.txt", "carga-registro.txt"),
+              (salida / "informe.html", "carga-informe.html"),
               (salida / "logs" / "contacthub.log", "carga-log-contacthub.txt")]
     # el nivel mas alto que se llego a ejecutar, se llame como se llame
     ultimo = informe.get("escalada") or []
@@ -402,15 +434,23 @@ def main() -> int:
                         help="version corta, para comprobar que todo funciona")
     parser.add_argument("--solo", nargs="*",
                         choices=["escalada", "rafaga", "escrituras", "dura",
-                                 "resistencia", "importacion", "errores"],
+                                 "resistencia", "importacion", "errores",
+                                 "sostenible"],
                         help="ejecutar solo algunos escenarios")
     parser.add_argument("--sin-importacion", action="store_true",
                         help="omitir la importacion grande (es la mas lenta)")
     parser.add_argument("--igual", action="store_true",
                         help="medir aunque la libreta este vacia")
     parser.add_argument("--check", action="store_true", help="solo diagnostico")
+    parser.add_argument("--html", metavar="CARPETA",
+                        help="rehacer el informe HTML de una sesion ya ejecutada")
     args = parser.parse_args()
 
+    if args.html:
+        from pruebas import informe_html
+        ruta = informe_html.desde_carpeta(Path(args.html))
+        print(f"Informe HTML escrito en {ruta}")
+        return 0
     if args.check:
         return 0 if check_env(args.ruta) else 1
     if not check_env(args.ruta):

@@ -130,6 +130,9 @@ async def calentar(sesion, inv: Dict[str, Any], segundos: float = 6) -> None:
 # servidor: si esta al 11 % y las latencias se disparan, el cuello es nuestro.
 TECHO_UN_PROCESO = 150.0
 
+# Por encima de este porcentaje de errores, un caudal ya no es sostenible.
+UMBRAL_SOSTENIBLE_PCT = 5.0
+
 
 # Cuando un nivel devuelve mas de la mitad de las peticiones en error y la
 # espera se cuenta en decenas de segundos, el sistema ya no esta lento: esta
@@ -275,6 +278,44 @@ async def escrituras(rps: float, segundos: float, sesion,
     s = r.resumen()
     print(f"p95 {s['lat_p95_ms']:.0f} ms · errores {s['tasa_error_pct']:.2f} %")
     return r
+
+
+async def sostenible(niveles: List[float], segundos: float, sesion,
+                     inv: Dict[str, Any]) -> List[Resultado]:
+    """El caudal que aguanta de verdad, medido con tramos largos.
+
+    La escalada usa tramos de 20 s, y eso sobreestima: un sistema con un
+    acantilado de concurrencia aguanta 20 segundos de un caudal que no
+    aguantaria dos minutos, porque la cola no llega a acumularse. Medido en
+    ContactHub, 20 peticiones/s durante 20 s no dan un solo error y durante
+    120 s dan el 100 %.
+
+    Este escenario es el que produce el numero que hay que apuntar.
+    """
+    peticiones = esc.mezcla_oficina(inv)
+    salida: List[Resultado] = []
+    for rps in niveles:
+        await en_pie(f"sostenido {rps:g}/s")
+        gen = Generador("", peticiones, cabeceras=sesion.cabeceras())
+        print(f"    {rps:>5.0f} peticiones/s  (x{esc.multiplo(rps):>5.0f} la hora punta) "
+              f"durante {segundos:g}s … ", end="", flush=True)
+        r = await gen.correr(rps=rps, segundos=segundos,
+                             escenario=f"sostenido {rps:g}rps")
+        r.notas = {"rps_objetivo": rps, "factor": round(esc.multiplo(rps), 1)}
+        d = r.resumen()
+        print(f"p95 {d['lat_p95_ms']:>7.0f} ms · errores {d['tasa_error_pct']:>5.2f} % "
+              f"· {d['rps']:.1f} rps reales")
+        salida.append(r)
+        if d["tasa_error_pct"] >= UMBRAL_SOSTENIBLE_PCT:
+            print(f"\n    A {rps:g} peticiones/s sostenidas ya falla mas del "
+                  f"{UMBRAL_SOSTENIBLE_PCT:g} %. Ese es el techo.")
+            restantes = [n for n in niveles if n > rps]
+            if restantes:
+                print("    Niveles no ejecutados: "
+                      + ", ".join(f"{n:g}" for n in restantes))
+            break
+        await asyncio.sleep(5)
+    return salida
 
 
 async def busqueda_dura(rps: float, segundos: float, sesion,
