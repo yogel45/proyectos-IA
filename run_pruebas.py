@@ -218,8 +218,19 @@ async def sesion(args) -> int:
             for r in resultados:
                 guardar_muestras(r, salida / f"muestras_{r.escenario.replace(' ', '_')}.csv")
                 resumenes.append({**r.resumen(), "factor": r.notas["factor"],
-                                  "rps_objetivo": r.notas["rps_objetivo"]})
+                                  "rps_objetivo": r.notas["rps_objetivo"],
+                                  "recuperacion_s": r.notas.get("recuperacion_s")})
             informe["escalada"] = resumenes
+            # Si el servicio no volvio en pie, lo que se mida despues no es
+            # suyo: seria la cola de la caida anterior. Se dice y se salta al
+            # final, que no necesita el sistema descargado.
+            derrumbe = resumenes[-1].get("recuperacion_s")
+            if derrumbe is not None and derrumbe < 0:
+                print("\n    [AVISO] el servicio no ha vuelto a responder. Los escenarios")
+                print("    de carga que quedan se omiten: medirian la cola de la caida,")
+                print("    no el sistema. Se pasa a la bateria de errores y a la integridad.")
+                informe["escenarios_omitidos"] = "el servicio no se recupero de la caida"
+                solo = {"errores"}
             rep.grafica_escalada(resumenes, img / "carga-escalada.png", esc.RPS_NOMINAL)
             rep.grafica_errores(resumenes, img / "carga-errores.png")
             rep.grafica_caudal(resumenes, img / "carga-caudal.png")

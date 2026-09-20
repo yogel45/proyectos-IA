@@ -174,17 +174,22 @@ async def escalada(niveles: List[float], segundos: float, sesion,
             if restantes:
                 print(f"    Niveles no ejecutados: "
                       + ", ".join(f"{n:g}" for n in restantes))
-            await esperar_a_que_se_recupere()
+            r.notas["recuperacion_s"] = await esperar_a_que_se_recupere()
             break
         await asyncio.sleep(3)      # dejar que el sistema vuelva a reposo
     return salida
 
 
-async def esperar_a_que_se_recupere(segundos: float = 120) -> float:
+async def esperar_a_que_se_recupere(segundos: float = 420) -> float:
     """Espera a que /health vuelva a contestar antes de seguir midiendo.
 
     Despues de una caida quedan peticiones en cola dentro del servidor. Medir
-    el siguiente escenario encima de esa cola mezclaria las dos cosas.
+    el siguiente escenario encima de esa cola mezclaria las dos cosas: la
+    primera version de esto esperaba dos minutos, no bastaban, y las rafagas
+    salieron con un 100 % de errores que no eran suyos.
+
+    El tiempo que devuelve es en si mismo una medida: cuanto tarda el
+    servicio en volver en pie despues de 20 segundos de sobrecarga.
     """
     print("    esperando a que el servicio se recupere … ", end="", flush=True)
     t0 = time.perf_counter()
