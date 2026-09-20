@@ -206,6 +206,7 @@ async def sesion(args) -> int:
 
         if not solo or "rafaga" in solo:
             _titulo("2. Rafaga: todas a la vez desde reposo")
+            informe.setdefault("esperas", {})["rafagas"] = await orq.en_pie("rafagas")
             marca("rafagas")
             tam = [20, 50] if args.rapido else [10, 20, 30, 40, 50, 60, 80]
             resultados = await orq.rafagas(tam, acceso, inv)
@@ -216,6 +217,7 @@ async def sesion(args) -> int:
 
         if not solo or "escrituras" in solo:
             _titulo("3. Escrituras concurrentes sobre la misma libreta")
+            informe.setdefault("esperas", {})["escrituras"] = await orq.en_pie("escrituras")
             marca("escrituras")
             r = await orq.escrituras(rps=10 if args.rapido else 25,
                                      segundos=8 if args.rapido else 25,
@@ -228,6 +230,7 @@ async def sesion(args) -> int:
 
         if not solo or "dura" in solo:
             _titulo("4. Solo las consultas caras")
+            informe.setdefault("esperas", {})["consultas caras"] = await orq.en_pie("consultas caras")
             marca("busqueda dura")
             r = await orq.busqueda_dura(rps=5 if args.rapido else 12,
                                         segundos=8 if args.rapido else 25,
@@ -240,6 +243,7 @@ async def sesion(args) -> int:
 
         if not solo or "resistencia" in solo:
             _titulo("5. Resistencia: caudal sostenido")
+            informe.setdefault("esperas", {})["resistencia"] = await orq.en_pie("resistencia")
             marca("resistencia")
             r = await orq.resistencia(rps=20, segundos=20 if args.rapido else 120,
                                       sesion=acceso, inv=inv)
@@ -250,6 +254,7 @@ async def sesion(args) -> int:
 
         if (not solo or "importacion" in solo) and not args.sin_importacion:
             _titulo("6. Importacion grande mientras la oficina sigue buscando")
+            informe.setdefault("esperas", {})["importacion"] = await orq.en_pie("importacion")
             marca("importacion")
             resultado = await orq.importacion_en_curso(
                 acceso, inv, cuantos=800 if args.rapido else 3000,
@@ -266,6 +271,7 @@ async def sesion(args) -> int:
 
         if not solo or "errores" in solo:
             _titulo("7. Tolerancia a errores: peticiones mal formadas o sin permiso")
+            informe.setdefault("esperas", {})["errores"] = await orq.en_pie("errores")
             marca("errores")
             informe["tolerancia"] = orq.tolerancia_errores(inv, acceso)
             t = informe["tolerancia"]
@@ -275,6 +281,7 @@ async def sesion(args) -> int:
             informe["cerrojo"] = orq.cerrojo()
 
         _titulo("8. Integridad de la libreta despues de la paliza")
+        informe.setdefault("esperas", {})["integridad"] = await orq.en_pie("integridad")
         marca("integridad")
         informe["integridad"] = orq.integridad(acceso, inv)
         for k, v in informe["integridad"].items():
@@ -290,6 +297,7 @@ async def sesion(args) -> int:
             print(f"    la hora punta real de esta oficina son "
                   f"{sum(esc.HORA_PUNTA.values())} peticiones en 60 minutos "
                   f"= {esc.RPS_NOMINAL:.3f} peticiones/s\n")
+            informe.setdefault("esperas", {})["escalada"] = await orq.en_pie("escalada")
             marca("escalada")
             niveles = ([1, 20, 60] if args.rapido else
                        [1, 5, 10, 20, 25, 30, 33, 36, 40, 50, 65])

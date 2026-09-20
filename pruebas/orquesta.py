@@ -180,6 +180,26 @@ async def escalada(niveles: List[float], segundos: float, sesion,
     return salida
 
 
+async def en_pie(etiqueta: str = "", segundos: float = 420) -> float:
+    """Se asegura de que el servicio esta en pie ANTES de medir nada.
+
+    No basta con esperar despues de la escalada: cualquier escenario que
+    sature deja cola, y el siguiente mediria esa cola. Paso de verdad — las
+    consultas caras saturan ya a 12 peticiones/s, y la prueba de resistencia
+    que venia detras habria medido su resaca, no la resistencia.
+
+    Si el servicio responde, esto no cuesta nada: una peticion a /health.
+    """
+    try:
+        if httpx.get(f"{ch.BASE}/health", timeout=3).status_code == 200:
+            return 0.0
+    except Exception:
+        pass
+    print(f"    [{etiqueta}] el servicio viene tocado del escenario anterior; "
+          f"esperando a que vuelva … ", end="", flush=True)
+    return await esperar_a_que_se_recupere(segundos)
+
+
 async def esperar_a_que_se_recupere(segundos: float = 420) -> float:
     """Espera a que /health vuelva a contestar antes de seguir midiendo.
 
