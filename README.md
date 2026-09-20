@@ -42,8 +42,8 @@ Los cuatro viven en el mismo repositorio porque se instalan con el mismo
 * La única conexión es opcional y de una sola dirección: el Reto 6 puede leer la base del
   Reto 5 **en modo sólo lectura** para saber quién es quién en cada expediente. Si esa
   base no existe, el Reto 6 funciona igual y lo dice.
-* El Reto 7 es el único que, por definición, necesita a los otros: son el sistema que
-  pone a prueba.
+* El Reto 7 **no toca a ninguno de los tres**: pone a prueba ContactHub, la agenda de
+  contactos, y sólo por HTTP —no importa su código ni abre su base de datos—.
 
 ## Estructura
 
@@ -52,7 +52,7 @@ proyectos-IA/
 ├── app/                    Reto 4 · OfficeVision AI      → run.py
 ├── docsai/                 Reto 5 · DocuFlow AI          → run_documentos.py
 ├── contactos/              Reto 6 · Directorio vivo      → run_contactos.py
-├── pruebas/                Reto 7 · Pruebas de carga     → run_pruebas.py
+├── pruebas/                Reto 7 · Pruebas sobre ContactHub → run_pruebas.py
 ├── docs/                   Un documento por reto, cada uno independiente
 ├── scripts/                Generadores de datos de ejemplo, uno por proyecto
 ├── sample_data/            Biométrico y RingCentral reales

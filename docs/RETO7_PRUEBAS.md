@@ -118,6 +118,7 @@ Repetir siempre la misma habría medido la caché, no la búsqueda.
 | `pruebas/monitor.py` | Vigilancia de CPU, memoria, hilos y conexiones del servidor |
 | `pruebas/orquesta.py` | Ciclo de vida del servidor y los ocho escenarios |
 | `pruebas/reporte.py` | Las gráficas |
+| `iniciar-pruebas.bat` | Lanzador para Windows: comprueba el entorno y ejecuta la sesión |
 | `data/pruebas/<fecha>/` | Datos en crudo: **una fila por petición**, más `informe.json` y el log del servidor |
 | [`docs/resultados/carga-registro.txt`](resultados/carga-registro.txt) | **Transcripción completa** de la sesión: qué se ejecutó, en qué orden y con qué resultado |
 | `docs/resultados/carga-peticiones-nivel-maximo.csv` | **Registro de peticiones** del nivel más alto ejecutado, una fila por petición |
@@ -137,6 +138,12 @@ pruebas valen igual si ContactHub se despliega en otra máquina: basta apuntar
 ---
 
 ## 3. Cómo reproducirlo
+
+**En Windows, lo más corto:** arranca ContactHub con su `iniciar.bat` y luego haz
+doble clic en **`iniciar-pruebas.bat`**. Comprueba el entorno, avisa de lo que
+falte y lanza la sesión completa.
+
+Y si prefieres la línea de órdenes, o estás en Linux o Mac:
 
 ```bash
 # 1) Dependencias (las mismas del proyecto)

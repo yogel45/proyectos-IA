@@ -100,23 +100,27 @@ y `python run_contactos.py` (puerto 8200).
 Entregable: [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) y el paquete `pruebas/`
 (`python run_pruebas.py`).
 
+**El sistema puesto a prueba es ContactHub**, la agenda de contactos con API REST,
+JWT y SQLite. El arnés no importa su código, no abre su base de datos y no lee su
+configuración: habla con él sólo por HTTP.
+
 ### Entregables
 
 | Entregable | Dónde está |
 |---|---|
-| Scripts y configuración de las pruebas, con instrucciones para reproducirlas | `pruebas/` (5 módulos) y `run_pruebas.py`; instrucciones en [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) §2 y §3. Un solo comando arranca, mide y limpia |
-| Instrucciones de instalación, configuración y ejecución de la solución | [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) §3: un solo comando instala, arranca lo que haga falta y ejecuta. Sin herramientas externas |
-| Descripción del escenario de prueba diseñado y su justificación | [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) §1: la carga sale de medir la hora pico real del historial de llamadas (56 llamadas), no de una cifra inventada |
-| Resultados de las pruebas ejecutadas: logs, métricas, reportes, gráficos o capturas | §5 a §7. **Logs**: transcripción completa de la sesión ([`carga-registro.txt`](resultados/carga-registro.txt)), registro de 7 952 peticiones una por fila ([`carga-peticiones-x245.csv`](resultados/carga-peticiones-x245.csv)) y salida de cada servidor. **Métricas**: 10 tablas y [`carga-informe.json`](resultados/carga-informe.json). **Gráficos**: 7. **Capturas**: 3 pantallas tomadas mientras el sistema estaba bajo carga (§5.10). La sesión se repitió dos veces y se comparan (§5.9) |
+| Scripts y configuración de las pruebas, con instrucciones para reproducirlas | `pruebas/` (6 módulos) y `run_pruebas.py`; instrucciones en [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) §2 y §3. Un solo comando arranca, entra, siembra, mide y limpia |
+| Instrucciones de instalación, configuración y ejecución de la solución | [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) §3: un comando, más las variables de entorno por si ContactHub está en otra máquina. Sin herramientas externas |
+| Descripción del escenario de prueba diseñado y su justificación | [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) §1: la mezcla de tráfico sale de la hora punta real del historial de la centralita (56 llamadas) y del tamaño real de la plantilla (26 personas), operación por operación |
+| Resultados de las pruebas ejecutadas: logs, métricas, reportes, gráficos o capturas | §4 a §10. **Logs**: transcripción completa de la sesión ([`carga-registro.txt`](resultados/carga-registro.txt)), extracto del registro del propio ContactHub con las trazas que sostienen el diagnóstico ([`carga-log-contacthub.txt`](resultados/carga-log-contacthub.txt)) y las muestras en crudo, una fila por petición. **Métricas**: 12 tablas y [`carga-informe.json`](resultados/carga-informe.json). **Gráficos**: 6 |
 
 ### Criterios de evaluación
 
 | Criterio | Cómo se atiende |
 |---|---|
-| **Diseño de las pruebas** | El caudal nominal (1,63 pet./s) se deriva de datos reales: 56 llamadas en la hora pico de 24 días, 25 empleados, 8 paneles refrescando cada 5 s. Siete escenarios que cubren carga sostenida, ráfaga, escritura concurrente, resistencia, trabajo pesado en paralelo, arranque en frío y 26 casos borde. Llegadas de Poisson en vez de bucle cerrado, y se mide la espera del usuario (no sólo la del servidor) para no caer en *coordinated omission*. |
-| **Implementación de las pruebas** | Un comando (`python run_pruebas.py`) hace todo: levanta lo que no esté corriendo, respeta lo que sí, mide, dibuja y **borra los datos que la propia prueba escribió**. Semilla fija para que sea repetible; `--rapido`, `--solo` y `--sin-video` para iterar. Sin dependencias nuevas más allá de `psutil` y `matplotlib`. |
-| **Monitoreo y análisis** | `psutil` muestrea cada segundo CPU, memoria, hilos y conexiones de cada servidor, con los procesos hijos incluidos. Eso permitió **atribuir la saturación**: un proceso al 100 % de un núcleo mientras los otros tres están ociosos, es decir un trabajador de uvicorn, y no falta de máquina. También permitió descubrir que el primer generador era el cuello de botella y descartar una fuga de memoria (0 MB de deriva en 120 s). |
-| **Documentación** | [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) explica el escenario y su porqué, los resultados con sus tablas y gráficas, **los cuatro fallos que las pruebas encontraron y cómo se arreglaron**, la decisión de no usar varios trabajadores de uvicorn y por qué, y siete limitaciones declaradas (§9), incluida la más incómoda: el primer intento de medición estaba mal y por qué. |
+| **Diseño de las pruebas** | El caudal nominal (0,090 pet./s = 325 peticiones en la hora punta) se deriva de datos reales, operación por operación, y se dice en voz alta lo que eso significa: la demanda de este despacho es diminuta, y las cifras de tres dígitos son margen, no expectativa. Nueve escenarios: arranque en frío, ráfaga, escrituras concurrentes, sólo consultas caras, resistencia, importación pesada en paralelo, 43 casos borde, integridad y escalada hasta el colapso. Llegadas de Poisson en vez de bucle cerrado, y se mide la espera del usuario para no caer en *coordinated omission*. La escalada va **la última** a propósito: es el único escenario que destruye el servicio. |
+| **Implementación de las pruebas** | Un comando hace todo: localiza o arranca ContactHub, se registra y entra por el endpoint público, **renueva el token** antes de que caduque, siembra 2 000 contactos por el propio importador de CSV, mide, dibuja y borra lo que escribió. Cada escenario comprueba que el servicio está en pie antes de medir. Semilla fija; `--rapido`, `--solo`, `--ruta` y `--contactos` para iterar. |
+| **Monitoreo y análisis** | `psutil` muestrea cada segundo CPU, memoria, hilos y conexiones. Eso permitió **atribuir la saturación**: durante el colapso la CPU estaba al 19 % de media, lo que descarta la falta de máquina y apunta a un recurso bloqueado. El volcado de pila con `py-spy` lo confirmó: 40 de 44 hilos parados esperando una conexión a la base, dentro de la dependencia de autenticación. La corrección propuesta se probó y se midió. |
+| **Documentación** | [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) explica el escenario y su porqué, los resultados con sus tablas y gráficas, **los dos defectos de ContactHub con causa raíz y corrección probada**, **los cinco fallos de la propia prueba** —con lo que decían y lo que pasaba de verdad—, una hipótesis mía que resultó falsa y por qué la descarté, y siete limitaciones declaradas (§10), incluida que la fuga de memoria no está descartada, sólo no medida. |
 
 ---
 
