@@ -10,7 +10,7 @@ gestión profesional, y cómo sería una experiencia más simple para un despach
 
 Entregables de este documento:
 
-1. Análisis crítico de plataformas existentes (§2 y §3).
+1. Análisis crítico de plataformas existentes, de contactos y de gestión documental (§2 y §3).
 2. Listado de funcionalidades y flujos a eliminar, simplificar, rediseñar o mantener (§4).
 3. Propuesta de experiencia y flujo mejorado, **construida como aplicación que corre** (§5 y §6).
 
@@ -19,9 +19,11 @@ Entregables de este documento:
 ## 1. Método y alcance
 
 Se analizaron tres libretas de contactos de uso masivo —**Google Contacts**, **Apple
-Contacts** y **Microsoft Outlook (People)**— y la categoría de **software jurídico de
-gestión** (Clio, MyCase), por ser el tipo de herramienta que un despacho como el de este
-proyecto acabaría comprando.
+Contacts** y **Microsoft Outlook (People)**—, la categoría de **software jurídico de
+gestión** (Clio, MyCase) y la de **gestión documental** (SharePoint, iManage,
+NetDocuments), por ser el tipo de herramienta que un despacho como el de este proyecto
+acabaría comprando. Las dos últimas entran porque el enunciado las pide y porque el
+trabajo real las mezcla: se busca a una persona *porque* hay un documento de por medio.
 
 El análisis se apoya en tres fuentes:
 
@@ -98,15 +100,44 @@ Aquí el problema no es la falta de funciones, sino el exceso:
   integración VOIP con RingCentral** — exactamente la central telefónica que usa este
   despacho, cuyos 4 000 registros de llamada ya están en este proyecto.
 
+### Gestión documental (SharePoint, iManage, NetDocuments)
+
+El enunciado pide mirar también las plataformas donde vive el documento, no sólo la
+persona. Es el mismo despacho y el mismo día de trabajo: se busca a alguien *porque* hay
+un escrito que firmar.
+
+| Fricción | Qué pasa |
+|---|---|
+| **Complejidad que excede al despacho** | iManage carga con un coste de implantación y de administración que apunta a firmas de 50+ abogados con equipo de TI propio; para un despacho pequeño **su complejidad supera lo que necesita**. NetDocuments es más accesible, pero sigue exigiendo alguien cómodo administrándolo. |
+| **El impuesto de saltar de una app a otra** | El trabajo ocurre en el correo y en Teams; el documento vive en el gestor. El resultado es el ciclo *buscar → descargar → volver a subir*, unos segundos cada vez, muchas veces al día. |
+| **Carpetas que reproducen el caos anterior** | El error de adopción más repetido en SharePoint es **copiar la estructura de carpetas vieja**: migrar el desorden da, como mucho, desorden ordenado. Y una jerarquía de carpetas se vuelve impracticable en un caso con cientos de documentos. |
+| **Metadatos que nadie rellena** | El propio remedio —etiquetar cliente, expediente y tipo de documento para poder filtrar en vez de navegar— depende de que una persona lo haga en cada archivo, y de que TI configure los campos por materia. Es la misma trampa que las etiquetas manuales de la libreta: funciona el primer mes. |
+| **El nombre del archivo como única memoria** | `Smith_contract_FINAL`, `Smith_contract_FINAL_v2`, `Smith_contract_use_this_one`: tres archivos y ninguna forma de saber cuál vale sin abrirlos. Cuando el nombre es el único sitio donde guardar contexto, la gente inventa reglas que no puede sostener. |
+| **Migraciones fallidas que dejan dos sistemas** | Una migración que sale mal no vuelve atrás: crea un sistema paralelo, y a partir de ahí todo se hace dos veces. |
+
+**El patrón es idéntico al de las libretas.** Las tres plataformas delegan en el usuario
+el trabajo de clasificar —dónde va, cómo se llama, qué etiquetas lleva— y luego le cobran
+la factura cuando no lo sostiene. Es el mismo supuesto de "el usuario organiza", aplicado
+al documento en vez de a la persona.
+
+Y es exactamente lo que este proyecto ya resolvió de otra manera: la aplicación de
+documentos del Reto 5 **lee el documento, deduce su categoría, le pone nombre con una
+convención fija y lo archiva**, sin que nadie elija carpeta ni escriba metadatos. De los
+13 documentos de prueba, 13 quedaron bien clasificados y bien fechados sin intervención.
+Ese archivo clasificado es, además, la fuente de la que el directorio saca **quién es
+quién en cada expediente** (§5.3): el mismo trabajo sirve dos veces.
+
 La lección para el rediseño: **la complejidad es el principal enemigo de la adopción**, y
 el valor no está en el número de funciones sino en cuántas se usan el primer día.
 
 ---
 
-## 3. Los siete supuestos que hay que cuestionar
+## 3. Los nueve supuestos que hay que cuestionar
 
 El hallazgo central del análisis es que las tres libretas comparten la misma herencia de
-diseño: son **la agenda de papel digitalizada**. De ahí salen sus problemas.
+diseño: son **la agenda de papel digitalizada**. De ahí salen sus problemas. Los dos
+últimos supuestos salen de los gestores documentales y son el mismo error aplicado al
+archivo en vez de a la persona.
 
 1. **"Un contacto es una ficha de campos."** Treinta o más casillas por persona: fax,
    apodo, perfiles sociales, cumpleaños, tres direcciones. Casi todas vacías, y las
@@ -127,6 +158,14 @@ diseño: son **la agenda de papel digitalizada**. De ahí salen sus problemas.
 7. **"La persona es la unidad de trabajo."** No lo es. En un despacho la unidad es el
    **asunto**: quién participa en este expediente, con qué papel. Ninguna libreta
    responde a esa pregunta sin grupos manuales.
+8. **"El usuario decide dónde se guarda y cómo se llama."** De ahí salen `FINAL`,
+   `FINAL_v2` y `usar_este`: tres archivos y ninguna forma de saber cuál vale sin
+   abrirlos. El nombre del archivo acaba siendo el único sitio donde guardar contexto,
+   y es un sitio pésimo.
+9. **"Los metadatos los pone una persona."** Etiquetar cliente, expediente y tipo en
+   cada documento es la receta oficial para no navegar carpetas — y es trabajo manual
+   repetido, así que se abandona. Es la misma taxonomía que muere del supuesto 2, sólo
+   que ahora cuesta horas facturables.
 
 ---
 
@@ -142,6 +181,8 @@ diseño: son **la agenda de papel digitalizada**. De ahí salen sus problemas.
 | Botón de fusión masiva de duplicados | Es la función con más quejas: fusiona en bloque y borra sin explicar | Menos velocidad al limpiar libretas enormes; se gana no perder datos |
 | Importación con mapeo de 40 columnas | Barrera de entrada altísima para un uso puntual | Migraciones grandes necesitan asistencia; se acepta |
 | Pestañas y vistas múltiples del mismo listado | Fragmentan la búsqueda sin aportar | Ninguno relevante |
+| Elegir carpeta al guardar un documento | Es la decisión que genera `FINAL_v2`: cada persona archiva a su criterio y el criterio no se sostiene | Quien tenía un sistema de carpetas propio pierde el control manual; se cambia por una convención automática y un buscador |
+| Metadatos escritos a mano por documento | Se abandonan en semanas, igual que las etiquetas | Se pierde el matiz que sólo sabe la persona; se admite una nota libre, no veinte campos obligatorios |
 
 ### Simplificar
 
@@ -152,6 +193,8 @@ diseño: son **la agenda de papel digitalizada**. De ahí salen sus problemas.
 | Ficha | Cabecera con **sólo los datos que existen**; lo vacío no se muestra |
 | Edición | Sin modo edición aparte: se edita donde se lee |
 | Fusión | De un botón masivo a **propuestas de una en una, explicadas y reversibles** |
+| Nombrar un documento | De una convención escrita que cada quien aplica a su manera a **un nombre generado por el sistema** `{fecha}_{CATEGORIA}_{expediente}_{descriptor}`, igual para todos |
+| Encontrar un documento | De navegar carpetas a **buscarlo por expediente o por persona**, desde la ficha de quien lo mandó |
 
 ### Rediseñar
 
@@ -162,12 +205,16 @@ diseño: son **la agenda de papel digitalizada**. De ahí salen sus problemas.
 | Entrada al sistema | De lista alfabética a **resultados por relevancia de la relación**, con el motivo de cada resultado escrito |
 | Vista de asunto | Nueva: **"quién es quién en este expediente"**, con el papel de cada persona |
 | Detección de duplicados | De coincidencia de nombre a **coincidencia con evidencia** (mismo teléfono, mismo expediente, misma firma) |
+| Archivado | De "el usuario clasifica" a **el sistema clasifica y el usuario corrige**, y cada corrección entrena al clasificador |
+| Relación persona ↔ documento | De dos sistemas que no se hablan a **una sola línea de tiempo**: el documento aparece en la ficha de quien lo firmó |
 
 ### Mantener
 
 Sincronización entre dispositivos, búsqueda instantánea, exportación estándar (vCard y
-CSV), historial de cambios y control de acceso por usuario. Son la base sobre la que se
-apoya todo lo demás y no hay razón para tocarlos.
+CSV), historial de cambios y control de acceso por usuario. Del lado documental se
+mantienen el **versionado** —nunca se sobrescribe nada— y la **detección de duplicados
+por contenido**, que es lo único que las plataformas grandes hacen mejor que una carpeta
+compartida. Son la base sobre la que se apoya todo lo demás y no hay razón para tocarlos.
 
 ---
 
@@ -176,7 +223,7 @@ apoya todo lo demás y no hay razón para tocarlos.
 > **Una persona no es una ficha: es una relación con historia.
 > Y en un despacho, la unidad de trabajo no es la persona: es el asunto.**
 
-De esas dos frases salen los cinco flujos de la propuesta.
+De esas dos frases salen los seis flujos de la propuesta.
 
 ### 5.1 Una sola entrada
 
@@ -210,6 +257,23 @@ extractor que ya funciona en la aplicación de documentos de este repositorio.
 Cada propuesta de fusión trae **el motivo escrito** (*"el mismo número aparece en las dos
 fichas"*, *"las dos están ligadas al mismo expediente"*), un porcentaje de coincidencia,
 se acepta de una en una y se puede deshacer.
+
+---
+
+### 5.6 El documento se archiva solo, y aparece en la ficha de quien lo firmó
+
+Nadie elige carpeta y nadie escribe metadatos. El documento entra, el sistema deduce de
+qué tipo es, lo renombra con una convención única —`{fecha}_{CATEGORIA}_{expediente}_{descriptor}`,
+con fecha ISO para que el orden alfabético sea el cronológico— y lo archiva. Si no encaja
+en ninguna categoría no se inventa una: queda en revisión y propone los términos que lo
+caracterizan, para crearla desde la pantalla.
+
+Y entonces ocurre lo que ninguna de las plataformas analizadas hace: **ese documento
+aparece solo en la ficha de la persona que lo firmó**, con su fecha, su categoría y el
+expediente al que pertenece. El archivo y el directorio dejan de ser dos sistemas que
+hay que mantener sincronizados a mano; son la misma línea de tiempo vista desde dos
+sitios. En la prueba con los datos reales, los documentos clasificados aportaron 7 hitos
+a las fichas y 5 papeles del expediente sin que nadie etiquetara nada.
 
 ---
 
@@ -336,7 +400,7 @@ cuándo un número merece ficha, editables sin tocar código.
 
 ## 7. Impacto esperado
 
-Tres de estos cambios ya están **medidos sobre los datos reales** (§6); el resto son
+Cinco de estos cambios ya están **medidos sobre los datos reales** (§6); el resto son
 **hipótesis a validar**, no resultados. Cada una lleva la forma de comprobarla:
 
 | Cambio | Impacto esperado | Cómo se mide |
@@ -347,6 +411,8 @@ Tres de estos cambios ya están **medidos sobre los datos reales** (§6); el res
 | Fusión explicada | **Medido**: fusionar y deshacer devuelve datos, hitos y papeles a su sitio | Incidencias de "se borró un contacto" (objetivo: 0) |
 | Ficha sin campos vacíos | Menos ruido visual | Nº de campos visibles por ficha (de ~30 a los que existan) |
 | Vista por expediente | Responder "quién participa" sin preguntar a nadie | Tiempo hasta localizar al perito de un caso |
+| Archivado automático | **Medido**: 13 de 13 documentos clasificados y fechados sin intervención | % de documentos archivados sin tocar |
+| Documento en la ficha de la persona | **Medido**: 7 hitos y 5 papeles derivados, 0 etiquetas a mano | Nº de metadatos escritos a mano (objetivo: 0) |
 
 ---
 
@@ -364,6 +430,14 @@ Tres de estos cambios ya están **medidos sobre los datos reales** (§6); el res
 * **La línea de tiempo requiere integraciones.** Sin la central telefónica y sin los
   documentos clasificados, la propuesta pierde la mitad de su valor. En este proyecto
   ambas fuentes ya existen, pero en otro despacho hay que conectarlas primero.
+* **Quitarle al usuario la decisión de dónde guardar exige confiar en el clasificador.**
+  Es el mismo riesgo que los roles derivados, un piso más abajo: si la categoría sale
+  mal, el documento queda bien archivado en el sitio equivocado. Mitigación: la
+  categoría es corregible desde la pantalla y cada corrección entrena al clasificador;
+  y nunca se sobrescribe nada, así que el error siempre es reversible.
+* **El archivado automático no sustituye a un gestor documental completo.** No hay
+  muros éticos configurables, ni políticas de retención, ni coedición. Para un despacho
+  de 25 personas sobra; para una firma de 200 no.
 * **Migrar desde una libreta sucia no es trivial.** Un directorio con años de duplicados
   necesita una pasada asistida antes de estrenar el sistema nuevo.
 * **No se ha validado con usuarios.** Es la limitación principal: la aplicación corre y
@@ -385,3 +459,4 @@ Tres de estos cambios ya están **medidos sobre los datos reales** (§6); el res
 * Outlook (People) — categorías y tarjetas de contacto: [categorías que faltan](https://learn.microsoft.com/en-us/answers/questions/4671037/new-outlook-category-missing-under-people) · [no se pueden editar categorías](https://learn.microsoft.com/en-us/answers/questions/4726119/no-ability-to-edit-people-contact-categories-in-ne) · [funcionalidad ausente](https://learn.microsoft.com/en-us/answers/questions/4737386/missing-functionality-in-new-outlook) · [rediseño de People](https://www.neowin.net/news/latest-feature-in-new-outlook-may-finally-make-you-ditch-outlook-classic/)
 * Apple Contacts — campos y grupos: [campos personalizados](https://discussions.apple.com/thread/253211972) · [gestión de grupos en iPhone](https://ios.gadgethacks.com/how-to/trick-managing-icloud-contact-groups-right-from-your-iphone-since-apples-contacts-app-wont-let-you-0385037/) · [etiquetas personalizadas](https://www.iphonefaq.org/archives/971988)
 * Software jurídico — complejidad y adopción: [comparativa Clio vs MyCase](https://www.timeminer.com/blog/clio-vs-mycase-which-practice-management-software-is-right-for-your-firm-in-2026-27) · [comparativa de gestión de casos 2026](https://mylegalacademy.com/kb/case-management-software-comparison-2026) · [integraciones y carencias](https://ustechautomations.com/resources/blog/clio-vs-mycase-legal-practice-management-comparison-2026)
+* Gestión documental — complejidad, adopción y nombres de archivo: [iManage vs NetDocuments para despachos pequeños](https://lexworkplace.com/imanage-vs-netdocuments/) · [el coste de saltar entre Teams y el gestor](https://powell-software.com/resources/blog/imanage-vs-netdocuments/) · [siete errores que matan la adopción de SharePoint](https://www.pagelightprime.com/blogs/sharepoint-for-law-firms-adoption-mistakes-2026) · [migrar el desorden da desorden ordenado](https://sharepointsupport.com/blog/sharepoint-for-law-firms-legal-document-management) · [el problema de `FINAL_v2`](https://renamer.ai/insights/legal-file-naming-conventions) · [qué cuesta una búsqueda documental débil](https://lexworkplace.com/law-firm-document-search/)

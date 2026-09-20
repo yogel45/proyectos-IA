@@ -81,17 +81,17 @@ y `python run_contactos.py` (puerto 8200).
 
 | Entregable | Dónde está |
 |---|---|
-| Documento con el análisis de plataformas existentes | [`docs/RETO6_CONTACTOS.md`](RETO6_CONTACTOS.md) §2 (Google, Apple, Outlook y software jurídico) y §3 (supuestos de diseño) |
+| Documento con el análisis de plataformas existentes | [`docs/RETO6_CONTACTOS.md`](RETO6_CONTACTOS.md) §2 (Google, Apple, Outlook, software jurídico y **gestión documental**: SharePoint, iManage, NetDocuments) y §3 (los nueve supuestos de diseño) |
 | Listado de funcionalidades o flujos a eliminar, simplificar o rediseñar | [`docs/RETO6_CONTACTOS.md`](RETO6_CONTACTOS.md) §4, en cuatro tablas: eliminar, simplificar, rediseñar y mantener |
-| Propuesta de experiencia o flujo mejorado | [`docs/RETO6_CONTACTOS.md`](RETO6_CONTACTOS.md) §5 (los cinco flujos) y §6: **la aplicación construida y funcionando**, con capturas y resultados medidos sobre los datos reales del despacho |
+| Propuesta de experiencia o flujo mejorado | [`docs/RETO6_CONTACTOS.md`](RETO6_CONTACTOS.md) §5 (los seis flujos) y §6: **la aplicación construida y funcionando**, con capturas y resultados medidos sobre los datos reales del despacho |
 
 ### Criterios de evaluación
 
 | Criterio | Cómo se atiende |
 |---|---|
-| **Simplificación** | Seis funciones eliminadas y cinco flujos simplificados, cada uno con el riesgo que se asume escrito. Se quita la lista paralela de "otros contactos", los campos de catálogo fijo, los grupos manuales, la fusión masiva y la importación con mapeo de 40 columnas. |
-| **Innovación** | Tres ideas que ninguna de las plataformas analizadas tiene, **implementadas, no descritas**: la ficha como **línea de tiempo** en lugar de formulario, los **roles derivados** de los documentos ya clasificados (cero mantenimiento) y la vista **"quién es quién en el expediente"**. El alta pegando una firma reutiliza el extractor del Reto 5. |
-| **Justificación** | Cada crítica se apoya en documentación oficial o en foros donde los usuarios describen la fricción (§9), y cada cambio propuesto declara su riesgo (§8) y cómo se mediría su impacto (§7). Tres cambios están medidos sobre los datos reales; el resto se presenta como hipótesis a validar, y la falta de pruebas con usuarios se declara como la limitación principal. |
+| **Simplificación** | Ocho funciones eliminadas y siete flujos simplificados, cada uno con el riesgo que se asume escrito. Se quita la lista paralela de "otros contactos", los campos de catálogo fijo, los grupos manuales, la fusión masiva, la importación con mapeo de 40 columnas y —del lado documental— **elegir carpeta al guardar** y **escribir metadatos a mano**. |
+| **Innovación** | Cuatro ideas que ninguna de las plataformas analizadas tiene, **implementadas, no descritas**: la ficha como **línea de tiempo** en lugar de formulario, los **roles derivados** de los documentos ya clasificados (cero mantenimiento), la vista **"quién es quién en el expediente"** y el **documento archivado solo que aparece en la ficha de quien lo firmó**, que cierra la separación entre libreta y gestor documental. El alta pegando una firma reutiliza el extractor del Reto 5. |
+| **Justificación** | Cada crítica se apoya en documentación oficial o en foros donde los usuarios describen la fricción (§9), y cada cambio propuesto declara su riesgo (§8) y cómo se mediría su impacto (§7). Cinco cambios están medidos sobre los datos reales; el resto se presenta como hipótesis a validar, y la falta de pruebas con usuarios se declara como la limitación principal. |
 
 ---
 
@@ -120,7 +120,7 @@ configuración: habla con él sólo por HTTP.
 | **Diseño de las pruebas** | El caudal nominal (0,090 pet./s = 325 peticiones en la hora punta) se deriva de datos reales, operación por operación, y se dice en voz alta lo que eso significa: la demanda de este despacho es diminuta, y las cifras de tres dígitos son margen, no expectativa. Nueve escenarios: arranque en frío, ráfaga, escrituras concurrentes, sólo consultas caras, resistencia, importación pesada en paralelo, 43 casos borde, integridad y escalada hasta el colapso. Llegadas de Poisson en vez de bucle cerrado, y se mide la espera del usuario para no caer en *coordinated omission*. La escalada va **la última** a propósito: es el único escenario que destruye el servicio. |
 | **Implementación de las pruebas** | Un comando hace todo: localiza o arranca ContactHub, se registra y entra por el endpoint público, **renueva el token** antes de que caduque, siembra 2 000 contactos por el propio importador de CSV, mide, dibuja y borra lo que escribió. Cada escenario comprueba que el servicio está en pie antes de medir. Semilla fija; `--rapido`, `--solo`, `--ruta` y `--contactos` para iterar. |
 | **Monitoreo y análisis** | `psutil` muestrea cada segundo CPU, memoria, hilos y conexiones. Eso permitió **atribuir la saturación**: durante el colapso la CPU estaba al 19 % de media, lo que descarta la falta de máquina y apunta a un recurso bloqueado. El volcado de pila con `py-spy` lo confirmó: 40 de 44 hilos parados esperando una conexión a la base, dentro de la dependencia de autenticación. La corrección propuesta se probó y se midió. |
-| **Documentación** | [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) explica el escenario y su porqué, los resultados con sus tablas y gráficas, **los dos defectos de ContactHub con causa raíz y corrección probada**, **los cinco fallos de la propia prueba** —con lo que decían y lo que pasaba de verdad—, una hipótesis mía que resultó falsa y por qué la descarté, y siete limitaciones declaradas (§10), incluida que la fuga de memoria no está descartada, sólo no medida. |
+| **Documentación** | [`docs/RETO7_PRUEBAS.md`](RETO7_PRUEBAS.md) explica el escenario y su porqué, los resultados con sus tablas y gráficas, **los dos defectos de ContactHub con causa raíz y corrección probada**, **los ocho fallos de la propia prueba** —con lo que decían y lo que pasaba de verdad—, una hipótesis mía que resultó falsa y por qué la descarté, y siete limitaciones declaradas (§10), incluida que la fuga de memoria no está descartada, sólo no medida. |
 
 ---
 
