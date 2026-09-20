@@ -123,12 +123,15 @@ Repetir siempre la misma habría medido la caché, no la búsqueda.
 | `pruebas/orquesta.py` | Ciclo de vida del servidor y los ocho escenarios |
 | `pruebas/reporte.py` | Las gráficas |
 | `pruebas/informe_html.py` | El informe HTML: una página que se abre con doble clic |
+| `pruebas/extraer_log.py` | Saca del registro del servidor el recuento de errores y una traza de cada clase |
 | `iniciar-pruebas.bat` | Lanzador para Windows: comprueba el entorno y ejecuta la sesión |
 | `data/pruebas/<fecha>/informe.html` | **El informe para leer**: resumen, tablas y gráficas en una sola página |
 | `data/pruebas/<fecha>/` | Datos en crudo: **una fila por petición**, más `informe.json` y el log del servidor |
 | [`docs/resultados/carga-registro.txt`](resultados/carga-registro.txt) | **Transcripción completa** de la sesión: qué se ejecutó, en qué orden y con qué resultado |
 | `docs/resultados/carga-peticiones-nivel-maximo.csv` | **Registro de peticiones** del nivel más alto ejecutado, una fila por petición |
 | [`docs/resultados/carga-log-contacthub.txt`](resultados/carga-log-contacthub.txt) | Salida del propio ContactHub durante la sesión, con sus trazas de error |
+| [`docs/resultados/carga-sostenido-15rps.csv`](resultados/carga-sostenido-15rps.csv) | El caudal sostenible, petición a petición: el último limpio |
+| [`docs/resultados/carga-sostenido-20rps.csv`](resultados/carga-sostenido-20rps.csv) | Y el primero que falla, para poder comparar los dos |
 | `docs/resultados/carga-*.csv` | Medidas de recursos, de resistencia y de escrituras |
 | `docs/img/carga-*.png` | Las gráficas |
 
@@ -230,17 +233,19 @@ ve ni tocada ni contada.
 | Pregunta | Respuesta medida |
 |---|---|
 | ¿Cuánta carga tiene de verdad este despacho? | **0,090 peticiones/s** (325 en la hora punta) |
-| ¿Cuánto aguanta ContactHub de forma sostenida? | **14 peticiones/s** sin un solo error = **155× la demanda real** |
-| ¿Y en tramos cortos? | 20 pet./s durante 20 s van limpias… pero durante 120 s fallan el 100 % |
+| ¿Cuánto aguanta ContactHub de forma sostenida? | **15 peticiones/s** sin un solo error = **166× la demanda real** |
+| ¿Y en tramos cortos? | 20 pet./s durante 20 s van limpias… y durante 120 s fallan el 76 % |
 | ¿Cuántas peticiones simultáneas soporta? | **50** de golpe sin errores; con 60 fallan 40 |
-| ¿Qué pasa al pasarse? | No se degrada: **se cae**, y tarda **~5 minutos** en volver |
+| ¿Y las consultas caras? | Sólo **4 pet./s**: el límite depende de qué se pida |
+| ¿Qué pasa al pasarse? | No se degrada: **se cae**, y tarda **1 min 35 s** en volver |
 | ¿Por qué? | **15 conexiones a la base para 40 hilos** (§5) |
 | ¿Se arregla? | Sí, **una línea**: el punto de rotura pasa de 60 a >100 simultáneas (§5.7) |
-| ¿Aguanta trabajo pesado en segundo plano? | Sí: importando 3 000 contactos, la agenda responde en **352 ms, 0 errores** |
+| ¿Aguanta escrituras concurrentes? | 8/s con **p95 de 139 ms y cero errores** |
+| ¿Aguanta trabajo pesado en segundo plano? | Sí: importando 3 000 contactos, la agenda responde en **277 ms, 0 errores** |
 | ¿Se defiende de peticiones maliciosas? | **43 de 43 casos correctos, 0 errores 500** |
 | ¿Se encontró algún defecto? | Sí: **dos altas simultáneas con la misma etiqueta nueva dan HTTP 500** (§8.8) |
 | ¿Perdió algún dato? | **Ninguno**: 25 de 25 fichas de referencia intactas |
-| ¿Cuántos fallos tuvo la propia prueba? | **Cinco**, todos documentados en §7 |
+| ¿Cuántos fallos tuvo la propia prueba? | **Siete**, todos documentados en §7 |
 
 ---
 
@@ -392,190 +397,187 @@ vida no debería depender del recurso que se agota.
 
 ## 6. Resultados
 
-Todo lo de aquí viene de una sola sesión, ejecutada de principio a fin, cuya
-transcripción completa está en [`docs/resultados/carga-registro.txt`](resultados/carga-registro.txt).
+Todo lo de aquí viene de una sola sesión, ejecutada de principio a fin sobre un
+ContactHub recién arrancado, cuya transcripción completa está en
+[`docs/resultados/carga-registro.txt`](resultados/carga-registro.txt) y cuyo informe
+para leer está en [`docs/resultados/carga-informe.html`](resultados/carga-informe.html).
 
 **Máquina:** Linux, 4 núcleos lógicos, 16,9 GB de RAM, Python 3.11.
-**Agenda:** 2 000 contactos al empezar, 5 000 al terminar (la importación añadió 3 000).
-**Duración:** 1 317 segundos.
+**Agenda:** 5 144 contactos. **Duración:** 20 min 03 s.
 
-### 6.1 Arranque en frío: lo que espera la primera persona del día
+Y un dato que da confianza en el resto: **ningún escenario tuvo que esperar a que el
+servicio se recuperara del anterior**. Las esperas registradas son todas cero, lo que
+significa que cada medida es del sistema, no de la resaca de la prueba previa.
 
-| Pantalla | Primera vez | Repetida |
-|---|---:|---:|
-| Estado del servicio (`/health`) | 3 ms | 2 ms |
-| Quién soy (`/auth/me`) | 3 ms | 3 ms |
-| Resumen de la libreta (`/stats`) | 18 ms | 18 ms |
-| Primera pantalla de contactos | 21 ms | 21 ms |
-| Etiquetas del menú | 6 ms | 5 ms |
-| Buscar un apellido | 20 ms | 19 ms |
-| **Posibles duplicados** | **246 ms** | **218 ms** |
-| Mi perfil | 4 ms | 3 ms |
-
-No hay penalización de arranque en frío: la primera llamada cuesta lo mismo que
-la segunda. La única pantalla cara es la de duplicados —doscientos y pico
-milisegundos sobre 2 000 contactos—, y se nota más adelante: es la consulta que
-tumba el sistema antes que ninguna otra.
-
-### 6.2 Escalada: dónde deja de ir bien
+### 6.1 El número que importa: 15 peticiones/s sostenidas
 
 ![Escalada](img/carga-escalada.png)
 
-| Caudal ofrecido | × la hora punta real | p95 | Errores | Servidas |
+| Caudal sostenido 120 s | × la hora punta real | p95 | Errores |
+|---:|---:|---:|---:|
+| 5 pet./s | 55× | 137 ms | 0,00 % |
+| 10 | 111× | 295 ms | 0,00 % |
+| **15** | **166×** | **379 ms** | **0,00 %** |
+| 20 | 222× | 101 900 ms | **75,99 %** |
+
+**ContactHub sostiene 15 peticiones por segundo sin un solo error: 166 veces la
+demanda real de este despacho.** Ése es el número que hay que apuntar.
+
+Y aquí está por qué hace falta medirlo con tramos largos. En la misma sesión, el
+mismo caudal, el mismo servidor:
+
+| 20 peticiones/s | Resultado |
+|---|---|
+| durante **20 segundos** | p95 466 ms · **0,00 % de errores** |
+| durante **120 segundos** | p95 101 900 ms · **75,99 % de errores** |
+
+Veinte segundos no bastan para que la cola se acumule. Una escalada de tramos
+cortos habría dado 20 pet./s como caudal limpio, y habría sido falso.
+
+### 6.2 Escalada: dónde se cae
+
+| Caudal ofrecido | × la hora punta | p95 | Errores | Servidas/s |
 |---:|---:|---:|---:|---:|
-| 1 pet./s | 11× | 63 ms | 0,00 % | 1,4 |
-| 5 | 55× | 92 ms | 0,00 % | 5,7 |
-| 10 | 111× | 265 ms | 0,00 % | 10,3 |
-| **20** | **222×** | **346 ms** | **0,00 %** | 18,1 |
-| 25 | 277× | 30 004 ms | 22,66 % | 6,4 |
-| 30 | 332× | 54 149 ms | 40,13 % | 7,8 |
-| 33 | 366× | 56 366 ms | **100,00 %** | 5,4 |
+| 1 pet./s | 11× | 64 ms | 0,00 % | 1,4 |
+| 5 | 55× | 116 ms | 0,00 % | 5,7 |
+| 10 | 111× | 238 ms | 0,00 % | 10,3 |
+| 20 | 222× | 466 ms | 0,00 % | 17,7 |
+| 25 | 277× | 52 200 ms | **54,27 %** | 5,0 |
 
-La escalada se detuvo sola al llegar al 100 % de errores: los niveles de 36, 40,
-50 y 65 peticiones/s no se ejecutaron porque no habrían añadido información y
-cada uno cuesta minutos de drenaje.
+No hay degradación suave: entre 20 y 25 peticiones/s se pasa de medio segundo y
+cero errores a 52 segundos y la mitad de las peticiones perdidas. Es un
+acantilado, y la razón está en §5.
 
-**Lo que se ve:** no hay una degradación suave. Entre 20 y 25 peticiones/s el
-sistema pasa de 346 milisegundos y cero errores a treinta segundos y un 22 % de
-fallos. Es un acantilado, y la razón está en §5: por debajo de 15 peticiones
-simultáneas hay conexión para todas; por encima, no hay para ninguna.
+Después de caerse, el servicio tardó **1 min 35 s** en volver a estar en pie.
 
 ![Caudal servido](img/carga-caudal.png)
 ![Errores](img/carga-errores.png)
 
 ### 6.3 Ráfaga: todas a la vez desde reposo
 
-| Simultáneas | p95 | Máximo | Errores |
-|---:|---:|---:|---:|
-| 10 | 752 ms | 752 ms | 0,00 % |
-| 20 | 1 459 ms | 1 460 ms | 0,00 % |
-| 30 | 2 329 ms | 2 332 ms | 0,00 % |
-| 40 | 2 908 ms | 2 917 ms | 0,00 % |
-| **50** | **2 968 ms** | 2 978 ms | **0,00 %** |
-| 60 | 31 450 ms | 31 470 ms | **66,67 %** |
+| Simultáneas | p95 | Errores |
+|---:|---:|---:|
+| 10 | 579 ms | 0,00 % |
+| 20 | 1 359 ms | 0,00 % |
+| 30 | 2 210 ms | 0,00 % |
+| 40 | 2 737 ms | 0,00 % |
+| **50** | **3 177 ms** | **0,00 %** |
+| 60 | 31 713 ms | **66,67 %** |
 
-Cincuenta peticiones de golpe: ninguna falla. Sesenta: fallan cuarenta, que son
-exactamente los cuarenta hilos que se quedan sin conexión (§5.4).
+Cincuenta de golpe: ninguna falla. Sesenta: fallan cuarenta, que son exactamente
+los cuarenta hilos que se quedan sin conexión (§5.4). **Ese 66,67 % se repitió al
+decimal en tres sesiones independientes.**
 
-**Una ráfaga se recupera al instante; la carga sostenida, no.** Tras la ráfaga
-de 60 el servicio volvió en 0 segundos, porque son 60 peticiones y se acaban.
-Veinte segundos de carga sostenida generan cientos, y entonces la recuperación
-se mide en minutos.
+Y una diferencia que importa: **una ráfaga se recupera al instante** —son 60
+peticiones y se acaban—, mientras que la carga sostenida deja cola para minutos.
 
-### 6.4 Las consultas caras: el límite real es mucho más bajo
+### 6.4 Escrituras concurrentes
 
-Doce peticiones por segundo de consultas caras —texto libre con `limit=200`,
+| Operación | Peticiones | p95 | Errores |
+|---|---:|---:|---:|
+| Alta de contacto | 72 | 37 ms | 0,00 % |
+| Editar contacto | 103 | 53 ms | 0,00 % |
+| Acción en bloque (20 fichas) | 30 | 402 ms | 0,00 % |
+| **Total** | **205** | **139 ms** | **0,00 %** |
+
+Ocho escrituras por segundo —89 veces el ritmo real de escritura del despacho— sin
+un solo error. Escribir no es el problema: el cuello es el mismo pool de conexiones
+que limita las lecturas, no nada propio de SQLite escribiendo.
+
+![Coste de cada escritura](img/carga-escrituras.png)
+
+### 6.5 Las consultas caras: el límite real es mucho más bajo
+
+**Cuatro** peticiones por segundo de consultas caras —texto libre con `limit=200`,
 paginación honda, ordenación por empresa y detección de duplicados— bastan para
-tumbarlo: **p95 de 120 segundos y 94,18 % de errores**.
+tumbarlo: p95 de 95 segundos y **65,77 % de errores**.
+
+Cuatro. Frente a las 15 que aguanta la mezcla normal. **El caudal que soporta un
+sistema no es un número: depende de qué se le pide.**
+
+La culpable se ve ya en el arranque en frío: con 5 144 contactos, la detección de
+duplicados tarda **2,2 segundos** por petición. Con 2 000 contactos tardaba 220 ms.
+Diez veces más lenta con dos veces y media más datos: no escala linealmente.
 
 ![Coste de cada consulta](img/carga-consultas-caras.png)
 
-Es cuatro veces antes que la mezcla normal de oficina. El caudal que aguanta un
-sistema no es un número: depende de qué se le pide.
+### 6.6 Arranque en frío
 
-### 6.5 Importación grande mientras la oficina sigue buscando
+| Pantalla | Primera vez | Repetida |
+|---|---:|---:|
+| Estado del servicio | 3 ms | 2 ms |
+| Quién soy | 3 ms | 3 ms |
+| Resumen de la libreta | 54 ms | 53 ms |
+| Primera pantalla de contactos | 23 ms | 22 ms |
+| Etiquetas del menú | 16 ms | 14 ms |
+| Buscar un apellido | 35 ms | 31 ms |
+| **Posibles duplicados** | **2 206 ms** | **2 178 ms** |
+| Mi perfil | 11 ms | 4 ms |
 
-Éste es el mejor resultado de todo el informe.
+No hay penalización de arranque: la primera llamada cuesta lo mismo que la segunda.
 
-Con una importación de **3 000 contactos en marcha** en segundo plano —parsear
-el CSV, normalizar teléfonos y correos, buscar duplicados y escribir 3 000
-filas—, la agenda siguió respondiendo a 10 peticiones/s con **p95 de 352 ms y
-cero errores**. La importación terminó sin un solo fallo: 3 000 creados, 0
-errores.
+### 6.7 Resistencia: caudal sostenido
 
-El trabajo pesado no bloquea la consulta. Es exactamente lo que se le pide a
-una aplicación así.
+120 segundos seguidos a 6 peticiones/s: **p95 de 152 ms y cero errores**. Ni
+degradación a lo largo del tiempo ni sorpresas.
 
-### 6.6 Integridad: no se perdió nada
+![Resistencia](img/carga-resistencia.png)
+
+### 6.8 Importación grande mientras la oficina sigue buscando
+
+Con una importación de **3 000 contactos** corriendo en segundo plano, la agenda
+respondió con **p95 de 277 ms y cero errores**. El trabajo pesado no bloquea la
+consulta.
+
+> **Salvedad honesta:** en esta sesión concreta la importación procesó 3 000 filas
+> que **ya existían** de una sesión anterior, así que ContactHub las dio por
+> `unchanged` en vez de crearlas. El trabajo de parsear el CSV, normalizar teléfonos
+> y correos y buscar coincidencias sí se hizo entero —que es la parte pesada—, pero
+> las 3 000 escrituras no. Está corregido en el arnés (cada sesión usa ahora un rango
+> de contactos distinto), pero **este número concreto mide una importación sin
+> escrituras**, y así queda dicho.
+
+### 6.9 Integridad: no se perdió nada
 
 | | |
 |---|---|
-| Contactos antes | 2 000 |
-| Contactos después | 5 000 (los 3 000 de la importación) |
-| En la papelera | 0 |
-| Fichas de referencia vivas | **25 de 25** |
+| Contactos antes | 5 144 |
+| Contactos después | 5 216 |
+| En la papelera | 202 (los que creó y borró la propia prueba) |
+| **Fichas de referencia vivas** | **25 de 25** |
 | El servicio responde | Sí |
 
-Después de las ráfagas, las escrituras concurrentes, el caudal sostenido, la
-importación, la batería de casos maliciosos y una escalada hasta el colapso
-total, **la libreta quedó exactamente como debía**.
+Después de las ráfagas, las escrituras concurrentes, las consultas caras, el caudal
+sostenido, la importación, 43 casos maliciosos y una escalada hasta el colapso,
+**la libreta quedó exactamente como debía**. La limpieza retiró los 216 registros
+que la prueba había creado.
 
-### 6.7 Recursos
+### 6.10 Recursos
 
 ![Recursos](img/carga-recursos.png)
 
 | | |
 |---|---|
-| CPU media | 19,1 % |
-| CPU pico | 202,3 % (de 400 % disponibles) |
-| Memoria | 356 → 582 MB |
+| CPU media | 48,1 % |
+| CPU pico | 191,3 % (de 400 % disponibles) |
+| Memoria | 150 → 647 MB (pico de 1 067 MB) |
+| Hilos (máximo) | 73 |
+| Conexiones (máximo) | 201 |
 
-La CPU nunca pasó de la mitad de la máquina, ni siquiera durante el colapso.
-Eso es lo que delata que el cuello no es de cálculo.
+La CPU nunca pasó de la mitad de la máquina, ni siquiera durante el colapso: eso es
+lo que delata que el cuello no es de cálculo.
 
-Los 226 MB de crecimiento de memoria **no son una fuga**: la sesión importó
-3 000 contactos, y la memoria crece con la libreta. Para llamarlo fuga haría
-falta medir con la misma cantidad de datos al principio y al final, y esta
-sesión no lo hace. Queda señalado como no medido, no como descartado.
-
-### 6.8 El número que de verdad importa: 14 peticiones/s sostenidas
-
-La escalada de §6.2 mide tramos de 20 segundos, y eso **sobreestima**. Un sistema
-con un acantilado de concurrencia aguanta 20 segundos de un caudal que no
-aguantaría dos minutos: la cola no llega a acumularse.
-
-Se comprobó midiendo lo mismo con tramos de **120 segundos**:
-
-| Caudal sostenido | × la hora punta real | p95 | Errores |
-|---:|---:|---:|---:|
-| 3 pet./s | 33× | 87 ms | 0,00 % |
-| 6 | 66× | 187 ms | 0,00 % |
-| 10 | 111× | 313 ms | 0,00 % |
-| **14** | **155×** | **247 ms** | **0,00 %** |
-| 18 | 199× | 74 271 ms | **63,11 %** |
-
-Y la comparación directa que lo demuestra:
-
-| Caudal | 20 segundos | 120 segundos |
-|---:|---|---|
-| 20 pet./s | p95 346 ms · **0 % errores** | p95 97 732 ms · **100 % errores** |
-
-El mismo caudal, el mismo sistema, la misma máquina. Sólo cambia cuánto dura.
-
-**Conclusión operativa:** el techo de ContactHub tal y como está, en esta máquina,
-con una agenda de 2 000–5 000 contactos, es de **14 peticiones por segundo
-sostenidas**. Eso es 155 veces la hora punta real de este despacho, así que sobra
-margen —pero el número que hay que apuntar es 14, no 20 y desde luego no 33.
-
-### 6.9 Escrituras concurrentes
-
-La primera medida de este escenario dio 36,17 % de errores y era **culpa de la
-prueba**, no de ContactHub (§7.5). Repetida con el generador corregido, contra una
-agenda ya de 5 000 contactos:
-
-| Operación | Peticiones | p95 | Errores |
-|---|---:|---:|---:|
-| Alta de contacto | 225 | 30 005 ms | 29,33 % |
-| Editar contacto | 301 | 30 006 ms | 26,58 % |
-| Acción en bloque | 96 | 30 005 ms | 29,17 % |
-| **Total** | **622** | **30 006 ms** | **27,97 %** |
-
-Veinticinco escrituras por segundo exceden la capacidad, igual que las lecturas: es
-el mismo cuello del pool de conexiones, no nada propio de escribir.
-
-**Y hay una lección en la forma de los números.** Cuando el fallo era mío, los
-errores estaban **concentrados al 100 % en una sola operación** y las otras dos
-estaban a cero. Ahora se reparten por igual entre las tres (29,33 %, 26,58 %,
-29,17 %). Un reparto uniforme es la firma de la saturación; uno concentrado es la
-firma de un defecto en esa operación concreta. Mirar la distribución, y no sólo el
-total, es lo que distingue un diagnóstico de una corazonada.
+El crecimiento de memoria **no está demostrado que sea una fuga**: la sesión importó
+3 000 contactos y la libreta creció. Para hablar de fuga habría que medir con la
+misma cantidad de datos al principio y al final, y esta sesión no lo hace. Queda
+señalado como **no medido**, no como descartado.
 
 ---
 
 ## 7. Lo que falló en la propia prueba
 
 Una prueba de carga mal hecha no da un resultado malo: da un resultado **convincente y
-falso**. Estos tres fallos eran míos, no de ContactHub, y los tres habrían producido
+falso**. Estos siete fallos eran míos, no de ContactHub, y todos habrían producido
 cifras publicables y equivocadas.
 
 ### 7.1 Medir sobre la resaca del escenario anterior
@@ -666,6 +668,42 @@ que falla no es la prueba.**
 El primero se detectó por la aritmética: **36,17 % no es un número de saturación,
 es 9/25 exacto**. Un porcentaje que coincide al decimal con el peso de una
 operación no es azar.
+
+### 7.6 Creer que `/health` respondiendo significa recuperado
+
+**Lo que pasó.** La guardia de §7.1 daba el servicio por recuperado en cuanto
+`/health` devolvía 200. La prueba de resistencia a 10 peticiones/s dio **67,44 % de
+errores**, y ese mismo caudal durante los mismos 120 segundos en un servidor recién
+arrancado había dado **0,00 %**.
+
+**Por qué es grave.** La diferencia no era el caudal: era que se midió justo después
+de que `/health` volviera, con el servidor aún arrastrando la cola. `/health` sólo
+necesita **una** conexión libre de las 15; con catorce todavía ocupadas contesta
+igual, y rápido. La guardia que existía para evitar contaminación estaba dando
+permiso para contaminar.
+
+**Qué se hizo.** Ahora se exigen **cuatro respuestas consecutivas por debajo de 400
+ms**, y si alguna tarda, el contador se reinicia. En la sesión final las esperas
+entre escenarios fueron todas cero — el servicio llegaba sano a cada medida.
+
+### 7.7 Todos los escenarios corriendo por encima del acantilado
+
+**Lo que pasó.** Escrituras a 25 pet./s, consultas caras a 12, resistencia a 20:
+los tres por encima del límite. Cada escenario tumbaba el servicio y el siguiente
+empezaba con el servidor tocado, esperando minutos antes de poder medir.
+
+**Por qué es grave.** No sólo alargaba la sesión a más de 40 minutos: hacía que
+ninguna medida fuera limpia. La resistencia daba 100 % de errores, las escrituras
+48 %, y ninguno de esos números decía nada sobre el escenario que pretendía medir.
+
+**Qué se hizo.** Se bajaron a caudales por debajo del límite medido —8, 4 y 6
+peticiones/s— y **sólo los dos últimos escenarios tumban el servicio, a propósito**.
+El resultado: cero esperas entre escenarios, escrituras al 0,00 % de errores, y la
+sesión completa en 20 minutos en vez de 40.
+
+La lección general: **una prueba de carga que satura en todos sus escenarios no mide
+nada más que la saturación.** Para medir un escenario hay que dejarle sitio.
+
 
 ---
 
@@ -810,12 +848,20 @@ servidor**, porque la prueba de carga contaba ese 500 dentro de su porcentaje de
 errores sin distinguirlo de los demás. Los registros no son un entregable de
 adorno.
 
+**Una salvedad, para que nadie se lleve una sorpresa.** En la sesión final de §6
+este error **no aparece** en el registro. Las escrituras corren ahora a 8
+peticiones/s (§7.7) y la carrera necesita dos altas coincidiendo en el mismo
+instante con una etiqueta que todavía no existe: a ese ritmo no siempre pasa. El
+defecto es real y se reproduce al 100 % cuando se provoca —la tabla de arriba—,
+pero una sesión de carga normal puede no dispararlo. Es la diferencia entre un
+fallo que la carga revela y uno que hay que ir a buscar.
+
 ---
 
 ## 9. Conclusiones
 
 **Para el despacho.** ContactHub va sobrado. La hora punta real son 0,090
-peticiones por segundo y el sistema sostiene 14 sin un solo error: **155 veces la
+peticiones por segundo y el sistema sostiene 15 sin un solo error: **166 veces la
 demanda**. No hay ningún motivo de rendimiento para no usarlo tal cual.
 
 **Para quien lo mantenga.** Hay un cambio de una línea que triplica el margen:
@@ -834,9 +880,11 @@ Y dos cosas más que conviene saber antes de que pasen:
 * `/health` consulta la base de datos, así que **falla justo cuando el servicio
   sólo está ocupado**. Un supervisor que reinicie según `/health` reiniciaría en el
   peor momento. Un chequeo de vida no debería depender del recurso que se agota.
-* Las consultas caras (paginación honda, duplicados) saturan a **12 peticiones/s**,
-  cuatro veces antes que el resto. Si alguna vez hay que poner un límite de
-  velocidad, ése es el sitio.
+* Las consultas caras (paginación honda, duplicados) saturan a **4 peticiones/s**,
+  casi cuatro veces antes que el resto. La culpable se identifica sola: con 5 144
+  contactos, **detectar duplicados tarda 2,2 segundos por petición**, cuando con
+  2 000 tardaba 220 ms. No escala. Si alguna vez hay que poner un límite de
+  velocidad o una caché, ése es el sitio.
 * **Hay un defecto que arreglar, y no espera a tener carga:** dos personas
   creando la misma etiqueta nueva a la vez producen un HTTP 500 (§8.8). Bastan
   dos peticiones simultáneas.

@@ -365,7 +365,11 @@ async def importacion_en_curso(sesion, inv: Dict[str, Any], cuantos: int = 3000,
     segundo plano, dentro del mismo proceso. La pregunta que responde este
     escenario es si la libreta se queda inservible mientras tanto.
     """
-    datos = ch.csv_de_siembra(cuantos, desde=900000)   # rango propio: se borra despues
+    # Rango propio y distinto en cada sesion. Con un rango fijo, la segunda
+    # corrida reimportaba los mismos contactos y ContactHub los daba por
+    # "unchanged": se medía una importacion que no importaba nada.
+    desde = 900000 + int(time.time()) % 500000
+    datos = ch.csv_de_siembra(cuantos, desde=desde)
     with httpx.Client(timeout=180) as c:
         r = c.post(f"{ch.API}/imports/google-csv", headers=sesion.cabeceras(),
                    files={"file": ("importacion_grande.csv", datos, "text/csv")},

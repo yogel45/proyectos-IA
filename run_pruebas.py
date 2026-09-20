@@ -222,36 +222,41 @@ async def sesion(args) -> int:
             _titulo("3. Escrituras concurrentes sobre la misma libreta")
             informe.setdefault("esperas", {})["escrituras"] = await orq.en_pie("escrituras")
             marca("escrituras")
-            r = await orq.escrituras(rps=10 if args.rapido else 25,
+            # 8 y no 25. Todos los escenarios corrian por encima del
+            # acantilado, asi que cada uno dejaba al servidor tocado para el
+            # siguiente. Solo los dos ultimos deben tumbarlo, y a proposito.
+            r = await orq.escrituras(rps=5 if args.rapido else 8,
                                      segundos=8 if args.rapido else 25,
                                      sesion=acceso, inv=inv)
             guardar_muestras(r, salida / "muestras_escrituras.csv")
             informe["escrituras"] = r.resumen()
             informe["escrituras_por_operacion"] = r.por_operacion()
             rep.grafica_operaciones(r.por_operacion(), img / "carga-escrituras.png",
-                                    "Coste de cada escritura con 25 peticiones/s")
+                                    "Coste de cada escritura con 8 peticiones/s")
 
         if not solo or "dura" in solo:
             _titulo("4. Solo las consultas caras")
             informe.setdefault("esperas", {})["consultas caras"] = await orq.en_pie("consultas caras")
             marca("busqueda dura")
-            r = await orq.busqueda_dura(rps=5 if args.rapido else 12,
+            # 4 y no 12: las consultas caras saturan cuatro veces antes que
+            # la mezcla normal, asi que su caudal seguro es mucho mas bajo.
+            r = await orq.busqueda_dura(rps=2 if args.rapido else 4,
                                         segundos=8 if args.rapido else 25,
                                         sesion=acceso, inv=inv)
             guardar_muestras(r, salida / "muestras_busqueda_dura.csv")
             informe["busqueda_dura"] = r.resumen()
             informe["busqueda_dura_por_operacion"] = r.por_operacion()
             rep.grafica_operaciones(r.por_operacion(), img / "carga-consultas-caras.png",
-                                    "Coste de cada consulta cara con 12 peticiones/s")
+                                    "Coste de cada consulta cara con 4 peticiones/s")
 
         if not solo or "resistencia" in solo:
             _titulo("5. Resistencia: caudal sostenido")
             informe.setdefault("esperas", {})["resistencia"] = await orq.en_pie("resistencia")
             marca("resistencia")
-            # 10 y no 20: a 20 sostenidas el sistema se cae, y este escenario
+            # 6 y no 20: a 20 sostenidas el sistema se cae, y este escenario
             # busca degradacion lenta y deriva de memoria, no el acantilado.
             # El acantilado lo mide la escalera de caudal sostenible (#9).
-            r = await orq.resistencia(rps=10, segundos=20 if args.rapido else 120,
+            r = await orq.resistencia(rps=6, segundos=20 if args.rapido else 120,
                                       sesion=acceso, inv=inv)
             guardar_muestras(r, salida / "muestras_resistencia.csv")
             informe["resistencia"] = r.resumen()

@@ -1,22 +1,17 @@
 Registro de ContactHub durante las pruebas del reto 7
 ======================================================================
 
-Extracto. El registro completo de la sesion tiene 302 015 lineas; aqui va
+Extracto. El registro completo de la sesion tiene 56 011 lineas; aqui va
 lo que sostiene los apartados 5 y 8.8 del informe.
 
 1. RECUENTO DE ERRORES DEL SERVIDOR
 ----------------------------------------------------------------------
-    2376  sqlalchemy.exc.TimeoutError: QueuePool limit of size 5 overflow 10 reached, connection timed out, timeout 30.
-      29  sqlite3.IntegrityError: UNIQUE constraint failed: labels.owner_id, labels.name_key
-      29  sqlalchemy.exc.IntegrityError: 
+     400  sqlalchemy.exc.TimeoutError: QueuePool limit of size 5 overflow 10 reached, connection timed out, timeout 30.
 
-  Dos clases de error, con causas distintas:
+  Causas:
 
   - Las esperas de conexion que caducan (TimeoutError) son la saturacion
     del pool: 15 conexiones para 40 hilos. Apartado 5 del informe.
-  - El fallo de UNIQUE en labels es una carrera al crear una etiqueta
-    nueva desde dos peticiones a la vez. Apartado 8.8. Se reproduce con
-    solo dos altas simultaneas.
 
 2. LA ESPERA DE CONEXION QUE CADUCA, TRAZA COMPLETA
 ----------------------------------------------------------------------
@@ -144,157 +139,26 @@ sqlalchemy.exc.TimeoutError: QueuePool limit of size 5 overflow 10 reached, conn
 
 3. LA CARRERA DE LA ETIQUETA, TRAZA COMPLETA
 ----------------------------------------------------------------------
-ERROR:    Exception in ASGI application
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.11/dist-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
-    self.dialect.do_execute(
-  File "/usr/local/lib/python3.11/dist-packages/sqlalchemy/engine/default.py", line 952, in do_execute
-    cursor.execute(statement, parameters)
-sqlite3.IntegrityError: UNIQUE constraint failed: labels.owner_id, labels.name_key
+  En esta sesion no aparece: el escenario de escrituras corre a 8
+  peticiones/s y la carrera necesita dos altas coincidiendo en el
+  mismo instante con una etiqueta que todavia no existe.
 
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.11/dist-packages/uvicorn/protocols/http/httptools_impl.py", line 422, in run_asgi
-    result = await app(  # type: ignore[func-returns-value]
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
-    return await self.app(scope, receive, send)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/fastapi/applications.py", line 1163, in __call__
-    await super().__call__(scope, receive, send)
-  File "/usr/local/lib/python3.11/dist-packages/starlette/applications.py", line 96, in __call__
-    await self.middleware_stack(scope, receive, send)
-  File "/usr/local/lib/python3.11/dist-packages/starlette/middleware/errors.py", line 186, in __call__
-    raise exc
-  File "/usr/local/lib/python3.11/dist-packages/starlette/middleware/errors.py", line 164, in __call__
-    await self.app(scope, receive, _send)
-  File "/usr/local/lib/python3.11/dist-packages/starlette/middleware/base.py", line 193, in __call__
-    response = await self.dispatch_func(request, call_next)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/tmp/claude-0/-home-user-proyectos-IA/db83a872-979f-5963-951c-46be038c9803/scratchpad/nuevo/ch/ContactHub/app/main.py", line 70, in hardening
-    response = await call_next(request)
-               ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/starlette/middleware/base.py", line 168, in call_next
-    raise app_exc from app_exc.__cause__ or app_exc.__context__
-  File "/usr/local/lib/python3.11/dist-packages/starlette/middleware/base.py", line 144, in coro
-    await self.app(scope, receive_or_disconnect, send_no_error)
-  File "/usr/local/lib/python3.11/dist-packages/starlette/middleware/exceptions.py", line 63, in __call__
-    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
-  File "/usr/local/lib/python3.11/dist-packages/starlette/_exception_handler.py", line 53, in wrapped_app
-    raise exc
-  File "/usr/local/lib/python3.11/dist-packages/starlette/_exception_handler.py", line 42, in wrapped_app
-    await app(scope, receive, sender)
-  File "/usr/local/lib/python3.11/dist-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
-    await self.app(scope, receive, send)
-  File "/usr/local/lib/python3.11/dist-packages/starlette/routing.py", line 670, in __call__
-    await self.middleware_stack(scope, receive, send)
-  File "/usr/local/lib/python3.11/dist-packages/fastapi/routing.py", line 2734, in app
-    await route.handle(scope, receive, send)
-  File "/usr/local/lib/python3.11/dist-packages/fastapi/routing.py", line 1780, in handle
-    await self.original_router.handle(scope, receive, send)
-  File "/usr/local/lib/python3.11/dist-packages/fastapi/routing.py", line 2789, in handle
-    await included_router._handle_selected(scope, receive, send)
-  File "/usr/local/lib/python3.11/dist-packages/fastapi/routing.py", line 1800, in _handle_selected
-    await original_route.handle(scope, receive, send)
-  File "/usr/local/lib/python3.11/dist-packages/fastapi/routing.py", line 1279, in handle
-    await app(scope, receive, send)
-  File "/usr/local/lib/python3.11/dist-packages/fastapi/routing.py", line 158, in app
-    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
-  File "/usr/local/lib/python3.11/dist-packages/starlette/_exception_handler.py", line 53, in wrapped_app
-    raise exc
-  File "/usr/local/lib/python3.11/dist-packages/starlette/_exception_handler.py", line 42, in wrapped_app
-    await app(scope, receive, sender)
-  File "/usr/local/lib/python3.11/dist-packages/fastapi/routing.py", line 144, in app
-    response = await f(request)
-               ^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/fastapi/routing.py", line 706, in app
-    raw_response = await run_endpoint_function(
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/fastapi/routing.py", line 354, in run_endpoint_function
-    return await run_in_threadpool(dependant.call, **values)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/starlette/concurrency.py", line 34, in run_in_threadpool
-    return await anyio.to_thread.run_sync(func)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/anyio/to_thread.py", line 65, in run_sync
-    return await get_async_backend().run_sync_in_worker_thread(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/anyio/_backends/_asyncio.py", line 2706, in run_sync_in_worker_thread
-    return await future
-           ^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/anyio/_backends/_asyncio.py", line 1100, in run
-    result = context.run(func, *args)
-             ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/tmp/claude-0/-home-user-proyectos-IA/db83a872-979f-5963-951c-46be038c9803/scratchpad/nuevo/ch/ContactHub/app/api/contacts.py", line 59, in create_contact
-    return svc.create(user.id, data, actor_id=user.id)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/tmp/claude-0/-home-user-proyectos-IA/db83a872-979f-5963-951c-46be038c9803/scratchpad/nuevo/ch/ContactHub/app/services/contacts.py", line 80, in create
-    self.db.commit()
-  File "/usr/local/lib/python3.11/dist-packages/sqlalchemy/orm/session.py", line 2035, in commit
-    trans.commit(_to_root=True)
-  File "<string>", line 2, in commit
-  File "/usr/local/lib/python3.11/dist-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
-    ret_value = fn(self, *arg, **kw)
-                ^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/sqlalchemy/orm/session.py", line 1316, in commit
-    self._prepare_impl()
-  File "<string>", line 2, in _prepare_impl
-  File "/usr/local/lib/python3.11/dist-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
-    ret_value = fn(self, *arg, **kw)
-                ^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/sqlalchemy/orm/session.py", line 1290, in _prepare_impl
-    self.session.flush()
-  File "/usr/local/lib/python3.11/dist-packages/sqlalchemy/orm/session.py", line 4353, in flush
-    self._flush(objects)
-  File "/usr/local/lib/python3.11/dist-packages/sqlalchemy/orm/session.py", line 4488, in _flush
-    with util.safe_reraise():
-  File "/usr/local/lib/python3.11/dist-packages/sqlalchemy/util/langhelpers.py", line 122, in __exit__
-    raise exc_value.with_traceback(exc_tb)
-  File "/usr/local/lib/python3.11/dist-packages/sqlalchemy/orm/session.py", line 4449, in _flush
-    flush_context.execute()
-  File "/usr/local/lib/python3.11/dist-packages/sqlalchemy/orm/unitofwork.py", line 465, in execute
-    rec.execute(self)
-  File "/usr/local/lib/python3.11/dist-packages/sqlalchemy/orm/unitofwork.py", line 641, in execute
-    util.preloaded.orm_persistence.save_obj(
-  File "/usr/local/lib/python3.11/dist-packages/sqlalchemy/orm/persistence.py", line 94, in save_obj
-    _emit_insert_statements(
-  File "/usr/local/lib/python3.11/dist-packages/sqlalchemy/orm/persistence.py", line 1049, in _emit_insert_statements
-    result = connection.execute(
-             ^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/sqlalchemy/engine/base.py", line 1421, in execute
-    return meth(
-           ^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/sqlalchemy/sql/elements.py", line 526, in _execute_on_connection
-    return connection._execute_clauseelement(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/sqlalchemy/engine/base.py", line 1643, in _execute_clauseelement
-    ret = self._execute_context(
-          ^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
-    return self._exec_single_context(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.11/dist-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
-    self._handle_dbapi_exception(
-  File "/usr/local/lib/python3.11/dist-packages/sqlalchemy/engine/base.py", line 2365, in _handle_dbapi_exception
-    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
-  File "/usr/local/lib/python3.11/dist-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
-    self.dialect.do_execute(
-  File "/usr/local/lib/python3.11/dist-packages/sqlalchemy/engine/default.py", line 952, in do_execute
-    cursor.execute(statement, parameters)
-sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) UNIQUE constraint failed: labels.owner_id, labels.name_key
+  La traza completa, y la reproduccion deliberada que la provoca con
+  solo dos peticiones simultaneas, estan en el apartado 8.8 del
+  informe. Es un defecto real y reproducible al 100 %, aunque una
+  sesion de carga normal no siempre lo dispare.
 
 4. PETICIONES ATENDIDAS CORRECTAMENTE (muestra)
 ----------------------------------------------------------------------
-  2026-09-20 01:05:10,640 INFO contacthub GET /health -> 200 45ms rid=4b377cf94f3849519dcece6ca3edcb56
-  2026-09-20 01:05:10,878 INFO contacthub POST /api/v1/auth/login -> 200 67ms rid=c7701d90fad74d35a2b14df1cf0798dc
-  2026-09-20 01:05:10,884 INFO contacthub GET /api/v1/auth/me -> 200 4ms rid=f19af1f3f7df48aa96f8bcf2982190c3
-  2026-09-20 01:05:10,937 INFO contacthub GET /health -> 200 1ms rid=c6155d2c79b8401993706a582eeef713
-  2026-09-20 01:05:12,430 INFO contacthub GET /api/v1/contacts -> 200 1413ms rid=2c3f9e40a12a4b8d909cecef50479ad4
-  2026-09-20 01:05:12,747 INFO contacthub GET /api/v1/contacts -> 200 1727ms rid=10a85336480c4c1891959f6972ffcc14
-  2026-09-20 01:05:13,111 INFO contacthub GET /health -> 200 5ms rid=57b3cd66b8b241f0a8023385a6900d50
-  2026-09-20 01:05:13,159 INFO contacthub GET /api/v1/contacts -> 200 2140ms rid=438142ec553841a5b76be9c9c26c9bff
-  2026-09-20 01:05:13,237 INFO contacthub GET /api/v1/contacts -> 200 2218ms rid=82f427146de04a74bf36f29f9df2c02e
-  2026-09-20 01:05:13,329 INFO contacthub GET /api/v1/contacts -> 200 2310ms rid=612e8fe365704ca9820b940d20d3e984
+  2026-09-20 03:26:04,862 INFO contacthub GET /health -> 200 45ms rid=3bf8afa57d93416ca81fcc9a3aafe3f6
+  2026-09-20 03:26:05,095 INFO contacthub POST /api/v1/auth/login -> 200 83ms rid=74d9f29c8ffb461b87a9c759b07ba327
+  2026-09-20 03:26:05,101 INFO contacthub GET /api/v1/auth/me -> 200 5ms rid=9c03131bc4324db8b55e99042d9edbf1
+  2026-09-20 03:26:05,222 INFO contacthub GET /api/v1/stats -> 200 66ms rid=20f5f82e28e449ef8591d325dd8d6269
+  2026-09-20 03:26:05,344 INFO contacthub GET /api/v1/stats -> 200 56ms rid=d934a06b244645658fd66d0429167957
+  2026-09-20 03:26:05,374 INFO contacthub GET /api/v1/contacts -> 200 28ms rid=c863678fc93c449c8bf87dd86b3fb4c7
+  2026-09-20 03:26:05,388 INFO contacthub GET /api/v1/contacts -> 200 12ms rid=266169cc2bd84095b63dcd1f4951f29c
+  2026-09-20 03:26:05,402 INFO contacthub GET /api/v1/contacts -> 200 12ms rid=703a1ed858d24d2891b99cb8e3bcfad6
+  2026-09-20 03:26:05,417 INFO contacthub GET /api/v1/contacts -> 200 14ms rid=d3960b5cdc8b4804858d261da02fd7ec
+  2026-09-20 03:26:05,432 INFO contacthub GET /api/v1/contacts -> 200 13ms rid=fcae9dfaaa7a4c758fa5681002fafa6b
 
-  Total de respuestas 2xx en el registro: 9 196
+  Total de respuestas 2xx en el registro: 6 958
