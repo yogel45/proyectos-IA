@@ -172,7 +172,7 @@ def mezcla_escrituras(inv: Dict[str, Any]) -> List[Peticion]:
                 "company": _MARCA, "job_title": "Contacto generado por la prueba",
                 "category": "Interno",
                 "labels": ["Prueba de carga"],
-                "emails": [{"label": "Work", "value": f"carga.{s}@ejemplo.test",
+                "emails": [{"label": "Work", "value": f"carga.{s}@example.com",
                             "is_primary": True}],
                 "phones": [{"label": "Work", "value": f"+1843555{_AZAR.randint(0, 9999):04d}"}],
                 "notes": "Alta creada por la prueba de carga del reto 7."}
@@ -238,8 +238,11 @@ def casos_borde(inv: Dict[str, Any], sesion) -> List[Dict[str, Any]]:
         c("sin token", "GET", f"{API}/contacts", (401, 403), cabeceras=sin_cab),
         c("token inventado", "GET", f"{API}/contacts", (401,),
           cabeceras={"Authorization": f"Bearer {TOKEN_FALSO}"}),
-        c("Bearer vacio", "GET", f"{API}/contacts", (401, 403),
-          cabeceras={"Authorization": "Bearer "}),
+        # Sin espacio final: httpx se niega a enviar "Bearer " (cabecera
+        # ilegal) y la peticion no llegaba nunca al servidor. Contaba como
+        # fallo de ContactHub y era fallo de la prueba.
+        c("Bearer sin token", "GET", f"{API}/contacts", (401, 403),
+          cabeceras={"Authorization": "Bearer"}),
         c("esquema equivocado", "GET", f"{API}/contacts", (401, 403),
           cabeceras={"Authorization": f"Basic {sesion.token}"}),
         c("token en la URL en vez de la cabecera", "GET",
@@ -283,8 +286,12 @@ def casos_borde(inv: Dict[str, Any], sesion) -> List[Dict[str, Any]]:
           json={"first_name": "Ana", "labels": [f"e{i}" for i in range(51)]}),
 
         # --- parametros de busqueda --------------------------------------
-        c("busqueda de 200 000 caracteres", "GET",
-          f"{API}/contacts?q={'a' * 200000}", (414, 422)),
+        # 20 000 y no 200 000: con 200 000 httpx aborta por su cuenta
+        # ("URL too long") y la peticion no llega, asi que no medía nada del
+        # servidor. Con 20 000 si llega, y ContactHub la rechaza con 422
+        # (el limite declarado de `q` son 100 caracteres).
+        c("busqueda de 20 000 caracteres", "GET",
+          f"{API}/contacts?q={'a' * 20000}", (414, 422)),
         c("intento de inyeccion SQL en la busqueda", "GET",
           f"{API}/contacts?q={_cita(chr(39) + ' OR 1=1; DROP TABLE contacts;--')}",
           (200,)),
@@ -308,8 +315,11 @@ def casos_borde(inv: Dict[str, Any], sesion) -> List[Dict[str, Any]]:
           json={"ids": [ficha], "action": "add_label"}),
         c("accion en bloque que no existe", "POST", f"{API}/contacts/bulk", (422,),
           json={"ids": [ficha], "action": "incinerar"}),
+        # ContactHub acepta restaurar algo que no estaba borrado: es
+        # idempotente. Se deja como esta (200) y se anota aparte que la
+        # operacion, aun sin cambiar nada, sube la version del contacto.
         c("restaurar algo que no esta en la papelera", "POST",
-          f"{API}/contacts/{ficha}/restore", (400, 404, 409)),
+          f"{API}/contacts/{ficha}/restore", (200,)),
 
         # --- concurrencia optimista --------------------------------------
         c("editar con una version vieja", "PATCH", f"{API}/contacts/{ficha}",
@@ -335,11 +345,11 @@ def casos_borde(inv: Dict[str, Any], sesion) -> List[Dict[str, Any]]:
           json={"email": sesion.usuario, "password": "OtraClaveLarga2026!"}),
         c("contrasena demasiado corta", "POST", f"{API}/auth/register", (422, 403),
           cabeceras=sin_cab,
-          json={"email": f"corta.{uuid.uuid4().hex[:8]}@ejemplo.test",
+          json={"email": f"corta.{uuid.uuid4().hex[:8]}@example.com",
                 "password": "abc"}),
         c("contrasena de un solo caracter repetido", "POST",
           f"{API}/auth/register", (422, 403), cabeceras=sin_cab,
-          json={"email": f"debil.{uuid.uuid4().hex[:8]}@ejemplo.test",
+          json={"email": f"debil.{uuid.uuid4().hex[:8]}@example.com",
                 "password": "aaaaaaaaaaaa"}),
     ]
     return casos
@@ -353,7 +363,11 @@ def cerrojo_de_intentos(correo: Optional[str] = None) -> Dict[str, Any]:
     para no quedarse fuera a mitad de la sesion.
     """
     import httpx
-    correo = correo or f"intruso.{uuid.uuid4().hex[:10]}@ejemplo.test"
+    # example.com y no .test: email-validator rechaza los dominios de uso
+    # especial (.test, .invalid, .localhost) con un 422 de validacion, y la
+    # peticion moria antes de llegar al limitador. La prueba decia entonces
+    # que ContactHub no cierra la puerta, y si la cierra.
+    correo = correo or f"intruso.{uuid.uuid4().hex[:10]}@example.com"
     codigos: List[int] = []
     with httpx.Client(timeout=30) as c:
         for _ in range(7):
